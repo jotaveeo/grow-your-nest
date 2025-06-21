@@ -7,13 +7,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { useFinanceContext } from "@/contexts/FinanceContext"
+import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext"
 import { useToast } from "@/hooks/use-toast"
 import { ArrowLeft, Save } from "lucide-react"
 
 const NovoLancamento = () => {
   const navigate = useNavigate()
-  const { addTransaction, categories } = useFinanceContext()
+  const { addTransaction, categories } = useFinanceExtendedContext()
   const { toast } = useToast()
   
   const [formData, setFormData] = useState({

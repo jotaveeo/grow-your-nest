@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { 
   Transaction, 
@@ -73,6 +74,44 @@ export const useFinanceExtended = () => {
   useEffect(() => localStorage.setItem('financeflow_investments', JSON.stringify(investments)), [investments])
   useEffect(() => localStorage.setItem('financeflow_fixedexpenses', JSON.stringify(fixedExpenses)), [fixedExpenses])
   useEffect(() => localStorage.setItem('financeflow_incomesources', JSON.stringify(incomeSources)), [incomeSources])
+
+  // Transaction management (missing from previous implementation)
+  const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
+    const newTransaction: Transaction = {
+      ...transaction,
+      id: Date.now().toString()
+    }
+    setTransactions(prev => [newTransaction, ...prev])
+  }
+
+  const updateTransaction = (id: string, updates: Partial<Transaction>) => {
+    setTransactions(prev => prev.map(transaction => 
+      transaction.id === id ? { ...transaction, ...updates } : transaction
+    ))
+  }
+
+  const deleteTransaction = (id: string) => {
+    setTransactions(prev => prev.filter(transaction => transaction.id !== id))
+  }
+
+  // Category management
+  const addCategory = (category: Omit<Category, 'id'>) => {
+    const newCategory: Category = {
+      ...category,
+      id: Date.now().toString()
+    }
+    setCategories(prev => [newCategory, ...prev])
+  }
+
+  const updateCategory = (id: string, updates: Partial<Category>) => {
+    setCategories(prev => prev.map(category => 
+      category.id === id ? { ...category, ...updates } : category
+    ))
+  }
+
+  const deleteCategory = (id: string) => {
+    setCategories(prev => prev.filter(category => category.id !== id))
+  }
 
   // Financial Goals
   const addFinancialGoal = (goal: Omit<FinancialGoal, 'id' | 'createdAt'>) => {
@@ -177,6 +216,16 @@ export const useFinanceExtended = () => {
     // Existing
     transactions,
     categories,
+    
+    // Transaction management
+    addTransaction,
+    updateTransaction,
+    deleteTransaction,
+    
+    // Category management
+    addCategory,
+    updateCategory,
+    deleteCategory,
     
     // New data
     financialGoals,
