@@ -1,6 +1,5 @@
-
 import { useState } from "react"
-import { useFinanceContext } from "@/contexts/FinanceContext"
+import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -9,11 +8,27 @@ import { TrendChart } from "@/components/TrendChart"
 import { BarChart3, FileText, Download, Calendar, TrendingUp, TrendingDown } from "lucide-react"
 
 const Relatorios = () => {
-  const { transactions, getCategoryData } = useFinanceContext()
+  const { transactions, categories } = useFinanceExtendedContext()
   const [selectedPeriod, setSelectedPeriod] = useState("month")
   const [selectedYear, setSelectedYear] = useState("2024")
 
+  // Create getCategoryData function to match the expected format
+  const getCategoryData = () => {
+    const categoryData = categories.map(category => {
+      const categoryTransactions = transactions.filter(t => t.category === category.name)
+      const amount = categoryTransactions.reduce((sum, t) => sum + (t.type === 'expense' ? t.amount : 0), 0)
+      return {
+        ...category,
+        amount,
+        type: category.type
+      }
+    }).filter(item => item.amount > 0)
+    
+    return categoryData
+  }
+
   const categoryExpenses = getCategoryData().filter(item => item.type === 'expense')
+
   const monthlyExpenses = [
     { month: 'Jan', income: 5000, expenses: 3200 },
     { month: 'Fev', income: 5200, expenses: 3100 },
