@@ -1,106 +1,124 @@
 
-import { ArrowDownIcon, ArrowUpIcon, PlusCircle, TrendingUp, Wallet } from "lucide-react"
+import { useFinanceContext } from "@/contexts/FinanceContext"
 import { SummaryCard } from "@/components/SummaryCard"
 import { ExpenseChart } from "@/components/ExpenseChart"
 import { TrendChart } from "@/components/TrendChart"
-import { Button } from "@/components/ui/button"
-import { useFinanceContext } from "@/contexts/FinanceContext"
-import { Link } from "react-router-dom"
+import { TrendingUp, TrendingDown, DollarSign, CreditCard } from "lucide-react"
 
 const Dashboard = () => {
-  const { getSummary, getCategoryData } = useFinanceContext()
-  
-  // Get current month data
-  const now = new Date()
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0]
-  const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0]
-  
-  const summary = getSummary({ start: startOfMonth, end: endOfMonth })
-  const categoryData = getCategoryData({ start: startOfMonth, end: endOfMonth })
-  
-  const expenseData = categoryData.filter(item => item.type === 'expense')
-  const incomeData = categoryData.filter(item => item.type === 'income')
+  const { transactions, getBalance, getMonthlyExpenses, getCategoryExpenses } = useFinanceContext()
+
+  const balance = getBalance()
+  const monthlyExpenses = getMonthlyExpenses()
+  const categoryExpenses = getCategoryExpenses()
+
+  const totalIncome = transactions
+    .filter(t => t.type === 'income')
+    .reduce((sum, t) => sum + t.amount, 0)
+
+  const totalExpenses = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0)
 
   return (
-    <div className="p-6 space-y-8 animate-fade-in">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">
-            Visão geral das suas finanças em {new Date().toLocaleDateString('pt-BR', { 
-              month: 'long', 
-              year: 'numeric' 
-            })}
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
+        {/* Header */}
+        <div className="mb-6 lg:mb-8">
+          <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
+            Dashboard Financeiro
+          </h1>
+          <p className="text-sm lg:text-base text-muted-foreground">
+            Acompanhe suas finanças de forma inteligente
           </p>
         </div>
-        <Button asChild className="w-fit">
-          <Link to="/lancamento">
-            <PlusCircle className="mr-2 h-4 w-4" />
-            Novo Lançamento
-          </Link>
-        </Button>
-      </div>
 
-      {/* Summary Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard
-          title="Receitas"
-          value={`R$ ${summary.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-          icon={ArrowUpIcon}
-          className="border-l-4 border-l-success"
-        />
-        <SummaryCard
-          title="Despesas"
-          value={`R$ ${summary.expenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-          icon={ArrowDownIcon}
-          className="border-l-4 border-l-destructive"
-        />
-        <SummaryCard
-          title="Saldo"
-          value={`R$ ${summary.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
-          icon={Wallet}
-          className={`border-l-4 ${summary.balance >= 0 ? 'border-l-success' : 'border-l-destructive'}`}
-        />
-        <SummaryCard
-          title="Transações"
-          value={summary.transactionCount.toString()}
-          icon={TrendingUp}
-          className="border-l-4 border-l-primary"
-        />
-      </div>
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+          <SummaryCard
+            title="Saldo Total"
+            value={`R$ ${balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+            icon={DollarSign}
+            className={balance >= 0 ? "border-l-4 border-l-success" : "border-l-4 border-l-destructive"}
+          />
+          <SummaryCard
+            title="Receitas"
+            value={`R$ ${totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+            icon={TrendingUp}
+            className="border-l-4 border-l-success"
+          />
+          <SummaryCard
+            title="Despesas"
+            value={`R$ ${totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`}
+            icon={TrendingDown}
+            className="border-l-4 border-l-destructive"
+          />
+          <SummaryCard
+            title="Transações"
+            value={transactions.length.toString()}
+            icon={CreditCard}
+            className="border-l-4 border-l-primary"
+          />
+        </div>
 
-      {/* Charts */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <ExpenseChart 
-          data={expenseData} 
-          title="Despesas por Categoria" 
-        />
-        <ExpenseChart 
-          data={incomeData} 
-          title="Receitas por Categoria" 
-        />
-      </div>
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
+          <div className="w-full">
+            <ExpenseChart
+              data={categoryExpenses}
+              title="Gastos por Categoria"
+            />
+          </div>
+          <div className="w-full">
+            <TrendChart
+              data={monthlyExpenses}
+              title="Evolução Mensal"
+            />
+          </div>
+        </div>
 
-      {/* Trend Chart */}
-      <TrendChart />
-
-      {/* Quick Actions */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-950/20 dark:to-purple-950/20 rounded-lg p-6">
-        <h3 className="text-lg font-semibold mb-4">Ações Rápidas</h3>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="outline" asChild>
-            <Link to="/lancamento">Adicionar Transação</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/importar">Importar Planilha</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/relatorios">Ver Relatórios</Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to="/categorias">Gerenciar Categorias</Link>
-          </Button>
+        {/* Recent Transactions */}
+        <div className="bg-card rounded-lg border shadow-sm">
+          <div className="p-4 lg:p-6">
+            <h3 className="text-lg lg:text-xl font-semibold mb-4">Transações Recentes</h3>
+            <div className="space-y-3">
+              {transactions.slice(0, 5).map((transaction, index) => (
+                <div
+                  key={index}
+                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 lg:p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
+                >
+                  <div className="flex items-center gap-3 mb-2 sm:mb-0">
+                    <div className="text-lg">{transaction.category?.icon || '💰'}</div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm lg:text-base truncate">
+                        {transaction.description}
+                      </p>
+                      <p className="text-xs lg:text-sm text-muted-foreground">
+                        {transaction.category?.name || 'Sem categoria'} • {transaction.date}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between sm:justify-end gap-2">
+                    <span
+                      className={`text-sm lg:text-base font-semibold ${
+                        transaction.type === 'income'
+                          ? 'text-success'
+                          : 'text-destructive'
+                      }`}
+                    >
+                      {transaction.type === 'income' ? '+' : '-'}R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {transactions.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>Nenhuma transação encontrada</p>
+                  <p className="text-sm mt-1">Comece adicionando uma nova transação</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </div>

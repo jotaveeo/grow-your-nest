@@ -37,10 +37,10 @@ export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
-        <div className="bg-background border border-border rounded-lg p-3 shadow-lg">
+        <div className="bg-background border border-border rounded-lg p-3 shadow-lg max-w-xs">
           <div className="flex items-center gap-2">
-            <span>{data.icon}</span>
-            <span className="font-medium">{data.name}</span>
+            <span className="text-base">{data.icon}</span>
+            <span className="font-medium text-sm">{data.name}</span>
           </div>
           <p className="text-sm text-muted-foreground">
             R$ {data.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -55,14 +55,14 @@ export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
     if (!payload || payload.length === 0) return null
     
     return (
-      <div className="flex flex-wrap justify-center gap-4 mt-4">
+      <div className="flex flex-wrap justify-center gap-2 lg:gap-4 mt-4 px-2">
         {data.map((entry, index) => (
-          <div key={`legend-${index}`} className="flex items-center gap-2">
+          <div key={`legend-${index}`} className="flex items-center gap-1 lg:gap-2 min-w-0">
             <div 
-              className="w-3 h-3 rounded-full" 
+              className="w-3 h-3 rounded-full flex-shrink-0" 
               style={{ backgroundColor: entry.color }}
             />
-            <span className="text-sm">
+            <span className="text-xs lg:text-sm truncate">
               {entry.icon} {entry.name}
             </span>
           </div>
@@ -73,24 +73,24 @@ export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
 
   if (!data || data.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{title}</CardTitle>
+      <Card className="h-full">
+        <CardHeader className="px-4 lg:px-6 py-4 lg:py-6">
+          <CardTitle className="text-base lg:text-lg">{title}</CardTitle>
         </CardHeader>
-        <CardContent className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Nenhum dado disponível</p>
+        <CardContent className="flex items-center justify-center h-48 lg:h-64 px-4 lg:px-6">
+          <p className="text-muted-foreground text-sm lg:text-base">Nenhum dado disponível</p>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">{title}</CardTitle>
+    <Card className="h-full">
+      <CardHeader className="px-4 lg:px-6 py-4 lg:py-6">
+        <CardTitle className="text-base lg:text-lg">{title}</CardTitle>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={300}>
+      <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
+        <ResponsiveContainer width="100%" height={280}>
           <PieChart>
             <Pie
               data={data}
@@ -98,7 +98,7 @@ export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
               cy="50%"
               labelLine={false}
               label={renderCustomizedLabel}
-              outerRadius={100}
+              outerRadius={window.innerWidth < 768 ? 80 : 100}
               fill="#8884d8"
               dataKey="amount"
             >

@@ -9,6 +9,11 @@ import { AppSidebar } from "@/components/AppSidebar";
 import { FinanceProvider } from "@/contexts/FinanceContext";
 import Dashboard from "./pages/Dashboard";
 import NovoLancamento from "./pages/NovoLancamento";
+import Historico from "./pages/Historico";
+import Importar from "./pages/Importar";
+import Relatorios from "./pages/Relatorios";
+import Categorias from "./pages/Categorias";
+import Configuracoes from "./pages/Configuracoes";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,12 +36,11 @@ const App = () => (
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/lancamento" element={<NovoLancamento />} />
-                    {/* Placeholder routes - será implementado nas próximas iterações */}
-                    <Route path="/historico" element={<div className="p-6"><h1 className="text-2xl font-bold">Histórico - Em desenvolvimento</h1></div>} />
-                    <Route path="/importar" element={<div className="p-6"><h1 className="text-2xl font-bold">Importar - Em desenvolvimento</h1></div>} />
-                    <Route path="/relatorios" element={<div className="p-6"><h1 className="text-2xl font-bold">Relatórios - Em desenvolvimento</h1></div>} />
-                    <Route path="/categorias" element={<div className="p-6"><h1 className="text-2xl font-bold">Categorias - Em desenvolvimento</h1></div>} />
-                    <Route path="/configuracoes" element={<div className="p-6"><h1 className="text-2xl font-bold">Configurações - Em desenvolvimento</h1></div>} />
+                    <Route path="/historico" element={<Historico />} />
+                    <Route path="/importar" element={<Importar />} />
+                    <Route path="/relatorios" element={<Relatorios />} />
+                    <Route path="/categorias" element={<Categorias />} />
+                    <Route path="/configuracoes" element={<Configuracoes />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </div>
