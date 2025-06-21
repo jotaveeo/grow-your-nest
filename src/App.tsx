@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
-import { FinanceProvider } from "@/contexts/FinanceContext";
+import { FinanceExtendedProvider } from "@/contexts/FinanceExtendedContext";
 import Dashboard from "./pages/Dashboard";
 import NovoLancamento from "./pages/NovoLancamento";
 import Historico from "./pages/Historico";
@@ -14,6 +14,8 @@ import Importar from "./pages/Importar";
 import Relatorios from "./pages/Relatorios";
 import Categorias from "./pages/Categorias";
 import Configuracoes from "./pages/Configuracoes";
+import Metas from "./pages/Metas";
+import Wishlist from "./pages/Wishlist";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,7 +23,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <FinanceProvider>
+      <FinanceExtendedProvider>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -41,6 +43,8 @@ const App = () => (
                     <Route path="/relatorios" element={<Relatorios />} />
                     <Route path="/categorias" element={<Categorias />} />
                     <Route path="/configuracoes" element={<Configuracoes />} />
+                    <Route path="/metas" element={<Metas />} />
+                    <Route path="/wishlist" element={<Wishlist />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </div>
@@ -48,7 +52,7 @@ const App = () => (
             </div>
           </SidebarProvider>
         </BrowserRouter>
-      </FinanceProvider>
+      </FinanceExtendedProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

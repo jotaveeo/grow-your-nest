@@ -8,6 +8,16 @@ import {
   PlusCircle,
   Settings,
   Upload,
+  Target,
+  Heart,
+  PiggyBank,
+  Receipt,
+  Wallet,
+  CalendarDays,
+  Shield,
+  TrendingUp,
+  DollarSign,
+  FileBarChart,
 } from "lucide-react"
 import { Link, useLocation } from "react-router-dom"
 
@@ -39,20 +49,85 @@ const menuItems = [
     url: "/historico",
     icon: FileText,
   },
+]
+
+const planningItems = [
   {
-    title: "Importar",
-    url: "/importar",
-    icon: Upload,
+    title: "Metas Financeiras",
+    url: "/metas",
+    icon: Target,
   },
+  {
+    title: "Lista de Desejos",
+    url: "/wishlist",
+    icon: Heart,
+  },
+  {
+    title: "Meu Cofrinho",
+    url: "/cofrinho",
+    icon: PiggyBank,
+  },
+]
+
+const controlItems = [
+  {
+    title: "Minhas Dívidas",
+    url: "/dividas",
+    icon: Receipt,
+  },
+  {
+    title: "Cartões de Crédito",
+    url: "/cartoes",
+    icon: CreditCard,
+  },
+  {
+    title: "Calendário",
+    url: "/calendario",
+    icon: CalendarDays,
+  },
+  {
+    title: "Limites de Gastos",
+    url: "/limites",
+    icon: Shield,
+  },
+]
+
+const investmentItems = [
+  {
+    title: "Investimentos",
+    url: "/investimentos",
+    icon: TrendingUp,
+  },
+  {
+    title: "Fontes de Receita",
+    url: "/receitas",
+    icon: DollarSign,
+  },
+]
+
+const reportItems = [
   {
     title: "Relatórios",
     url: "/relatorios",
     icon: BarChart3,
   },
   {
+    title: "Controle do Ano",
+    url: "/controle-ano",
+    icon: FileBarChart,
+  },
+  {
+    title: "Importar",
+    url: "/importar",
+    icon: Upload,
+  },
+]
+
+const systemItems = [
+  {
     title: "Categorias",
     url: "/categorias",
-    icon: CreditCard,
+    icon: Wallet,
   },
   {
     title: "Configurações",
@@ -79,10 +154,115 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
+          <SidebarGroupLabel>Principal</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {menuItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location.pathname === item.url}
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Planejamento</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {planningItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location.pathname === item.url}
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Controle</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {controlItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location.pathname === item.url}
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Investimentos</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {investmentItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location.pathname === item.url}
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Relatórios</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {reportItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton 
+                    asChild 
+                    isActive={location.pathname === item.url}
+                  >
+                    <Link to={item.url}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Sistema</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {systemItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
