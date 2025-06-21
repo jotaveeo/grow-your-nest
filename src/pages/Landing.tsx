@@ -1,37 +1,62 @@
-
-import { ArrowRight, CheckCircle, Star, Shield, TrendingUp, Target, PieChart, Download, Users, MessageCircle } from "lucide-react";
+import {
+  ArrowRight,
+  CheckCircle,
+  Star,
+  Shield,
+  TrendingUp,
+  Target,
+  PieChart,
+  Download,
+  Users,
+  MessageCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const Landing = () => {
+  const [showDemo, setShowDemo] = useState(false);
+
   const benefits = [
     {
       icon: <TrendingUp className="w-8 h-8 text-primary" />,
       title: "Controle de Gastos Automático",
-      description: "Categorização inteligente das suas despesas com insights em tempo real"
+      description:
+        "Categorização inteligente das suas despesas com insights em tempo real",
     },
     {
       icon: <Target className="w-8 h-8 text-primary" />,
       title: "Limite de Categoria Inteligente",
-      description: "Defina limites por categoria e receba alertas antes de estourar o orçamento"
+      description:
+        "Defina limites por categoria e receba alertas antes de estourar o orçamento",
     },
     {
       icon: <Star className="w-8 h-8 text-primary" />,
       title: "Mural de Metas e Wishlist",
-      description: "Visualize seus objetivos e acompanhe o progresso de forma gamificada"
+      description:
+        "Visualize seus objetivos e acompanhe o progresso de forma gamificada",
     },
     {
       icon: <PieChart className="w-8 h-8 text-primary" />,
       title: "Relatórios e Gráficos Personalizados",
-      description: "Dashboards intuitivos com análises detalhadas do seu dinheiro"
+      description:
+        "Dashboards intuitivos com análises detalhadas do seu dinheiro",
     },
     {
       icon: <Download className="w-8 h-8 text-primary" />,
       title: "Exportação Fácil",
-      description: "Exporte seus dados em CSV, Excel ou PDF com apenas um clique"
-    }
+      description:
+        "Exporte seus dados em CSV, Excel ou PDF com apenas um clique",
+    },
   ];
 
   const plans = [
@@ -43,10 +68,10 @@ const Landing = () => {
         "Até 3 categorias",
         "Relatórios básicos",
         "1 meta ativa",
-        "Suporte por email"
+        "Suporte por email",
       ],
       cta: "Começar Grátis",
-      popular: false
+      popular: false,
     },
     {
       name: "Essencial",
@@ -58,10 +83,10 @@ const Landing = () => {
         "Todos os relatórios",
         "5 metas ativas",
         "Alertas por WhatsApp",
-        "Suporte prioritário"
+        "Suporte prioritário",
       ],
       cta: "Teste 7 Dias Grátis",
-      popular: true
+      popular: true,
     },
     {
       name: "Plus",
@@ -74,10 +99,10 @@ const Landing = () => {
         "Metas ilimitadas",
         "Planejamento anual",
         "Integração bancária",
-        "Suporte 24/7"
+        "Suporte 24/7",
       ],
       cta: "Teste 7 Dias Grátis",
-      popular: false
+      popular: false,
     },
     {
       name: "Pro",
@@ -90,51 +115,58 @@ const Landing = () => {
         "Consultoria mensal",
         "API personalizada",
         "Relatórios customizados",
-        "Gestor de conta dedicado"
+        "Gestor de conta dedicado",
       ],
       cta: "Teste 7 Dias Grátis",
-      popular: false
-    }
+      popular: false,
+    },
   ];
 
   const testimonials = [
     {
       name: "Marina Silva",
       role: "Freelancer Designer",
-      content: "Finalmente consegui organizar minha renda variável! O FinPlan+ me ajudou a economizar R$ 800 no primeiro mês.",
-      rating: 5
+      content:
+        "Finalmente consegui organizar minha renda variável! O FinPlan+ me ajudou a economizar R$ 800 no primeiro mês.",
+      rating: 5,
     },
     {
       name: "João Santos",
       role: "Estudante de Engenharia",
-      content: "Saí do vermelho em 3 meses usando as metas do app. Agora já tenho minha reserva de emergência!",
-      rating: 5
+      content:
+        "Saí do vermelho em 3 meses usando as metas do app. Agora já tenho minha reserva de emergência!",
+      rating: 5,
     },
     {
       name: "Ana Costa",
       role: "Pequena Investidora",
-      content: "Os relatórios são incríveis! Descobri onde estava perdendo dinheiro e aumentei meus investimentos em 40%.",
-      rating: 5
-    }
+      content:
+        "Os relatórios são incríveis! Descobri onde estava perdendo dinheiro e aumentei meus investimentos em 40%.",
+      rating: 5,
+    },
   ];
 
   const faqs = [
     {
       question: "Como funciona a integração com meu banco?",
-      answer: "Conectamos de forma segura com mais de 100 bancos brasileiros via Open Banking. Seus dados são criptografados e nunca compartilhados."
+      answer:
+        "Conectamos de forma segura com mais de 100 bancos brasileiros via Open Banking. Seus dados são criptografados e nunca compartilhados.",
     },
     {
       question: "Posso cancelar quando quiser?",
-      answer: "Sim! Não há fidelidade. Você pode cancelar a qualquer momento e continuar usando até o fim do período pago."
+      answer:
+        "Sim! Não há fidelidade. Você pode cancelar a qualquer momento e continuar usando até o fim do período pago.",
     },
     {
       question: "Meus dados estão seguros?",
-      answer: "Utilizamos criptografia bancária e certificação SSL. Seus dados ficam no Brasil e seguem a LGPD rigorosamente."
+      answer:
+        "Utilizamos criptografia bancária e certificação SSL. Seus dados ficam no Brasil e seguem a LGPD rigorosamente.",
     },
     {
       question: "Tem app mobile?",
-      answer: "Sim! Nosso app está disponível para iOS e Android, com sincronização automática entre dispositivos."
-    }
+      answer:
+        "Sim! Nosso app está disponível para iOS e Android, com sincronização automática entre dispositivos.",
+    },
   ];
 
   return (
@@ -142,13 +174,13 @@ const Landing = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-white" />
+          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center" aria-label="Logo FinPlan+">
+            <TrendingUp className="w-5 h-5 text-white" aria-hidden="true" />
           </div>
           <span className="text-xl font-bold text-gray-900">FinPlan+</span>
         </div>
-        <Button variant="outline" className="hidden md:flex">
-          Já tenho conta
+        <Button variant="outline" className="hidden md:flex" asChild>
+          <Link to="/login">Já tenho conta</Link>
         </Button>
       </header>
 
@@ -157,29 +189,46 @@ const Landing = () => {
         <Badge className="mb-6 bg-primary/10 text-primary hover:bg-primary/20">
           ✨ Mais de 10.000 pessoas já organizaram suas finanças
         </Badge>
-        
+
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
           Controle seu dinheiro <br />
           <span className="text-primary">antes que ele controle você</span>
         </h1>
-        
+
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Organize, visualize, defina metas e elimine dívidas. Tudo em um só lugar, 
-          de forma simples e inteligente.
+          Organize, visualize, defina metas e elimine dívidas. Tudo em um só
+          lugar, de forma simples e inteligente.
         </p>
-        
+
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-          <Button size="lg" className="bg-primary hover:bg-primary/90 text-lg px-8">
-            Comece de Graça Agora
-            <ArrowRight className="ml-2 w-5 h-5" />
+          <Button
+            size="lg"
+            className="bg-primary hover:bg-primary/90 text-lg px-8"
+            asChild
+          >
+            <Link to="/Cadastro">
+              Comece de Graça Agora
+              <ArrowRight className="ml-2 w-5 h-5" />
+            </Link>
           </Button>
-          <Button variant="outline" size="lg" className="text-lg px-8">
+          <Button
+            variant="outline"
+            size="lg"
+            className="text-lg px-8"
+            onClick={() => setShowDemo(true)}
+          >
             Ver Demonstração
           </Button>
         </div>
 
         <div className="text-sm text-gray-500">
           💳 Sem cartão de crédito • 🔒 100% seguro • ⚡ Setup em 2 minutos
+        </div>
+
+        <div className="flex justify-center gap-6 mt-8">
+          <img src="/logo-banco1.svg" alt="Banco 1" className="h-8" />
+          <img src="/logo-banco2.svg" alt="Banco 2" className="h-8" />
+          <img src="/logo-banco3.svg" alt="Banco 3" className="h-8" />
         </div>
       </section>
 
@@ -190,13 +239,17 @@ const Landing = () => {
             Por que milhares escolhem o FinPlan+?
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Recursos pensados especificamente para quem tem renda variável e quer ter controle total
+            Recursos pensados especificamente para quem tem renda variável e
+            quer ter controle total
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {benefits.map((benefit, index) => (
-            <Card key={index} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
+            <Card
+              key={index}
+              className="border-0 shadow-lg hover:shadow-xl transition-shadow"
+            >
               <CardHeader>
                 <div className="mb-4">{benefit.icon}</div>
                 <CardTitle className="text-xl">{benefit.title}</CardTitle>
@@ -224,7 +277,14 @@ const Landing = () => {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {plans.map((plan, index) => (
-            <Card key={index} className={`relative ${plan.popular ? 'border-primary shadow-xl scale-105' : 'border-gray-200'}`}>
+            <Card
+              key={index}
+              className={`relative ${
+                plan.popular
+                  ? "border-primary shadow-xl scale-105"
+                  : "border-gray-200"
+              }`}
+            >
               {plan.popular && (
                 <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
                   Mais Popular
@@ -234,7 +294,9 @@ const Landing = () => {
                 <CardTitle className="text-xl">{plan.name}</CardTitle>
                 <div className="py-4">
                   <span className="text-3xl font-bold">{plan.price}</span>
-                  {plan.period && <span className="text-gray-500">{plan.period}</span>}
+                  {plan.period && (
+                    <span className="text-gray-500">{plan.period}</span>
+                  )}
                 </div>
                 <CardDescription>{plan.description}</CardDescription>
               </CardHeader>
@@ -247,9 +309,13 @@ const Landing = () => {
                     </li>
                   ))}
                 </ul>
-                <Button 
-                  className={`w-full ${plan.popular ? 'bg-primary hover:bg-primary/90' : 'variant-outline'}`}
-                  variant={plan.popular ? 'default' : 'outline'}
+                <Button
+                  className={`w-full ${
+                    plan.popular
+                      ? "bg-primary hover:bg-primary/90"
+                      : "variant-outline"
+                  }`}
+                  variant={plan.popular ? "default" : "outline"}
                 >
                   {plan.cta}
                 </Button>
@@ -276,17 +342,24 @@ const Landing = () => {
               <CardContent className="pt-6">
                 <div className="flex mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <Star
+                      key={i}
+                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
+                    />
                   ))}
                 </div>
-                <p className="text-gray-600 mb-6 italic">"{testimonial.content}"</p>
+                <p className="text-gray-600 mb-6 italic">
+                  "{testimonial.content}"
+                </p>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
                     <Users className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <div className="font-semibold">{testimonial.name}</div>
-                    <div className="text-sm text-gray-500">{testimonial.role}</div>
+                    <div className="text-sm text-gray-500">
+                      {testimonial.role}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -354,17 +427,38 @@ const Landing = () => {
               A plataforma mais completa para controle financeiro pessoal.
             </p>
           </div>
-          
+
           <div>
             <h4 className="font-semibold mb-4">Produto</h4>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li>Funcionalidades</li>
-              <li>Preços</li>
-              <li>Segurança</li>
-              <li>API</li>
+              <li>
+                <Link to="/#benefits" className="hover:underline">
+                  Funcionalidades
+                </Link>
+              </li>
+              <li>
+                <Link to="/#pricing" className="hover:underline">
+                  Preços
+                </Link>
+              </li>
+              <li>
+                <Link to="/#faq" className="hover:underline">
+                  Segurança
+                </Link>
+              </li>
+              <li>
+                <a
+                  href="https://api.seusite.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  API
+                </a>
+              </li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="font-semibold mb-4">Suporte</h4>
             <ul className="space-y-2 text-sm text-gray-600">
@@ -374,7 +468,7 @@ const Landing = () => {
               <li>Comunidade</li>
             </ul>
           </div>
-          
+
           <div>
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-2 text-sm text-gray-600">
@@ -384,9 +478,9 @@ const Landing = () => {
             </ul>
           </div>
         </div>
-        
+
         <Separator className="my-8" />
-        
+
         <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
           <p>© 2024 FinPlan+. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4 mt-4 md:mt-0">
@@ -398,11 +492,38 @@ const Landing = () => {
 
       {/* Mobile CTA Fixed */}
       <div className="fixed bottom-4 left-4 right-4 md:hidden z-50">
-        <Button size="lg" className="w-full bg-primary hover:bg-primary/90 shadow-lg">
+        <Button
+          size="lg"
+          className="w-full bg-primary hover:bg-primary/90 shadow-lg"
+        >
           Começar de Graça
           <ArrowRight className="ml-2 w-5 h-5" />
         </Button>
       </div>
+
+      {showDemo && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-xl w-full relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500"
+              onClick={() => setShowDemo(false)}
+            >
+              ✕
+            </button>
+            <h3 className="text-xl font-bold mb-4">Demonstração do FinPlan+</h3>
+            <div className="aspect-w-16 aspect-h-9">
+              <iframe
+                src="https://www.youtube.com/embed/SEU_VIDEO_ID"
+                title="Demonstração"
+                frameBorder="0"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                className="w-full h-64"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

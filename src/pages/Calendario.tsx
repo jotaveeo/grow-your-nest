@@ -1,52 +1,87 @@
-
-import { useState } from "react"
-import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Calendar, Plus, TrendingUp, TrendingDown, DollarSign, Receipt } from "lucide-react"
+import { useState } from "react";
+import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Calendar,
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Receipt,
+} from "lucide-react";
 
 const Calendario = () => {
-  const { transactions } = useFinanceExtendedContext()
-  const [selectedYear, setSelectedYear] = useState("2024")
+  const { transactions } = useFinanceExtendedContext();
+  const [selectedYear, setSelectedYear] = useState("2024");
 
   const months = [
-    "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
-    "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
-  ]
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
 
   const getMonthlyData = () => {
     return months.map((month, index) => {
-      const monthTransactions = transactions.filter(t => {
-        const transactionDate = new Date(t.date)
-        return transactionDate.getMonth() === index && transactionDate.getFullYear() === parseInt(selectedYear)
-      })
+      const monthTransactions = transactions.filter((t) => {
+        const transactionDate = new Date(t.date);
+        return (
+          transactionDate.getMonth() === index &&
+          transactionDate.getFullYear() === parseInt(selectedYear)
+        );
+      });
 
       const income = monthTransactions
-        .filter(t => t.type === 'income')
-        .reduce((sum, t) => sum + t.amount, 0)
+        .filter((t) => t.type === "income")
+        .reduce((sum, t) => sum + t.amount, 0);
 
       const expenses = monthTransactions
-        .filter(t => t.type === 'expense')
-        .reduce((sum, t) => sum + t.amount, 0)
+        .filter((t) => t.type === "expense")
+        .reduce((sum, t) => sum + t.amount, 0);
 
-      const balance = income - expenses
+      const balance = income - expenses;
 
       return {
         month: `${month} ${selectedYear}`,
         income,
         expenses,
         balance,
-        transactions: monthTransactions.length
-      }
-    })
-  }
+        transactions: monthTransactions.length,
+      };
+    });
+  };
 
-  const monthlyData = getMonthlyData()
-  const totalIncome = monthlyData.reduce((sum, data) => sum + data.income, 0)
-  const totalExpenses = monthlyData.reduce((sum, data) => sum + data.expenses, 0)
-  const totalBalance = totalIncome - totalExpenses
+  const monthlyData = getMonthlyData();
+  const totalIncome = monthlyData.reduce((sum, data) => sum + data.income, 0);
+  const totalExpenses = monthlyData.reduce(
+    (sum, data) => sum + data.expenses,
+    0
+  );
+  const totalBalance = totalIncome - totalExpenses;
 
   return (
     <div className="min-h-screen bg-background">
@@ -100,11 +135,21 @@ const Calendario = () => {
                 <TableHeader>
                   <TableRow className="bg-muted/50">
                     <TableHead className="font-semibold">Mês</TableHead>
-                    <TableHead className="text-right font-semibold">Total de Ganhos</TableHead>
-                    <TableHead className="text-right font-semibold">Total Gastos Fixos</TableHead>
-                    <TableHead className="text-right font-semibold">Total Gastos Variáveis</TableHead>
-                    <TableHead className="text-right font-semibold">Total Dívidas</TableHead>
-                    <TableHead className="text-right font-semibold">Balanço</TableHead>
+                    <TableHead className="text-right font-semibold">
+                      Total de Ganhos
+                    </TableHead>
+                    <TableHead className="text-right font-semibold">
+                      Total Gastos Fixos
+                    </TableHead>
+                    <TableHead className="text-right font-semibold">
+                      Total Gastos Variáveis
+                    </TableHead>
+                    <TableHead className="text-right font-semibold">
+                      Total Dívidas
+                    </TableHead>
+                    <TableHead className="text-right font-semibold">
+                      Balanço
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -117,21 +162,30 @@ const Calendario = () => {
                         </div>
                       </TableCell>
                       <TableCell className="text-right font-medium text-success">
-                        R$ {data.income.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        R${" "}
+                        {data.income.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                        })}
                       </TableCell>
-                      <TableCell className="text-right">
-                        R$ 0,00
-                      </TableCell>
+                      <TableCell className="text-right">R$ 0,00</TableCell>
                       <TableCell className="text-right font-medium text-destructive">
-                        R$ {data.expenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        R${" "}
+                        {data.expenses.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                        })}
                       </TableCell>
-                      <TableCell className="text-right">
-                        R$ 0,00
-                      </TableCell>
-                      <TableCell className={`text-right font-bold ${
-                        data.balance >= 0 ? 'text-success' : 'text-destructive'
-                      }`}>
-                        R$ {data.balance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      <TableCell className="text-right">R$ 0,00</TableCell>
+                      <TableCell
+                        className={`text-right font-bold ${
+                          data.balance >= 0
+                            ? "text-success"
+                            : "text-destructive"
+                        }`}
+                      >
+                        R${" "}
+                        {data.balance.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                        })}
                       </TableCell>
                     </TableRow>
                   ))}
@@ -145,7 +199,10 @@ const Calendario = () => {
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground">SOMA</p>
                   <p className="font-bold text-success">
-                    R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    R${" "}
+                    {totalIncome.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                 </div>
                 <div className="text-center">
@@ -155,7 +212,10 @@ const Calendario = () => {
                 <div className="text-center">
                   <p className="text-xs text-muted-foreground">SOMA</p>
                   <p className="font-bold text-destructive">
-                    R$ {totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    R${" "}
+                    {totalExpenses.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                 </div>
                 <div className="text-center">
@@ -164,10 +224,15 @@ const Calendario = () => {
                 </div>
                 <div className="text-center lg:col-start-6">
                   <p className="text-xs text-muted-foreground">TOTAL</p>
-                  <p className={`font-bold text-lg ${
-                    totalBalance >= 0 ? 'text-success' : 'text-destructive'
-                  }`}>
-                    R$ {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  <p
+                    className={`font-bold text-lg ${
+                      totalBalance >= 0 ? "text-success" : "text-destructive"
+                    }`}
+                  >
+                    R${" "}
+                    {totalBalance.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                 </div>
               </div>
@@ -181,9 +246,14 @@ const Calendario = () => {
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs lg:text-sm font-medium text-muted-foreground">Receitas Totais</p>
+                  <p className="text-xs lg:text-sm font-medium text-muted-foreground">
+                    Receitas Totais
+                  </p>
                   <p className="text-lg lg:text-xl font-bold text-success">
-                    R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    R${" "}
+                    {totalIncome.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-success" />
@@ -195,9 +265,14 @@ const Calendario = () => {
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs lg:text-sm font-medium text-muted-foreground">Despesas Totais</p>
+                  <p className="text-xs lg:text-sm font-medium text-muted-foreground">
+                    Despesas Totais
+                  </p>
                   <p className="text-lg lg:text-xl font-bold text-destructive">
-                    R$ {totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    R${" "}
+                    {totalExpenses.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                 </div>
                 <TrendingDown className="h-8 w-8 text-destructive" />
@@ -209,11 +284,18 @@ const Calendario = () => {
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs lg:text-sm font-medium text-muted-foreground">Saldo Final</p>
-                  <p className={`text-lg lg:text-xl font-bold ${
-                    totalBalance >= 0 ? 'text-success' : 'text-destructive'
-                  }`}>
-                    R$ {totalBalance.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  <p className="text-xs lg:text-sm font-medium text-muted-foreground">
+                    Saldo Final
+                  </p>
+                  <p
+                    className={`text-lg lg:text-xl font-bold ${
+                      totalBalance >= 0 ? "text-success" : "text-destructive"
+                    }`}
+                  >
+                    R${" "}
+                    {totalBalance.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </p>
                 </div>
                 <DollarSign className="h-8 w-8 text-primary" />
@@ -225,7 +307,9 @@ const Calendario = () => {
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs lg:text-sm font-medium text-muted-foreground">Transações</p>
+                  <p className="text-xs lg:text-sm font-medium text-muted-foreground">
+                    Transações
+                  </p>
                   <p className="text-lg lg:text-xl font-bold">
                     {transactions.length}
                   </p>
@@ -237,7 +321,7 @@ const Calendario = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Calendario
+export default Calendario;

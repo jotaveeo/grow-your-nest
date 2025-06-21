@@ -1,4 +1,3 @@
-
 import {
   BarChart3,
   Calendar,
@@ -18,8 +17,8 @@ import {
   TrendingUp,
   DollarSign,
   FileBarChart,
-} from "lucide-react"
-import { Link, useLocation } from "react-router-dom"
+} from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 
 import {
   Sidebar,
@@ -31,7 +30,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 const menuItems = [
   {
@@ -49,7 +48,7 @@ const menuItems = [
     url: "/historico",
     icon: FileText,
   },
-]
+];
 
 const planningItems = [
   {
@@ -67,7 +66,7 @@ const planningItems = [
     url: "/cofrinho",
     icon: PiggyBank,
   },
-]
+];
 
 const controlItems = [
   {
@@ -90,7 +89,7 @@ const controlItems = [
     url: "/limites",
     icon: Shield,
   },
-]
+];
 
 const investmentItems = [
   {
@@ -103,7 +102,7 @@ const investmentItems = [
     url: "/receitas",
     icon: DollarSign,
   },
-]
+];
 
 const reportItems = [
   {
@@ -112,16 +111,11 @@ const reportItems = [
     icon: BarChart3,
   },
   {
-    title: "Controle do Ano",
-    url: "/controle-ano",
-    icon: FileBarChart,
-  },
-  {
     title: "Importar",
     url: "/importar",
     icon: Upload,
   },
-]
+];
 
 const systemItems = [
   {
@@ -134,10 +128,10 @@ const systemItems = [
     url: "/configuracoes",
     icon: Settings,
   },
-]
+];
 
 export function AppSidebar() {
-  const location = useLocation()
+  const location = useLocation();
 
   return (
     <Sidebar>
@@ -159,8 +153,8 @@ export function AppSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     isActive={location.pathname === item.url}
                   >
                     <Link to={item.url}>
@@ -180,8 +174,8 @@ export function AppSidebar() {
             <SidebarMenu>
               {planningItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     isActive={location.pathname === item.url}
                   >
                     <Link to={item.url}>
@@ -201,8 +195,8 @@ export function AppSidebar() {
             <SidebarMenu>
               {controlItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     isActive={location.pathname === item.url}
                   >
                     <Link to={item.url}>
@@ -222,8 +216,8 @@ export function AppSidebar() {
             <SidebarMenu>
               {investmentItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     isActive={location.pathname === item.url}
                   >
                     <Link to={item.url}>
@@ -243,8 +237,8 @@ export function AppSidebar() {
             <SidebarMenu>
               {reportItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     isActive={location.pathname === item.url}
                   >
                     <Link to={item.url}>
@@ -264,8 +258,8 @@ export function AppSidebar() {
             <SidebarMenu>
               {systemItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     isActive={location.pathname === item.url}
                   >
                     <Link to={item.url}>
@@ -280,5 +274,5 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>
-  )
+  );
 }
