@@ -6,7 +6,7 @@ import { TrendChart } from "@/components/TrendChart"
 import { TrendingUp, TrendingDown, DollarSign, CreditCard } from "lucide-react"
 
 const Dashboard = () => {
-  const { transactions, getBalance, getMonthlyExpenses, getCategoryExpenses } = useFinanceContext()
+  const { transactions, categories, getBalance, getMonthlyExpenses, getCategoryExpenses } = useFinanceContext()
 
   const balance = getBalance()
   const monthlyExpenses = getMonthlyExpenses()
@@ -82,35 +82,38 @@ const Dashboard = () => {
           <div className="p-4 lg:p-6">
             <h3 className="text-lg lg:text-xl font-semibold mb-4">Transações Recentes</h3>
             <div className="space-y-3">
-              {transactions.slice(0, 5).map((transaction, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col sm:flex-row sm:items-center justify-between p-3 lg:p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
-                >
-                  <div className="flex items-center gap-3 mb-2 sm:mb-0">
-                    <div className="text-lg">{transaction.category?.icon || '💰'}</div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-sm lg:text-base truncate">
-                        {transaction.description}
-                      </p>
-                      <p className="text-xs lg:text-sm text-muted-foreground">
-                        {transaction.category?.name || 'Sem categoria'} • {transaction.date}
-                      </p>
+              {transactions.slice(0, 5).map((transaction, index) => {
+                const category = categories.find(c => c.name === transaction.category)
+                return (
+                  <div
+                    key={index}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between p-3 lg:p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 mb-2 sm:mb-0">
+                      <div className="text-lg">{category?.icon || '💰'}</div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-sm lg:text-base truncate">
+                          {transaction.description}
+                        </p>
+                        <p className="text-xs lg:text-sm text-muted-foreground">
+                          {category?.name || 'Sem categoria'} • {transaction.date}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between sm:justify-end gap-2">
+                      <span
+                        className={`text-sm lg:text-base font-semibold ${
+                          transaction.type === 'income'
+                            ? 'text-success'
+                            : 'text-destructive'
+                        }`}
+                      >
+                        {transaction.type === 'income' ? '+' : '-'}R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between sm:justify-end gap-2">
-                    <span
-                      className={`text-sm lg:text-base font-semibold ${
-                        transaction.type === 'income'
-                          ? 'text-success'
-                          : 'text-destructive'
-                      }`}
-                    >
-                      {transaction.type === 'income' ? '+' : '-'}R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
               {transactions.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
                   <p>Nenhuma transação encontrada</p>

@@ -95,6 +95,56 @@ export const useFinance = () => {
     setCategories(prev => prev.filter(c => c.id !== id))
   }
 
+  // Calculate balance
+  const getBalance = () => {
+    const income = transactions
+      .filter(t => t.type === 'income')
+      .reduce((sum, t) => sum + t.amount, 0)
+    
+    const expenses = transactions
+      .filter(t => t.type === 'expense')
+      .reduce((sum, t) => sum + t.amount, 0)
+    
+    return income - expenses
+  }
+
+  // Get category expenses for charts
+  const getCategoryExpenses = () => {
+    const categoryTotals = transactions
+      .filter(t => t.type === 'expense')
+      .reduce((acc, transaction) => {
+        const category = categories.find(c => c.name === transaction.category)
+        if (!category) return acc
+        
+        if (!acc[transaction.category]) {
+          acc[transaction.category] = {
+            name: transaction.category,
+            amount: 0,
+            color: category.color,
+            icon: category.icon,
+            type: 'expense'
+          }
+        }
+        
+        acc[transaction.category].amount += transaction.amount
+        return acc
+      }, {} as Record<string, any>)
+
+    return Object.values(categoryTotals)
+  }
+
+  // Get monthly expenses for trend chart
+  const getMonthlyExpenses = () => {
+    return [
+      { month: 'Jan', income: 5000, expenses: 3200 },
+      { month: 'Fev', income: 5200, expenses: 3100 },
+      { month: 'Mar', income: 4800, expenses: 3400 },
+      { month: 'Abr', income: 5100, expenses: 3300 },
+      { month: 'Mai', income: 5300, expenses: 3500 },
+      { month: 'Jun', income: 5000, expenses: 3200 }
+    ]
+  }
+
   // Calculate summary
   const getSummary = (period?: { start: string; end: string }) => {
     let filteredTransactions = transactions
@@ -160,6 +210,9 @@ export const useFinance = () => {
     addCategory,
     updateCategory,
     deleteCategory,
+    getBalance,
+    getCategoryExpenses,
+    getMonthlyExpenses,
     getSummary,
     getCategoryData,
   }

@@ -5,23 +5,30 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Filter, Download, Eye, Trash2 } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Search, Filter, Trash2, Edit, Calendar } from "lucide-react"
 
 const Historico = () => {
-  const { transactions } = useFinanceContext()
+  const { transactions, categories, deleteTransaction } = useFinanceContext()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [filterCategory, setFilterCategory] = useState("all")
 
   const filteredTransactions = transactions.filter(transaction => {
-    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const category = categories.find(c => c.name === transaction.category)
+    const matchesSearch = transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (category?.name.toLowerCase().includes(searchTerm.toLowerCase()) || false)
     const matchesType = filterType === "all" || transaction.type === filterType
-    const matchesCategory = filterCategory === "all" || transaction.category?.name === filterCategory
-    
+    const matchesCategory = filterCategory === "all" || transaction.category === filterCategory
+
     return matchesSearch && matchesType && matchesCategory
   })
 
-  const categories = Array.from(new Set(transactions.map(t => t.category?.name).filter(Boolean)))
+  const handleDelete = (id: string) => {
+    if (window.confirm("Tem certeza que deseja excluir esta transação?")) {
+      deleteTransaction(id)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -45,7 +52,7 @@ const Historico = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -55,7 +62,7 @@ const Historico = () => {
                   className="pl-10"
                 />
               </div>
-              
+
               <Select value={filterType} onValueChange={setFilterType}>
                 <SelectTrigger>
                   <SelectValue placeholder="Tipo" />
@@ -73,18 +80,13 @@ const Historico = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todas as categorias</SelectItem>
-                  {categories.map(category => (
-                    <SelectItem key={category} value={category!}>
-                      {category}
+                  {categories.map((category) => (
+                    <SelectItem key={category.id} value={category.name}>
+                      {category.icon} {category.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-
-              <Button variant="outline" className="flex items-center gap-2">
-                <Download className="h-4 w-4" />
-                <span className="hidden sm:inline">Exportar</span>
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -92,63 +94,79 @@ const Historico = () => {
         {/* Transactions List */}
         <Card>
           <CardHeader className="px-4 lg:px-6 py-4">
-            <CardTitle className="text-base lg:text-lg">
+            <CardTitle className="text-base lg:text-lg flex items-center gap-2">
+              <Calendar className="h-4 w-4 lg:h-5 lg:w-5" />
               Transações ({filteredTransactions.length})
             </CardTitle>
           </CardHeader>
           <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
-            <div className="space-y-3">
-              {filteredTransactions.map((transaction, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col lg:flex-row lg:items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors gap-3"
-                >
-                  <div className="flex items-center gap-3 min-w-0 flex-1">
-                    <div className="text-lg flex-shrink-0">
-                      {transaction.category?.icon || '💰'}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-medium text-sm lg:text-base truncate">
-                        {transaction.description}
-                      </p>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs lg:text-sm text-muted-foreground">
-                        <span>{transaction.category?.name || 'Sem categoria'}</span>
-                        <span className="hidden sm:inline">•</span>
-                        <span>{transaction.date}</span>
+            {filteredTransactions.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <p>Nenhuma transação encontrada</p>
+                <p className="text-sm mt-1">Tente ajustar os filtros ou adicione uma nova transação</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredTransactions.map((transaction) => {
+                  const category = categories.find(c => c.name === transaction.category)
+                  return (
+                    <div
+                      key={transaction.id}
+                      className="flex flex-col lg:flex-row lg:items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors border"
+                    >
+                      <div className="flex items-start lg:items-center gap-3 mb-3 lg:mb-0 flex-1">
+                        <div className="text-xl mt-1 lg:mt-0">{category?.icon || '💰'}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                            <h3 className="font-medium text-sm lg:text-base truncate">
+                              {transaction.description}
+                            </h3>
+                            <Badge 
+                              variant={transaction.type === 'income' ? 'default' : 'destructive'}
+                              className="text-xs w-fit"
+                            >
+                              {transaction.type === 'income' ? 'Receita' : 'Despesa'}
+                            </Badge>
+                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 text-xs lg:text-sm text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              {category?.name || 'Sem categoria'}
+                            </span>
+                            <span>{transaction.date}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between lg:justify-end gap-3">
+                        <span
+                          className={`text-lg lg:text-xl font-bold ${
+                            transaction.type === 'income'
+                              ? 'text-success'
+                              : 'text-destructive'
+                          }`}
+                        >
+                          {transaction.type === 'income' ? '+' : '-'}R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </span>
+                        
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" className="h-8 w-8 p-0">
+                            <Edit className="h-3 w-3" />
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="destructive" 
+                            className="h-8 w-8 p-0"
+                            onClick={() => handleDelete(transaction.id)}
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between lg:justify-end gap-3">
-                    <span
-                      className={`text-sm lg:text-base font-semibold ${
-                        transaction.type === 'income'
-                          ? 'text-success'
-                          : 'text-destructive'
-                      }`}
-                    >
-                      {transaction.type === 'income' ? '+' : '-'}R$ {transaction.amount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </span>
-                    
-                    <div className="flex items-center gap-1">
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-              
-              {filteredTransactions.length === 0 && (
-                <div className="text-center py-12 text-muted-foreground">
-                  <p className="text-base lg:text-lg mb-2">Nenhuma transação encontrada</p>
-                  <p className="text-sm">Tente ajustar os filtros ou adicionar novas transações</p>
-                </div>
-              )}
-            </div>
+                  )
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

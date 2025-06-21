@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { useFinanceContext } from "@/contexts/Finance Context"
+import { useFinanceContext } from "@/contexts/FinanceContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -9,12 +9,19 @@ import { TrendChart } from "@/components/TrendChart"
 import { BarChart3, FileText, Download, Calendar, TrendingUp, TrendingDown } from "lucide-react"
 
 const Relatorios = () => {
-  const { transactions, getCategoryExpenses, getMonthlyExpenses } = useFinanceContext()
+  const { transactions, getCategoryData } = useFinanceContext()
   const [selectedPeriod, setSelectedPeriod] = useState("month")
   const [selectedYear, setSelectedYear] = useState("2024")
 
-  const categoryExpenses = getCategoryExpenses()
-  const monthlyExpenses = getMonthlyExpenses()
+  const categoryExpenses = getCategoryData().filter(item => item.type === 'expense')
+  const monthlyExpenses = [
+    { month: 'Jan', income: 5000, expenses: 3200 },
+    { month: 'Fev', income: 5200, expenses: 3100 },
+    { month: 'Mar', income: 4800, expenses: 3400 },
+    { month: 'Abr', income: 5100, expenses: 3300 },
+    { month: 'Mai', income: 5300, expenses: 3500 },
+    { month: 'Jun', income: 5000, expenses: 3200 }
+  ]
 
   const totalIncome = transactions
     .filter(t => t.type === 'income')
