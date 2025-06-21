@@ -16,6 +16,8 @@ import Categorias from "./pages/Categorias";
 import Configuracoes from "./pages/Configuracoes";
 import Metas from "./pages/Metas";
 import Wishlist from "./pages/Wishlist";
+import Calendario from "./pages/Calendario";
+import Limites from "./pages/Limites";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +47,8 @@ const App = () => (
                     <Route path="/configuracoes" element={<Configuracoes />} />
                     <Route path="/metas" element={<Metas />} />
                     <Route path="/wishlist" element={<Wishlist />} />
+                    <Route path="/calendario" element={<Calendario />} />
+                    <Route path="/limites" element={<Limites />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </div>
