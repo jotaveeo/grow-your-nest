@@ -3,40 +3,61 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsi
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useFinanceContext } from '@/contexts/FinanceContext'
 
-export const TrendChart = () => {
+interface TrendChartProps {
+  data?: any[]
+  title?: string
+}
+
+export const TrendChart = ({ data: propData, title = "Evolução Mensal" }: TrendChartProps) => {
   const { transactions } = useFinanceContext()
 
-  // Group transactions by month
-  const monthlyData = transactions.reduce((acc, transaction) => {
-    const date = new Date(transaction.date)
-    const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-    
-    if (!acc[monthYear]) {
-      acc[monthYear] = {
-        month: new Date(date.getFullYear(), date.getMonth(), 1).toLocaleDateString('pt-BR', { 
-          month: 'short', 
-          year: 'numeric' 
-        }),
-        receitas: 0,
-        despesas: 0,
-        saldo: 0
+  // Use prop data if provided, otherwise generate from transactions
+  const chartData = propData || (() => {
+    // Group transactions by month
+    const monthlyData = transactions.reduce((acc, transaction) => {
+      const date = new Date(transaction.date)
+      const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+      
+      if (!acc[monthYear]) {
+        acc[monthYear] = {
+          month: new Date(date.getFullYear(), date.getMonth(), 1).toLocaleDateString('pt-BR', { 
+            month: 'short', 
+            year: 'numeric' 
+          }),
+          receitas: 0,
+          despesas: 0,
+          saldo: 0
+        }
+      }
+      
+      if (transaction.type === 'income') {
+        acc[monthYear].receitas += transaction.amount
+      } else {
+        acc[monthYear].despesas += transaction.amount
+      }
+      
+      acc[monthYear].saldo = acc[monthYear].receitas - acc[monthYear].despesas
+      
+      return acc
+    }, {} as Record<string, any>)
+
+    return Object.values(monthlyData).sort((a: any, b: any) => 
+      new Date(a.month).getTime() - new Date(b.month).getTime()
+    )
+  })()
+
+  // Transform data format if needed (for backward compatibility)
+  const transformedData = chartData.map((item: any) => {
+    if (item.income !== undefined && item.expenses !== undefined) {
+      return {
+        month: item.month,
+        receitas: item.income,
+        despesas: item.expenses,
+        saldo: item.income - item.expenses
       }
     }
-    
-    if (transaction.type === 'income') {
-      acc[monthYear].receitas += transaction.amount
-    } else {
-      acc[monthYear].despesas += transaction.amount
-    }
-    
-    acc[monthYear].saldo = acc[monthYear].receitas - acc[monthYear].despesas
-    
-    return acc
-  }, {} as Record<string, any>)
-
-  const chartData = Object.values(monthlyData).sort((a: any, b: any) => 
-    new Date(a.month).getTime() - new Date(b.month).getTime()
-  )
+    return item
+  })
 
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
@@ -54,11 +75,11 @@ export const TrendChart = () => {
     return null
   }
 
-  if (!chartData || chartData.length === 0) {
+  if (!transformedData || transformedData.length === 0) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">Evolução Mensal</CardTitle>
+          <CardTitle className="text-lg">{title}</CardTitle>
         </CardHeader>
         <CardContent className="flex items-center justify-center h-64">
           <p className="text-muted-foreground">Nenhum dado disponível</p>
@@ -70,11 +91,11 @@ export const TrendChart = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-lg">Evolução Mensal</CardTitle>
+        <CardTitle className="text-lg">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
-          <LineChart data={chartData}>
+          <LineChart data={transformedData}>
             <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
             <XAxis 
               dataKey="month" 
