@@ -51,6 +51,26 @@ export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
     return null
   }
 
+  const CustomLegend = ({ payload }: any) => {
+    if (!payload || payload.length === 0) return null
+    
+    return (
+      <div className="flex flex-wrap justify-center gap-4 mt-4">
+        {data.map((entry, index) => (
+          <div key={`legend-${index}`} className="flex items-center gap-2">
+            <div 
+              className="w-3 h-3 rounded-full" 
+              style={{ backgroundColor: entry.color }}
+            />
+            <span className="text-sm">
+              {entry.icon} {entry.name}
+            </span>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   if (!data || data.length === 0) {
     return (
       <Card>
@@ -87,15 +107,7 @@ export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
               ))}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
-            <Legend 
-              verticalAlign='bottom' 
-              height={36}
-              formatter={(value, entry) => (
-                <span style={{ color: entry.color }}>
-                  {entry.payload.icon} {value}
-                </span>
-              )}
-            />
+            <Legend content={<CustomLegend />} />
           </PieChart>
         </ResponsiveContainer>
       </CardContent>
