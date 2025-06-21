@@ -1,6 +1,5 @@
-
 import { useState } from "react"
-import { useFinanceContext } from "@/contexts/FinanceContext"
+import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -9,7 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Search, Filter, Trash2, Edit, Calendar } from "lucide-react"
 
 const Historico = () => {
-  const { transactions, categories, deleteTransaction } = useFinanceContext()
+  const { transactions, categories, deleteTransaction } = useFinanceExtendedContext()
   const [searchTerm, setSearchTerm] = useState("")
   const [filterType, setFilterType] = useState("all")
   const [filterCategory, setFilterCategory] = useState("all")
