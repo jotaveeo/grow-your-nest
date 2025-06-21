@@ -1,7 +1,7 @@
 
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useFinanceContext } from '@/contexts/FinanceContext'
+import { useFinanceExtendedContext } from '@/contexts/FinanceExtendedContext'
 
 interface TrendChartProps {
   data?: any[]
@@ -9,7 +9,7 @@ interface TrendChartProps {
 }
 
 export const TrendChart = ({ data: propData, title = "Evolução Mensal" }: TrendChartProps) => {
-  const { transactions } = useFinanceContext()
+  const { transactions } = useFinanceExtendedContext()
 
   // Use prop data if provided, otherwise generate from transactions
   const chartData = propData || (() => {
