@@ -75,11 +75,12 @@ export const useFinanceExtended = () => {
   useEffect(() => localStorage.setItem('financeflow_fixedexpenses', JSON.stringify(fixedExpenses)), [fixedExpenses])
   useEffect(() => localStorage.setItem('financeflow_incomesources', JSON.stringify(incomeSources)), [incomeSources])
 
-  // Transaction management (missing from previous implementation)
-  const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
+  // Transaction management - Fixed to auto-generate createdAt
+  const addTransaction = (transaction: Omit<Transaction, 'id' | 'createdAt'>) => {
     const newTransaction: Transaction = {
       ...transaction,
-      id: Date.now().toString()
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString()
     }
     setTransactions(prev => [newTransaction, ...prev])
   }
