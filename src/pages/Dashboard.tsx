@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { SummaryCard } from "@/components/SummaryCard";
@@ -10,12 +11,34 @@ import {
   CreditCard,
   PlusCircle,
   AlertTriangle,
+  Target,
+  PiggyBank,
+  Calendar,
+  BarChart3,
+  Shield,
+  Heart,
+  TrendingDown as DebtIcon,
+  Wallet,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
-  const { transactions, categories } = useFinanceExtendedContext();
+  const { 
+    transactions, 
+    categories, 
+    financialGoals, 
+    piggyBankEntries, 
+    debts, 
+    creditCards, 
+    wishlistItems,
+    getPiggyBankTotal,
+    getTotalDebt,
+    getTotalInvestments
+  } = useFinanceExtendedContext();
 
   // Calculate balance
   const getBalance = () => {
@@ -72,6 +95,9 @@ const Dashboard = () => {
   const balance = getBalance();
   const monthlyExpenses = getMonthlyExpenses();
   const categoryExpenses = getCategoryExpenses();
+  const piggyBankTotal = getPiggyBankTotal();
+  const totalDebt = getTotalDebt();
+  const totalInvestments = getTotalInvestments();
 
   const totalIncome = transactions
     .filter((t) => t.type === "income")
@@ -80,6 +106,13 @@ const Dashboard = () => {
   const totalExpenses = transactions
     .filter((t) => t.type === "expense")
     .reduce((sum, t) => sum + t.amount, 0);
+
+  // Get active goals progress
+  const activeGoals = financialGoals.filter(goal => goal.status === 'active');
+  const completedGoals = financialGoals.filter(goal => goal.status === 'completed');
+
+  // Get urgent wishlist items
+  const urgentWishlist = wishlistItems.filter(item => item.urgency === 'high' && item.status === 'thinking');
 
   // Ordenar transações por data (desc)
   const recentTransactions = [...transactions].sort(
@@ -100,7 +133,7 @@ const Dashboard = () => {
     if (loggedIn === "true") {
       setShowWelcome(true);
       setUserName(name || "");
-      setTimeout(() => setShowWelcome(false), 5000); // Esconde após 5s
+      setTimeout(() => setShowWelcome(false), 5000);
       localStorage.removeItem("financi_logged_in");
     }
   }, []);
@@ -127,12 +160,20 @@ const Dashboard = () => {
               Visão geral das suas finanças • {currentMonth}
             </p>
           </div>
-          <Button asChild className="gap-2">
-            <Link to="/lancamento">
-              <PlusCircle className="h-5 w-5" />
-              Nova Transação
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <Button asChild variant="outline" size="sm">
+              <Link to="/calendario">
+                <Calendar className="h-4 w-4 mr-2" />
+                Calendário
+              </Link>
+            </Button>
+            <Button asChild className="gap-2">
+              <Link to="/lancamento">
+                <PlusCircle className="h-5 w-5" />
+                Nova Transação
+              </Link>
+            </Button>
+          </div>
         </div>
 
         {/* Alerta de saldo negativo */}
@@ -146,7 +187,7 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Summary Cards */}
+        {/* Main Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
           <SummaryCard
             title="Saldo Total"
@@ -184,6 +225,166 @@ const Dashboard = () => {
           />
         </div>
 
+        {/* Extended Summary Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
+          <SummaryCard
+            title="Cofrinho"
+            value={`R$ ${piggyBankTotal.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+            })}`}
+            icon={PiggyBank}
+            className="border-l-4 border-l-blue-500"
+          />
+          <SummaryCard
+            title="Dívidas"
+            value={`R$ ${totalDebt.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+            })}`}
+            icon={DebtIcon}
+            className="border-l-4 border-l-red-500"
+          />
+          <SummaryCard
+            title="Investimentos"
+            value={`R$ ${totalInvestments.toLocaleString("pt-BR", {
+              minimumFractionDigits: 2,
+            })}`}
+            icon={TrendingUp}
+            className="border-l-4 border-l-green-500"
+          />
+          <SummaryCard
+            title="Cartões"
+            value={creditCards.length.toString()}
+            icon={Wallet}
+            className="border-l-4 border-l-purple-500"
+          />
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 mb-6 lg:mb-8">
+          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+            <Link to="/metas">
+              <Target className="h-5 w-5" />
+              <span className="text-xs">Metas</span>
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+            <Link to="/wishlist">
+              <Heart className="h-5 w-5" />
+              <span className="text-xs">Wishlist</span>
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+            <Link to="/cofrinho">
+              <PiggyBank className="h-5 w-5" />
+              <span className="text-xs">Cofrinho</span>
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+            <Link to="/limites">
+              <Shield className="h-5 w-5" />
+              <span className="text-xs">Limites</span>
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+            <Link to="/relatorios">
+              <BarChart3 className="h-5 w-5" />
+              <span className="text-xs">Relatórios</span>
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+            <Link to="/historico">
+              <Calendar className="h-5 w-5" />
+              <span className="text-xs">Histórico</span>
+            </Link>
+          </Button>
+        </div>
+
+        {/* Financial Goals & Wishlist Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6 lg:mb-8">
+          {/* Active Goals */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Target className="h-5 w-5 text-primary" />
+                Metas Ativas
+              </CardTitle>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/metas">Ver todas</Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {activeGoals.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Target className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>Nenhuma meta ativa</p>
+                  <Button asChild variant="link" size="sm" className="mt-2">
+                    <Link to="/metas">Criar primeira meta</Link>
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {activeGoals.slice(0, 3).map((goal) => {
+                    const progress = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+                    return (
+                      <div key={goal.id} className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-sm truncate">{goal.title}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {progress.toFixed(0)}%
+                          </Badge>
+                        </div>
+                        <Progress value={progress} className="h-2" />
+                        <div className="flex justify-between text-xs text-muted-foreground">
+                          <span>R$ {goal.currentAmount.toLocaleString('pt-BR')}</span>
+                          <span>R$ {goal.targetAmount.toLocaleString('pt-BR')}</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Urgent Wishlist */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Heart className="h-5 w-5 text-red-500" />
+                Wishlist Urgente
+              </CardTitle>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/wishlist">Ver todas</Link>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {urgentWishlist.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground">
+                  <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p>Nenhum item urgente</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {urgentWishlist.slice(0, 3).map((item) => (
+                    <div key={item.id} className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
+                      <div>
+                        <p className="font-medium text-sm">{item.title}</p>
+                        <p className="text-xs text-muted-foreground">{item.reason}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold text-sm">
+                          R$ {item.estimatedPrice.toLocaleString('pt-BR')}
+                        </p>
+                        <Badge variant="destructive" className="text-xs">Alta</Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
         {/* Charts Section */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
           <div className="w-full">
@@ -200,9 +401,14 @@ const Dashboard = () => {
         {/* Recent Transactions */}
         <div className="bg-card rounded-lg border shadow-sm">
           <div className="p-4 lg:p-6">
-            <h3 className="text-lg lg:text-xl font-semibold mb-4">
-              Transações Recentes
-            </h3>
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg lg:text-xl font-semibold">
+                Transações Recentes
+              </h3>
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/historico">Ver todas</Link>
+              </Button>
+            </div>
             <div className="space-y-3">
               {recentTransactions.slice(0, 5).map((transaction, index) => {
                 const category = categories.find(
