@@ -1,5 +1,7 @@
+
 import { useState } from "react";
-import { TrendingUp, Plus, Trash2, Edit, Calendar } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { TrendingUp, Plus, Trash2, Edit, Calendar, ArrowLeft } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +60,7 @@ const brokers = [
 ];
 
 const Investimentos = () => {
+  const navigate = useNavigate();
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [form, setForm] = useState<Omit<Investment, "id">>({
@@ -108,10 +111,18 @@ const Investimentos = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
+        {/* Header with Back Button */}
+        <div className="mb-6 flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
+        </div>
+
         {/* Header */}
-        <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in">
           <div className="flex items-center gap-3 mb-2">
             <TrendingUp className="h-8 w-8 text-primary" />
             <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
@@ -232,7 +243,7 @@ const Investimentos = () => {
           </Dialog>
         </div>
 
-        <Card className="mb-6 border-l-4 border-l-primary bg-primary/10">
+        <Card className="mb-6 border-l-4 border-l-primary bg-primary/10 animate-fade-in">
           <CardContent className="flex items-center gap-4 py-4">
             <TrendingUp className="h-6 w-6 text-primary" />
             <div>
@@ -246,7 +257,7 @@ const Investimentos = () => {
         </Card>
 
         {/* Tabela de investimentos */}
-        <Card>
+        <Card className="animate-fade-in" style={{ animationDelay: "200ms" }}>
           <CardHeader>
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />

@@ -1,4 +1,6 @@
+
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   CreditCard,
   Calendar,
@@ -7,6 +9,7 @@ import {
   Plus,
   Trash2,
   Edit,
+  ArrowLeft,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,8 +28,7 @@ const initialCards = [
   {
     id: 1,
     name: "Nubank",
-    color: "#9e02db",
-    logo: "/image1.png",
+    color: "#8a2be2",
     limit: 3000,
     dueDay: 11,
     main: true,
@@ -34,8 +36,7 @@ const initialCards = [
   {
     id: 2,
     name: "Banco do Brasil",
-    color: "#ffe600",
-    logo: "/image2.png",
+    color: "#ffcc00",
     limit: 2493,
     dueDay: 16,
     main: false,
@@ -43,8 +44,7 @@ const initialCards = [
   {
     id: 3,
     name: "Itaú",
-    color: "#ff7f32",
-    logo: "/image.png",
+    color: "#ff6600",
     limit: 6000,
     dueDay: 5,
     main: false,
@@ -52,8 +52,7 @@ const initialCards = [
   {
     id: 4,
     name: "Bradesco",
-    color: "#ff2a5c",
-    logo: "/image3.png",
+    color: "#cc092f",
     limit: 6000,
     dueDay: 5,
     main: false,
@@ -61,12 +60,12 @@ const initialCards = [
 ];
 
 const Cartoes = () => {
+  const navigate = useNavigate();
   const [cards, setCards] = useState(initialCards);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [form, setForm] = useState({
     name: "",
-    color: "#a259e6",
-    logo: "",
+    color: "#8a2be2",
     limit: "",
     dueDay: "",
     main: false,
@@ -101,8 +100,7 @@ const Cartoes = () => {
     }
     setForm({
       name: "",
-      color: "#a259e6",
-      logo: "",
+      color: "#8a2be2",
       limit: "",
       dueDay: "",
       main: false,
@@ -115,7 +113,6 @@ const Cartoes = () => {
     setForm({
       name: card.name,
       color: card.color,
-      logo: card.logo,
       limit: String(card.limit),
       dueDay: String(card.dueDay),
       main: card.main,
@@ -133,9 +130,16 @@ const Cartoes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
-        {/* Header */}
+        {/* Header with Back Button */}
+        <div className="mb-6 flex items-center gap-4">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Voltar
+          </Button>
+        </div>
+
         <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
@@ -154,8 +158,7 @@ const Cartoes = () => {
                 setEditingId(null);
                 setForm({
                   name: "",
-                  color: "#a259e6",
-                  logo: "",
+                  color: "#8a2be2",
                   limit: "",
                   dueDay: "",
                   main: false,
@@ -164,7 +167,7 @@ const Cartoes = () => {
             }}
           >
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
+              <Button className="flex items-center gap-2 animate-fade-in">
                 <Plus className="h-4 w-4" />
                 Novo Cartão
               </Button>
@@ -234,70 +237,67 @@ const Cartoes = () => {
           </Dialog>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {cards.map((card) => (
+        {/* Cards Grid - Novo design mais clean */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {cards.map((card, index) => (
             <Card
               key={card.id}
-              className="relative overflow-hidden shadow-md rounded-xl border-0"
-              style={{ background: card.color }}
+              className={`relative overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg animate-fade-in bg-card`}
+              style={{ animationDelay: `${index * 100}ms` }}
             >
-              <CardHeader className="flex flex-col items-center justify-center py-8">
-                {card.logo ? (
-                  <img src={card.logo} alt={card.name} className="h-14 mb-4" />
-                ) : (
-                  <CreditCard className="h-14 w-14 text-white mb-4" />
-                )}
-                <CardTitle
-                  className="text-2xl font-bold drop-shadow"
-                  style={{
-                    color: "#fff",
-                    textShadow: "0 1px 8px rgba(0,0,0,0.18)",
-                  }}
-                >
+              {/* Card Header com a cor do cartão */}
+              <div
+                className="h-16 relative"
+                style={{ backgroundColor: card.color }}
+              >
+                <div className="absolute inset-0 bg-black/10" />
+                <div className="absolute top-3 left-4 text-white font-bold text-lg">
                   {card.name}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="bg-white/80 dark:bg-black/30 text-black dark:text-white p-5 space-y-3 rounded-b-xl">
-                <div className="flex items-center gap-2">
-                  <Target className="h-4 w-4" />
-                  <span>
-                    Limite:{" "}
-                    <span className="font-semibold">
-                      R${" "}
-                      {card.limit.toLocaleString("pt-BR", {
+                </div>
+                {card.main && (
+                  <Badge className="absolute top-3 right-3 bg-green-600 text-white">
+                    <Star className="h-3 w-3 mr-1" />
+                    Principal
+                  </Badge>
+                )}
+              </div>
+
+              <CardContent className="p-4 space-y-4">
+                {/* Informações do cartão */}
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Target className="h-4 w-4 text-primary" />
+                    <span className="text-muted-foreground">Limite:</span>
+                    <span className="font-semibold ml-auto">
+                      R$ {card.limit.toLocaleString("pt-BR", {
                         minimumFractionDigits: 2,
                       })}
                     </span>
-                  </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="h-4 w-4 text-primary" />
+                    <span className="text-muted-foreground">Vencimento:</span>
+                    <span className="font-semibold ml-auto">Dia {card.dueDay}</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  <span>
-                    Vencimento: dia{" "}
-                    <span className="font-semibold">{card.dueDay}</span>
-                  </span>
-                </div>
-                <div className="flex flex-col gap-2 mt-2">
+
+                {/* Ações */}
+                <div className="flex flex-col gap-2 pt-2 border-t">
                   <Button
                     size="sm"
                     variant={card.main ? "default" : "outline"}
-                    className={
-                      card.main
-                        ? "bg-green-600 hover:bg-green-700 text-white font-semibold"
-                        : "font-semibold"
-                    }
                     onClick={() => handleSetMain(card.id)}
+                    className={card.main ? "bg-green-600 hover:bg-green-700" : ""}
                   >
-                    <Star className="h-4 w-4" />
-                    Definir como Principal
+                    <Star className="h-4 w-4 mr-2" />
+                    {card.main ? "Principal" : "Definir Principal"}
                   </Button>
                   <div className="flex gap-2">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => handleEdit(card)}
-                      className="flex-1 flex items-center justify-center"
+                      className="flex-1"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -305,24 +305,20 @@ const Cartoes = () => {
                       size="sm"
                       variant="destructive"
                       onClick={() => handleDelete(card.id)}
-                      className="flex-1 flex items-center justify-center"
+                      className="flex-1"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-                {card.main && (
-                  <Badge className="absolute top-3 right-3 bg-green-600 text-white shadow-lg px-3 py-1 rounded-full">
-                    Principal
-                  </Badge>
-                )}
               </CardContent>
             </Card>
           ))}
         </div>
 
+        {/* Empty State */}
         {cards.length === 0 && (
-          <Card className="mt-8">
+          <Card className="mt-8 animate-fade-in">
             <CardContent className="flex flex-col items-center justify-center py-12">
               <CreditCard className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">

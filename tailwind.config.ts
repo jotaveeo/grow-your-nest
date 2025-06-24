@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -66,13 +67,21 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
         success: {
-          DEFAULT: "hsl(142, 76%, 36%)",
-          foreground: "hsl(138, 76%, 97%)",
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
         },
         warning: {
-          DEFAULT: "hsl(38, 92%, 50%)",
-          foreground: "hsl(48, 96%, 89%)",
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
         },
+        // Cores para preparar backend
+        fintech: {
+          purple: "#8b5cf6",
+          blue: "#3b82f6",
+          green: "#10b981",
+          orange: "#f59e0b",
+          red: "#ef4444",
+        }
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -99,18 +108,66 @@ export default {
         "fade-in": {
           "0%": {
             opacity: "0",
-            transform: "translateY(10px)",
+            transform: "translateY(20px)",
           },
           "100%": {
             opacity: "1",
             transform: "translateY(0)",
           },
         },
+        "slide-in-left": {
+          "0%": {
+            opacity: "0",
+            transform: "translateX(-20px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateX(0)",
+          },
+        },
+        "slide-in-right": {
+          "0%": {
+            opacity: "0",
+            transform: "translateX(20px)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "translateX(0)",
+          },
+        },
+        "scale-in": {
+          "0%": {
+            opacity: "0",
+            transform: "scale(0.95)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "scale(1)",
+          },
+        },
+        "bounce-in": {
+          "0%": {
+            opacity: "0",
+            transform: "scale(0.3)",
+          },
+          "50%": {
+            opacity: "1",
+            transform: "scale(1.1)",
+          },
+          "100%": {
+            opacity: "1",
+            transform: "scale(1)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.3s ease-out",
+        "fade-in": "fade-in 0.6s ease-out",
+        "slide-in-left": "slide-in-left 0.5s ease-out",
+        "slide-in-right": "slide-in-right 0.5s ease-out",
+        "scale-in": "scale-in 0.4s ease-out",
+        "bounce-in": "bounce-in 0.6s ease-out",
       },
     },
   },
