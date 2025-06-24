@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { DollarSign, Plus, Trash2, Edit, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { BackButton } from "@/components/BackButton";
 
 type Income = {
   id: string;
@@ -90,16 +92,23 @@ const Receitas = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-4xl">
         {/* Header */}
-        <div className="mb-6 lg:mb-8 flex items-center gap-3">
-          <DollarSign className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-            Fontes de Receita
-          </h1>
+        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+          <BackButton />
         </div>
-        <Card className="mb-6 border-l-4 border-l-primary bg-primary/10">
+
+        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
+          <div className="flex items-center gap-3">
+            <DollarSign className="h-8 w-8 text-primary" />
+            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+              Fontes de Receita
+            </h1>
+          </div>
+        </div>
+
+        <Card className="mb-6 border-l-4 border-l-primary bg-primary/10 animate-scale-in" style={{ animationDelay: "200ms" }}>
           <CardContent className="flex items-center gap-4 py-4">
             <DollarSign className="h-6 w-6 text-primary" />
             <div>
@@ -111,7 +120,8 @@ const Receitas = () => {
             </div>
           </CardContent>
         </Card>
-        <div className="flex justify-end mb-4">
+
+        <div className="flex justify-end mb-4 animate-slide-in-left" style={{ animationDelay: "300ms" }}>
           <Dialog
             open={isDialogOpen}
             onOpenChange={(open) => {
@@ -204,8 +214,9 @@ const Receitas = () => {
             </DialogContent>
           </Dialog>
         </div>
+
         {/* Tabela de receitas */}
-        <Card>
+        <Card className="animate-scale-in" style={{ animationDelay: "400ms" }}>
           <CardHeader>
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-primary" />
@@ -236,7 +247,7 @@ const Receitas = () => {
                     </TableRow>
                   ) : (
                     incomes.map((inc) => (
-                      <TableRow key={inc.id}>
+                      <TableRow key={inc.id} className="hover:bg-muted/30 transition-colors">
                         <TableCell>{inc.source}</TableCell>
                         <TableCell>{inc.type}</TableCell>
                         <TableCell>
@@ -257,6 +268,7 @@ const Receitas = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => handleEdit(inc)}
+                            className="hover-scale"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -264,6 +276,7 @@ const Receitas = () => {
                             size="sm"
                             variant="destructive"
                             onClick={() => handleDelete(inc.id)}
+                            className="hover-scale"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

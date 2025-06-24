@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import { PiggyBank, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { BackButton } from "@/components/BackButton";
 
 const months = [
   "Janeiro",
@@ -35,20 +37,26 @@ const Cofrinho = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-4xl">
         {/* Header */}
-        <div className="mb-6 lg:mb-8 flex items-center gap-3">
-          <PiggyBank className="h-8 w-8 text-primary" />
-          <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-            Meu Cofrinho
-          </h1>
+        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+          <BackButton />
         </div>
-        <p className="text-muted-foreground mb-6">
-          Registre quanto você poupou em cada mês do ano.
-        </p>
 
-        <Card>
+        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
+          <div className="flex items-center gap-3 mb-2">
+            <PiggyBank className="h-8 w-8 text-primary" />
+            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+              Meu Cofrinho
+            </h1>
+          </div>
+          <p className="text-muted-foreground">
+            Registre quanto você poupou em cada mês do ano.
+          </p>
+        </div>
+
+        <Card className="animate-scale-in" style={{ animationDelay: "200ms" }}>
           <CardHeader className="px-4 lg:px-6 py-4">
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <Calendar className="h-4 w-4 lg:h-5 lg:w-5" />
@@ -68,7 +76,7 @@ const Cofrinho = () => {
                 </thead>
                 <tbody>
                   {months.map((month, idx) => (
-                    <tr key={month} className="border-b last:border-0">
+                    <tr key={month} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                       <td className="px-4 py-2 flex items-center gap-2 font-medium">
                         <Calendar className="h-4 w-4 text-primary" />
                         {month}

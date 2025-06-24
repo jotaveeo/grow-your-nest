@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { BackButton } from "@/components/BackButton";
 
 const months = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -76,124 +77,131 @@ const Dividas = () => {
   const filteredDebts = debts.filter((d) => d.month === selectedMonth);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="flex items-center gap-3 mb-2">
-            <Receipt className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-              Minhas Dívidas
-            </h1>
-          </div>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) {
-              setEditingId(null);
-              setForm({
-                description: "",
-                creditor: "",
-                date: "",
-                installmentValue: "",
-                totalValue: "",
-                month: selectedMonth,
-              });
-            }
-          }}>
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Nova Dívida
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>{editingId ? "Editar Dívida" : "Adicionar Dívida"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 py-2">
-                <div>
-                  <Label htmlFor="description">Descrição</Label>
-                  <Input
-                    id="description"
-                    value={form.description}
-                    onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="creditor">Para quem está devendo?</Label>
-                  <Input
-                    id="creditor"
-                    value={form.creditor}
-                    onChange={e => setForm(f => ({ ...f, creditor: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="date">Data</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={form.date}
-                    onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
-                    required
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <Label htmlFor="installmentValue">Valor da Parcela</Label>
-                    <Input
-                      id="installmentValue"
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      value={form.installmentValue}
-                      onChange={e => setForm(f => ({ ...f, installmentValue: e.target.value }))}
-                      required
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Label htmlFor="totalValue">Valor Total</Label>
-                    <Input
-                      id="totalValue"
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      value={form.totalValue}
-                      onChange={e => setForm(f => ({ ...f, totalValue: e.target.value }))}
-                      required
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="month">Mês de Referência</Label>
-                  <Select value={form.month} onValueChange={value => setForm(f => ({ ...f, month: value }))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {months.map((m) => (
-                        <SelectItem key={m} value={m}>{m}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button type="submit" className="w-full mt-2">
-                  {editingId ? "Salvar Alterações" : "Adicionar Dívida"}
+        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+          <BackButton />
+        </div>
+
+        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3 mb-2">
+              <Receipt className="h-8 w-8 text-primary" />
+              <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+                Minhas Dívidas
+              </h1>
+            </div>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) {
+                setEditingId(null);
+                setForm({
+                  description: "",
+                  creditor: "",
+                  date: "",
+                  installmentValue: "",
+                  totalValue: "",
+                  month: selectedMonth,
+                });
+              }
+            }}>
+              <DialogTrigger asChild>
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Nova Dívida
                 </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>{editingId ? "Editar Dívida" : "Adicionar Dívida"}</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 py-2">
+                  <div>
+                    <Label htmlFor="description">Descrição</Label>
+                    <Input
+                      id="description"
+                      value={form.description}
+                      onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="creditor">Para quem está devendo?</Label>
+                    <Input
+                      id="creditor"
+                      value={form.creditor}
+                      onChange={e => setForm(f => ({ ...f, creditor: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="date">Data</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      value={form.date}
+                      onChange={e => setForm(f => ({ ...f, date: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1">
+                      <Label htmlFor="installmentValue">Valor da Parcela</Label>
+                      <Input
+                        id="installmentValue"
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={form.installmentValue}
+                        onChange={e => setForm(f => ({ ...f, installmentValue: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <Label htmlFor="totalValue">Valor Total</Label>
+                      <Input
+                        id="totalValue"
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={form.totalValue}
+                        onChange={e => setForm(f => ({ ...f, totalValue: e.target.value }))}
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label htmlFor="month">Mês de Referência</Label>
+                    <Select value={form.month} onValueChange={value => setForm(f => ({ ...f, month: value }))}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {months.map((m) => (
+                          <SelectItem key={m} value={m}>{m}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button type="submit" className="w-full mt-2">
+                    {editingId ? "Salvar Alterações" : "Adicionar Dívida"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
         {/* Tabs de meses */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4 animate-slide-in-left" style={{ animationDelay: "200ms" }}>
           {months.map((m) => (
             <Button
               key={m}
               variant={selectedMonth === m ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedMonth(m)}
+              className="hover-lift"
             >
               {m}
             </Button>
@@ -201,7 +209,7 @@ const Dividas = () => {
         </div>
 
         {/* Tabela de dívidas */}
-        <Card>
+        <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
           <CardHeader>
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <Receipt className="h-4 w-4 text-primary" />
@@ -230,7 +238,7 @@ const Dividas = () => {
                     </TableRow>
                   ) : (
                     filteredDebts.map((debt) => (
-                      <TableRow key={debt.id}>
+                      <TableRow key={debt.id} className="hover:bg-muted/30 transition-colors">
                         <TableCell>{debt.description}</TableCell>
                         <TableCell>{debt.creditor}</TableCell>
                         <TableCell>
@@ -250,6 +258,7 @@ const Dividas = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => handleEdit(debt)}
+                            className="hover-scale"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -257,6 +266,7 @@ const Dividas = () => {
                             size="sm"
                             variant="destructive"
                             onClick={() => handleDelete(debt.id)}
+                            className="hover-scale"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>

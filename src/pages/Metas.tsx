@@ -11,6 +11,7 @@ import { Target, Plus, Calendar, TrendingUp, Archive, CheckCircle } from 'lucide
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { BackButton } from '@/components/BackButton'
 
 const Metas = () => {
   const { financialGoals, addFinancialGoal, updateFinancialGoal, deleteFinancialGoal } = useFinanceExtendedContext()
@@ -51,10 +52,14 @@ const Metas = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-6 lg:mb-8">
+        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+          <BackButton />
+        </div>
+
+        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
@@ -139,13 +144,13 @@ const Metas = () => {
 
         {/* Goals Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {financialGoals.map((goal) => {
+          {financialGoals.map((goal, index) => {
             const progress = getProgressPercentage(goal.currentAmount, goal.targetAmount)
             const isCompleted = progress >= 100
             const daysLeft = Math.ceil((new Date(goal.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
             
             return (
-              <Card key={goal.id} className="relative overflow-hidden">
+              <Card key={goal.id} className="relative overflow-hidden animate-scale-in hover-lift" style={{ animationDelay: `${200 + index * 100}ms` }}>
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg line-clamp-2">{goal.title}</CardTitle>
@@ -167,7 +172,7 @@ const Metas = () => {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
                       <p className="text-muted-foreground">Atual</p>
-                      <p className="font-semibold text-green-600">
+                      <p className="font-semibold text-success">
                         R$ {goal.currentAmount.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                       </p>
                     </div>
@@ -224,7 +229,7 @@ const Metas = () => {
           })}
 
           {financialGoals.length === 0 && (
-            <Card className="col-span-full">
+            <Card className="col-span-full animate-scale-in" style={{ animationDelay: "200ms" }}>
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <Target className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Nenhuma meta cadastrada</h3>
