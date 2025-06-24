@@ -1,12 +1,16 @@
-
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Upload, FileText, AlertCircle, CheckCircle, Download } from "lucide-react"
+import { BackButton } from "@/components/BackButton"
+import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext"
+import { useToast } from "@/hooks/use-toast"
 
 const Importar = () => {
+  const { addTransaction } = useFinanceExtendedContext()
+  const { toast } = useToast()
   const [file, setFile] = useState<File | null>(null)
   const [importing, setImporting] = useState(false)
   const [importResult, setImportResult] = useState<{
@@ -23,25 +27,108 @@ const Importar = () => {
     }
   }
 
+  const parseCSV = (csvText: string) => {
+    const lines = csvText.trim().split('\n')
+    const headers = lines[0].split('\t') // Usando tab como separador
+    const transactions = []
+
+    for (let i = 1; i < lines.length; i++) {
+      const values = lines[i].split('\t')
+      if (values.length >= 3) {
+        const dateStr = values[0]?.trim()
+        const description = values[1]?.trim()
+        const amountStr = values[2]?.trim()
+
+        if (dateStr && description && amountStr) {
+          // Processar a data
+          let formattedDate = dateStr
+          if (dateStr.includes(' ')) {
+            // Se tem horário, pegar apenas a data
+            formattedDate = dateStr.split(' ')[0]
+          }
+          
+          // Converter formato de data se necessário
+          if (formattedDate.includes('-') && formattedDate.length > 10) {
+            const date = new Date(formattedDate)
+            if (!isNaN(date.getTime())) {
+              formattedDate = date.toISOString().split('T')[0]
+            }
+          }
+
+          const amount = parseFloat(amountStr.replace(',', '.'))
+          if (!isNaN(amount)) {
+            transactions.push({
+              date: formattedDate,
+              description,
+              amount: Math.abs(amount),
+              type: amount < 0 ? 'expense' : 'income',
+              category: 'Sem categoria' // Categoria padrão
+            })
+          }
+        }
+      }
+    }
+    return transactions
+  }
+
   const handleImport = async () => {
     if (!file) return
     
     setImporting(true)
     
-    // Simular importação
-    setTimeout(() => {
+    try {
+      const text = await file.text()
+      const transactions = parseCSV(text)
+      
+      if (transactions.length === 0) {
+        setImportResult({
+          success: false,
+          message: "Nenhuma transação válida encontrada no arquivo"
+        })
+        setImporting(false)
+        return
+      }
+
+      // Adicionar cada transação
+      let successCount = 0
+      for (const transaction of transactions) {
+        try {
+          addTransaction(transaction)
+          successCount++
+        } catch (error) {
+          console.error('Erro ao adicionar transação:', error)
+        }
+      }
+
       setImportResult({
         success: true,
         message: "Arquivo importado com sucesso!",
-        count: Math.floor(Math.random() * 50) + 10
+        count: successCount
       })
-      setImporting(false)
-    }, 2000)
+
+      toast({
+        title: "Importação concluída",
+        description: `${successCount} transações foram importadas com sucesso.`,
+      })
+
+    } catch (error) {
+      setImportResult({
+        success: false,
+        message: "Erro ao processar o arquivo. Verifique o formato."
+      })
+      toast({
+        title: "Erro na importação",
+        description: "Verifique se o arquivo está no formato correto.",
+        variant: "destructive"
+      })
+    }
+    
+    setImporting(false)
   }
 
   const downloadTemplate = () => {
-    const csvContent = "data,descrição,valor,tipo,categoria\n2024-01-15,Compra supermercado,150.50,despesa,Alimentação\n2024-01-16,Salário,3000.00,receita,Trabalho"
-    const blob = new Blob([csvContent], { type: 'text/csv' })
+    const csvContent = "Data\tDescrição\tValor\n2024-01-15\tCompra supermercado\t-150.50\n2024-01-16\tSalário\t3000.00"
+    const blob = new Blob([csvContent], { type: 'text/tab-separated-values' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
@@ -51,10 +138,14 @@ const Importar = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-4xl">
         {/* Header */}
-        <div className="mb-6 lg:mb-8">
+        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+          <BackButton />
+        </div>
+
+        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
           <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
             Importar Transações
           </h1>
@@ -65,7 +156,7 @@ const Importar = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Upload Section */}
-          <Card>
+          <Card className="animate-scale-in" style={{ animationDelay: "200ms" }}>
             <CardHeader className="px-4 lg:px-6 py-4 lg:py-6">
               <CardTitle className="text-base lg:text-lg flex items-center gap-2">
                 <Upload className="h-4 w-4 lg:h-5 lg:w-5" />
@@ -81,13 +172,13 @@ const Importar = () => {
                   <Input
                     id="file-upload"
                     type="file"
-                    accept=".csv,.xlsx,.xls"
+                    accept=".csv,.txt"
                     onChange={handleFileChange}
                     className="cursor-pointer"
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Formatos suportados: CSV, Excel (.xlsx, .xls)
+                  Formatos suportados: CSV, TXT (separado por tabs)
                 </p>
               </div>
 
@@ -136,7 +227,7 @@ const Importar = () => {
           </Card>
 
           {/* Instructions */}
-          <Card>
+          <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
             <CardHeader className="px-4 lg:px-6 py-4 lg:py-6">
               <CardTitle className="text-base lg:text-lg">
                 Como Importar
@@ -196,7 +287,7 @@ const Importar = () => {
         </div>
 
         {/* Format Example */}
-        <Card className="mt-6">
+        <Card className="mt-6 animate-scale-in" style={{ animationDelay: "400ms" }}>
           <CardHeader className="px-4 lg:px-6 py-4">
             <CardTitle className="text-base lg:text-lg">
               Exemplo de Formato
@@ -210,28 +301,27 @@ const Importar = () => {
                     <th className="text-left py-2">Data</th>
                     <th className="text-left py-2">Descrição</th>
                     <th className="text-left py-2">Valor</th>
-                    <th className="text-left py-2">Tipo</th>
-                    <th className="text-left py-2">Categoria</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="py-1">2024-01-15</td>
-                    <td className="py-1">Compra supermercado</td>
-                    <td className="py-1">150.50</td>
-                    <td className="py-1">despesa</td>
-                    <td className="py-1">Alimentação</td>
+                    <td className="py-1">1900-05-21 00:00:00</td>
+                    <td className="py-1">Dinheiro do pai</td>
+                    <td className="py-1">100</td>
                   </tr>
                   <tr>
                     <td className="py-1">2024-01-16</td>
-                    <td className="py-1">Salário</td>
-                    <td className="py-1">3000.00</td>
-                    <td className="py-1">receita</td>
-                    <td className="py-1">Trabalho</td>
+                    <td className="py-1">Compra supermercado</td>
+                    <td className="py-1">-150.50</td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              * Valores negativos são considerados despesas, positivos como receitas
+              <br />
+              * Transações sem categoria serão marcadas como "Sem categoria"
+            </p>
           </CardContent>
         </Card>
       </div>

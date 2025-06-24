@@ -70,7 +70,7 @@ const NovoLancamento = () => {
           <BackButton />
         </div>
 
-        <div className="animate-slide-in-left">
+        <div>
           <h1 className="text-3xl font-bold tracking-tight">Novo Lançamento</h1>
           <p className="text-muted-foreground">
             Registre uma nova transação financeira
@@ -79,7 +79,7 @@ const NovoLancamento = () => {
 
         <br/>
 
-        <Card className="animate-scale-in" style={{ animationDelay: "200ms" }}>
+        <Card>
           <CardHeader>
             <CardTitle>Detalhes da Transação</CardTitle>
           </CardHeader>
