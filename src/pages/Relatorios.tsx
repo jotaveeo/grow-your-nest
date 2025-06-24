@@ -1,3 +1,4 @@
+
 import { useState } from "react"
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -6,11 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ExpenseChart } from "@/components/ExpenseChart"
 import { TrendChart } from "@/components/TrendChart"
 import { BarChart3, FileText, Download, Calendar, TrendingUp, TrendingDown } from "lucide-react"
+import { BackButton } from "@/components/BackButton"
+import { useToast } from "@/hooks/use-toast"
 
 const Relatorios = () => {
   const { transactions, categories } = useFinanceExtendedContext()
   const [selectedPeriod, setSelectedPeriod] = useState("month")
   const [selectedYear, setSelectedYear] = useState("2024")
+  const { toast } = useToast()
 
   // Create getCategoryData function to match the expected format
   const getCategoryData = () => {
@@ -47,15 +51,45 @@ const Relatorios = () => {
     .reduce((sum, t) => sum + t.amount, 0)
 
   const generateReport = () => {
-    // Simular geração de relatório
-    console.log('Gerando relatório para:', selectedPeriod, selectedYear)
+    // Simular geração de relatório com feedback
+    toast({
+      title: "Relatório Gerado com Sucesso!",
+      description: `Relatório ${selectedPeriod === 'month' ? 'mensal' : selectedPeriod === 'quarter' ? 'trimestral' : 'anual'} de ${selectedYear} foi processado.`,
+    })
+    
+    // Simular download
+    const reportContent = `
+Relatório Financeiro - ${selectedPeriod} ${selectedYear}
+==========================================
+
+Total de Receitas: R$ ${totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+Total de Despesas: R$ ${totalExpenses.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+Saldo Líquido: R$ ${(totalIncome - totalExpenses).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+Total de Transações: ${transactions.length}
+
+Gerado em: ${new Date().toLocaleDateString('pt-BR')}
+    `
+    
+    const blob = new Blob([reportContent], { type: 'text/plain' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `relatorio-${selectedPeriod}-${selectedYear}.txt`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-6 lg:mb-8">
+        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+          <BackButton />
+        </div>
+
+        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
           <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
             Relatórios Financeiros
           </h1>
@@ -65,7 +99,7 @@ const Relatorios = () => {
         </div>
 
         {/* Controls */}
-        <Card className="mb-6">
+        <Card className="mb-6 animate-scale-in" style={{ animationDelay: "200ms" }}>
           <CardHeader className="px-4 lg:px-6 py-4">
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <Calendar className="h-4 w-4 lg:h-5 lg:w-5" />
@@ -102,7 +136,7 @@ const Relatorios = () => {
                 </Select>
               </div>
 
-              <Button onClick={generateReport} className="flex items-center gap-2 w-full sm:w-auto">
+              <Button onClick={generateReport} className="flex items-center gap-2 w-full sm:w-auto hover-scale">
                 <Download className="h-4 w-4" />
                 <span>Gerar Relatório</span>
               </Button>
@@ -112,7 +146,7 @@ const Relatorios = () => {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
-          <Card className="border-l-4 border-l-success">
+          <Card className="border-l-4 border-l-success animate-scale-in" style={{ animationDelay: "300ms" }}>
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -126,7 +160,7 @@ const Relatorios = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-destructive">
+          <Card className="border-l-4 border-l-destructive animate-scale-in" style={{ animationDelay: "350ms" }}>
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -140,7 +174,7 @@ const Relatorios = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-primary">
+          <Card className="border-l-4 border-l-primary animate-scale-in" style={{ animationDelay: "400ms" }}>
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -156,7 +190,7 @@ const Relatorios = () => {
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-warning">
+          <Card className="border-l-4 border-l-warning animate-scale-in" style={{ animationDelay: "450ms" }}>
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -173,26 +207,30 @@ const Relatorios = () => {
 
         {/* Charts */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
-          <ExpenseChart
-            data={categoryExpenses}
-            title="Despesas por Categoria"
-          />
-          <TrendChart
-            data={monthlyExpenses}
-            title="Evolução Temporal"
-          />
+          <div className="animate-scale-in" style={{ animationDelay: "500ms" }}>
+            <ExpenseChart
+              data={categoryExpenses}
+              title="Despesas por Categoria"
+            />
+          </div>
+          <div className="animate-scale-in" style={{ animationDelay: "550ms" }}>
+            <TrendChart
+              data={monthlyExpenses}
+              title="Evolução Temporal"
+            />
+          </div>
         </div>
 
         {/* Detailed Analysis */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          <Card>
+          <Card className="animate-scale-in" style={{ animationDelay: "600ms" }}>
             <CardHeader className="px-4 lg:px-6 py-4">
               <CardTitle className="text-base lg:text-lg">Top Categorias de Gastos</CardTitle>
             </CardHeader>
             <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
               <div className="space-y-3">
                 {categoryExpenses.slice(0, 5).map((category, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
                     <div className="flex items-center gap-3">
                       <span className="text-lg">{category.icon}</span>
                       <span className="font-medium text-sm lg:text-base">{category.name}</span>
@@ -206,7 +244,7 @@ const Relatorios = () => {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="animate-scale-in" style={{ animationDelay: "650ms" }}>
             <CardHeader className="px-4 lg:px-6 py-4">
               <CardTitle className="text-base lg:text-lg">Insights Financeiros</CardTitle>
             </CardHeader>

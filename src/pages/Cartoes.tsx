@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import {
   CreditCard,
   Calendar,
@@ -9,7 +8,6 @@ import {
   Plus,
   Trash2,
   Edit,
-  ArrowLeft,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { BackButton } from "@/components/BackButton";
 
 const initialCards = [
   {
@@ -60,7 +59,6 @@ const initialCards = [
 ];
 
 const Cartoes = () => {
-  const navigate = useNavigate();
   const [cards, setCards] = useState(initialCards);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [form, setForm] = useState({
@@ -132,118 +130,117 @@ const Cartoes = () => {
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
-        {/* Header with Back Button */}
-        <div className="mb-6 flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
-          </Button>
+        {/* Header */}
+        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+          <BackButton />
         </div>
 
-        <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
-              <CreditCard className="h-6 w-6 lg:h-8 lg:w-8 text-primary" />
-              Meus Cartões de Crédito
-            </h1>
-            <p className="text-sm lg:text-base text-muted-foreground">
-              Gerencie seus cartões, limites e datas de vencimento
-            </p>
-          </div>
-          <Dialog
-            open={isDialogOpen}
-            onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) {
-                setEditingId(null);
-                setForm({
-                  name: "",
-                  color: "#8a2be2",
-                  limit: "",
-                  dueDay: "",
-                  main: false,
-                });
-              }
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2 animate-fade-in">
-                <Plus className="h-4 w-4" />
-                Novo Cartão
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingId ? "Editar Cartão" : "Adicionar Cartão"}
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleAddOrEditCard} className="space-y-4 py-2">
-                <div>
-                  <Label htmlFor="name">Nome do Cartão</Label>
-                  <Input
-                    id="name"
-                    value={form.name}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, name: e.target.value }))
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="color">Cor do Cartão</Label>
-                  <Input
-                    id="color"
-                    type="color"
-                    value={form.color}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, color: e.target.value }))
-                    }
-                    className="w-16 h-10 p-0"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="limit">Limite (R$)</Label>
-                  <Input
-                    id="limit"
-                    type="number"
-                    min={0}
-                    value={form.limit}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, limit: e.target.value }))
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="dueDay">Dia de Vencimento</Label>
-                  <Input
-                    id="dueDay"
-                    type="number"
-                    min={1}
-                    max={31}
-                    value={form.dueDay}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, dueDay: e.target.value }))
-                    }
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full mt-2">
-                  {editingId ? "Salvar Alterações" : "Adicionar Cartão"}
+        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+                <CreditCard className="h-6 w-6 lg:h-8 lg:w-8 text-primary" />
+                Meus Cartões de Crédito
+              </h1>
+              <p className="text-sm lg:text-base text-muted-foreground">
+                Gerencie seus cartões, limites e datas de vencimento
+              </p>
+            </div>
+            <Dialog
+              open={isDialogOpen}
+              onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) {
+                  setEditingId(null);
+                  setForm({
+                    name: "",
+                    color: "#8a2be2",
+                    limit: "",
+                    dueDay: "",
+                    main: false,
+                  });
+                }
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Novo Cartão
                 </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingId ? "Editar Cartão" : "Adicionar Cartão"}
+                  </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleAddOrEditCard} className="space-y-4 py-2">
+                  <div>
+                    <Label htmlFor="name">Nome do Cartão</Label>
+                    <Input
+                      id="name"
+                      value={form.name}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, name: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="color">Cor do Cartão</Label>
+                    <Input
+                      id="color"
+                      type="color"
+                      value={form.color}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, color: e.target.value }))
+                      }
+                      className="w-16 h-10 p-0"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="limit">Limite (R$)</Label>
+                    <Input
+                      id="limit"
+                      type="number"
+                      min={0}
+                      value={form.limit}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, limit: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="dueDay">Dia de Vencimento</Label>
+                    <Input
+                      id="dueDay"
+                      type="number"
+                      min={1}
+                      max={31}
+                      value={form.dueDay}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, dueDay: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full mt-2">
+                    {editingId ? "Salvar Alterações" : "Adicionar Cartão"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
 
-        {/* Cards Grid - Novo design mais clean */}
+        {/* Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {cards.map((card, index) => (
             <Card
               key={card.id}
-              className={`relative overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg animate-fade-in bg-card`}
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="relative overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg animate-scale-in hover-lift"
+              style={{ animationDelay: `${200 + index * 100}ms` }}
             >
               {/* Card Header com a cor do cartão */}
               <div
@@ -287,7 +284,7 @@ const Cartoes = () => {
                     size="sm"
                     variant={card.main ? "default" : "outline"}
                     onClick={() => handleSetMain(card.id)}
-                    className={card.main ? "bg-green-600 hover:bg-green-700" : ""}
+                    className={card.main ? "bg-green-600 hover:bg-green-700" : "hover-scale"}
                   >
                     <Star className="h-4 w-4 mr-2" />
                     {card.main ? "Principal" : "Definir Principal"}
@@ -297,7 +294,7 @@ const Cartoes = () => {
                       size="sm"
                       variant="outline"
                       onClick={() => handleEdit(card)}
-                      className="flex-1"
+                      className="flex-1 hover-scale"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -305,7 +302,7 @@ const Cartoes = () => {
                       size="sm"
                       variant="destructive"
                       onClick={() => handleDelete(card.id)}
-                      className="flex-1"
+                      className="flex-1 hover-scale"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -318,7 +315,7 @@ const Cartoes = () => {
 
         {/* Empty State */}
         {cards.length === 0 && (
-          <Card className="mt-8 animate-fade-in">
+          <Card className="mt-8 animate-scale-in" style={{ animationDelay: "200ms" }}>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <CreditCard className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">

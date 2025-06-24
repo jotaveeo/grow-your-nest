@@ -1,7 +1,6 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { TrendingUp, Plus, Trash2, Edit, Calendar, ArrowLeft } from "lucide-react";
+import { TrendingUp, Plus, Trash2, Edit, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,6 +28,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
+import { BackButton } from "@/components/BackButton";
 
 type Investment = {
   id: string;
@@ -60,7 +60,6 @@ const brokers = [
 ];
 
 const Investimentos = () => {
-  const navigate = useNavigate();
   const [investments, setInvestments] = useState<Investment[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [form, setForm] = useState<Omit<Investment, "id">>({
@@ -113,137 +112,135 @@ const Investimentos = () => {
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
-        {/* Header with Back Button */}
-        <div className="mb-6 flex items-center gap-4">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/dashboard")}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Voltar
-          </Button>
-        </div>
-
         {/* Header */}
-        <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in">
-          <div className="flex items-center gap-3 mb-2">
-            <TrendingUp className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
-              Investimentos
-            </h1>
-          </div>
-          <Dialog
-            open={isDialogOpen}
-            onOpenChange={(open) => {
-              setIsDialogOpen(open);
-              if (!open) {
-                setEditingId(null);
-                setForm({
-                  product: "",
-                  broker: "",
-                  type: "",
-                  amount: "",
-                  date: "",
-                });
-              }
-            }}
-          >
-            <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
-                <Plus className="h-4 w-4" />
-                Novo Investimento
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-md">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingId ? "Editar Investimento" : "Adicionar Investimento"}
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4 py-2">
-                <div>
-                  <Label htmlFor="product">Produto Financeiro</Label>
-                  <Input
-                    id="product"
-                    value={form.product}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, product: e.target.value }))
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="broker">Corretora</Label>
-                  <Select
-                    value={form.broker}
-                    onValueChange={(value) =>
-                      setForm((f) => ({ ...f, broker: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {brokers.map((b) => (
-                        <SelectItem key={b} value={b}>
-                          {b}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="type">Tipo de Investimento</Label>
-                  <Select
-                    value={form.type}
-                    onValueChange={(value) =>
-                      setForm((f) => ({ ...f, type: value }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {investmentTypes.map((t) => (
-                        <SelectItem key={t} value={t}>
-                          {t}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="amount">Valor Investido</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={form.amount}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, amount: e.target.value }))
-                    }
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="date">Data do Aporte</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={form.date}
-                    onChange={(e) =>
-                      setForm((f) => ({ ...f, date: e.target.value }))
-                    }
-                    required
-                  />
-                </div>
-                <Button type="submit" className="w-full mt-2">
-                  {editingId ? "Salvar Alterações" : "Adicionar Investimento"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+          <BackButton />
         </div>
 
-        <Card className="mb-6 border-l-4 border-l-primary bg-primary/10 animate-fade-in">
+        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="h-8 w-8 text-primary" />
+              <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
+                Investimentos
+              </h1>
+            </div>
+            <Dialog
+              open={isDialogOpen}
+              onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) {
+                  setEditingId(null);
+                  setForm({
+                    product: "",
+                    broker: "",
+                    type: "",
+                    amount: "",
+                    date: "",
+                  });
+                }
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button className="flex items-center gap-2">
+                  <Plus className="h-4 w-4" />
+                  Novo Investimento
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                  <DialogTitle>
+                    {editingId ? "Editar Investimento" : "Adicionar Investimento"}
+                  </DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4 py-2">
+                  <div>
+                    <Label htmlFor="product">Produto Financeiro</Label>
+                    <Input
+                      id="product"
+                      value={form.product}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, product: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="broker">Corretora</Label>
+                    <Select
+                      value={form.broker}
+                      onValueChange={(value) =>
+                        setForm((f) => ({ ...f, broker: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {brokers.map((b) => (
+                          <SelectItem key={b} value={b}>
+                            {b}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="type">Tipo de Investimento</Label>
+                    <Select
+                      value={form.type}
+                      onValueChange={(value) =>
+                        setForm((f) => ({ ...f, type: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {investmentTypes.map((t) => (
+                          <SelectItem key={t} value={t}>
+                            {t}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label htmlFor="amount">Valor Investido</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      value={form.amount}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, amount: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="date">Data do Aporte</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      value={form.date}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, date: e.target.value }))
+                      }
+                      required
+                    />
+                  </div>
+                  <Button type="submit" className="w-full mt-2">
+                    {editingId ? "Salvar Alterações" : "Adicionar Investimento"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+
+        <Card className="mb-6 border-l-4 border-l-primary bg-primary/10 animate-scale-in" style={{ animationDelay: "200ms" }}>
           <CardContent className="flex items-center gap-4 py-4">
             <TrendingUp className="h-6 w-6 text-primary" />
             <div>
@@ -257,7 +254,7 @@ const Investimentos = () => {
         </Card>
 
         {/* Tabela de investimentos */}
-        <Card className="animate-fade-in" style={{ animationDelay: "200ms" }}>
+        <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
           <CardHeader>
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" />
@@ -291,7 +288,7 @@ const Investimentos = () => {
                     </TableRow>
                   ) : (
                     investments.map((inv) => (
-                      <TableRow key={inv.id}>
+                      <TableRow key={inv.id} className="hover:bg-muted/30 transition-colors">
                         <TableCell className="font-medium">
                           {inv.product}
                         </TableCell>
@@ -319,6 +316,7 @@ const Investimentos = () => {
                             size="sm"
                             variant="outline"
                             onClick={() => handleEdit(inv)}
+                            className="hover-scale"
                           >
                             <Edit className="h-4 w-4" />
                           </Button>
@@ -326,6 +324,7 @@ const Investimentos = () => {
                             size="sm"
                             variant="destructive"
                             onClick={() => handleDelete(inv.id)}
+                            className="hover-scale"
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -337,12 +336,14 @@ const Investimentos = () => {
               </Table>
             </div>
             {/* Soma total */}
-            <div className="flex justify-end p-4 border-t bg-muted/30">
-              <span className="font-bold text-muted-foreground">
-                Soma R${" "}
-                {total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-              </span>
-            </div>
+            {investments.length > 0 && (
+              <div className="flex justify-end p-4 border-t bg-muted/30">
+                <span className="font-bold text-muted-foreground">
+                  Total Investido: R${" "}
+                  {total.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                </span>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
