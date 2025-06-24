@@ -288,7 +288,7 @@ const Investimentos = () => {
                           <Badge variant="secondary">{inv.broker}</Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge variant="success">{inv.type}</Badge>
+                          <Badge variant="outline">{inv.type}</Badge>
                         </TableCell>
                         <TableCell className="text-right">
                           R${" "}
