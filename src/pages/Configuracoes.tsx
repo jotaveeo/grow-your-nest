@@ -22,6 +22,7 @@ import {
   Upload,
   Trash2,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Configuracoes = () => {
   const [settings, setSettings] = useState({
@@ -35,6 +36,8 @@ const Configuracoes = () => {
     monthlyReports: true,
     dataBackup: true,
   });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   // Sincroniza o modo escuro com a tag <html>
   useEffect(() => {
@@ -85,6 +88,16 @@ const Configuracoes = () => {
     ) {
       console.log("Limpando dados...");
     }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      localStorage.setItem("financi_user_name", settings.name); // Salva o nome
+      navigate("/login");
+    }, 1200);
   };
 
   return (

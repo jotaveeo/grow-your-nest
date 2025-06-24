@@ -37,7 +37,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/landing" element={<Landing />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
             <Route
@@ -52,7 +52,7 @@ const App = () => (
                       </div>
                       <div className="flex-1 overflow-auto">
                         <Routes>
-                          <Route path="/" element={<Dashboard />} />
+                          <Route path="/dashboard" element={<Dashboard />} />
                           <Route
                             path="/lancamento"
                             element={<NovoLancamento />}

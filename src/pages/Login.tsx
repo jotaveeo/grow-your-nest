@@ -15,7 +15,8 @@ const Login = () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      navigate("/");
+      localStorage.setItem("financi_logged_in", "true");
+      navigate("/dashboard");
     }, 1000);
   };
 

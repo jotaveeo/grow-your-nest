@@ -25,7 +25,7 @@ const initialCards = [
   {
     id: 1,
     name: "Nubank",
-    color: "#a259e6",
+    color: "#9e02db",
     logo: "/image1.png",
     limit: 3000,
     dueDay: 11,
@@ -239,26 +239,26 @@ const Cartoes = () => {
           {cards.map((card) => (
             <Card
               key={card.id}
-              className="relative overflow-hidden shadow-lg"
+              className="relative overflow-hidden shadow-md rounded-xl border-0"
               style={{ background: card.color }}
             >
               <CardHeader className="flex flex-col items-center justify-center py-8">
                 {card.logo ? (
-                  <img src={card.logo} alt={card.name} className="h-12 mb-4" />
+                  <img src={card.logo} alt={card.name} className="h-14 mb-4" />
                 ) : (
-                  <CreditCard className="h-12 w-12 text-white mb-4" />
+                  <CreditCard className="h-14 w-14 text-white mb-4" />
                 )}
                 <CardTitle
                   className="text-2xl font-bold drop-shadow"
                   style={{
                     color: "#fff",
-                    textShadow: "0 1px 8px rgba(0,0,0,0.15)",
+                    textShadow: "0 1px 8px rgba(0,0,0,0.18)",
                   }}
                 >
                   {card.name}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="bg-white/80 dark:bg-black/30 text-black dark:text-white p-4 space-y-2 rounded-b-lg transition-colors">
+              <CardContent className="bg-white/80 dark:bg-black/30 text-black dark:text-white p-5 space-y-3 rounded-b-xl">
                 <div className="flex items-center gap-2">
                   <Target className="h-4 w-4" />
                   <span>
@@ -284,7 +284,7 @@ const Cartoes = () => {
                     variant={card.main ? "default" : "outline"}
                     className={
                       card.main
-                        ? "bg-black hover:bg-gray-600 text-white font-semibold"
+                        ? "bg-green-600 hover:bg-green-700 text-white font-semibold"
                         : "font-semibold"
                     }
                     onClick={() => handleSetMain(card.id)}
@@ -312,7 +312,7 @@ const Cartoes = () => {
                   </div>
                 </div>
                 {card.main && (
-                  <Badge className="absolute top-2 right-2 bg-green-600 text-white shadow">
+                  <Badge className="absolute top-3 right-3 bg-green-600 text-white shadow-lg px-3 py-1 rounded-full">
                     Principal
                   </Badge>
                 )}

@@ -75,7 +75,7 @@ const Landing = () => {
     },
     {
       name: "Essencial",
-      price: "R$ 9,90",
+      price: "R$ 29,90",
       period: "/mês",
       description: "Para uso pessoal",
       features: [
@@ -85,12 +85,12 @@ const Landing = () => {
         "Alertas por WhatsApp",
         "Suporte prioritário",
       ],
-      cta: "Teste 7 Dias Grátis",
+      cta: "Comprar Agora",
       popular: true,
     },
     {
       name: "Plus",
-      price: "R$ 19,90",
+      price: "R$ 59,90",
       period: "/mês",
       description: "Para freelancers",
       features: [
@@ -101,23 +101,7 @@ const Landing = () => {
         "Integração bancária",
         "Suporte 24/7",
       ],
-      cta: "Teste 7 Dias Grátis",
-      popular: false,
-    },
-    {
-      name: "Pro",
-      price: "R$ 29,90",
-      period: "/mês",
-      description: "Para investidores",
-      features: [
-        "Tudo do Plus",
-        "Análise de investimentos",
-        "Consultoria mensal",
-        "API personalizada",
-        "Relatórios customizados",
-        "Gestor de conta dedicado",
-      ],
-      cta: "Teste 7 Dias Grátis",
+      cta: "Comprar Agora",
       popular: false,
     },
   ];
@@ -127,7 +111,7 @@ const Landing = () => {
       name: "Marina Silva",
       role: "Freelancer Designer",
       content:
-        "Finalmente consegui organizar minha renda variável! O FinPlan+ me ajudou a economizar R$ 800 no primeiro mês.",
+        "Finalmente consegui organizar minha renda variável! O FinanciControl me ajudou a economizar R$ 800 no primeiro mês.",
       rating: 5,
     },
     {
@@ -150,7 +134,7 @@ const Landing = () => {
     {
       question: "Como funciona a integração com meu banco?",
       answer:
-        "Conectamos de forma segura com mais de 100 bancos brasileiros via Open Banking. Seus dados são criptografados e nunca compartilhados.",
+        "Não realizamos integração direta com bancos. Você pode exportar seus dados bancários ou planilhas (CSV, Excel) e importar facilmente no FinanciControl para acompanhar suas finanças.",
     },
     {
       question: "Posso cancelar quando quiser?",
@@ -165,7 +149,7 @@ const Landing = () => {
     {
       question: "Tem app mobile?",
       answer:
-        "Sim! Nosso app está disponível para iOS e Android, com sincronização automática entre dispositivos.",
+        "Ainda em desenvolvimento, mas nosso site possui estrutura totalmente responsiva e pode ser acessado de qualquer dispositivo.",
     },
   ];
 
@@ -174,10 +158,15 @@ const Landing = () => {
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center" aria-label="Logo FinPlan+">
+          <div
+            className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center"
+            aria-label="Logo FinanciControl"
+          >
             <TrendingUp className="w-5 h-5 text-white" aria-hidden="true" />
           </div>
-          <span className="text-xl font-bold text-gray-900">FinPlan+</span>
+          <span className="text-xl font-bold text-gray-900">
+            FinanciControl
+          </span>
         </div>
         <Button variant="outline" className="hidden md:flex" asChild>
           <Link to="/login">Já tenho conta</Link>
@@ -191,8 +180,8 @@ const Landing = () => {
         </Badge>
 
         <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
-          Controle seu dinheiro <br />
-          <span className="text-primary">antes que ele controle você</span>
+          Seu dinheiro sob controle, <br />
+          <span className="text-primary">sua vida em equilíbrio.</span>
         </h1>
 
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
@@ -224,23 +213,17 @@ const Landing = () => {
         <div className="text-sm text-gray-500">
           💳 Sem cartão de crédito • 🔒 100% seguro • ⚡ Setup em 2 minutos
         </div>
-
-        <div className="flex justify-center gap-6 mt-8">
-          <img src="/logo-banco1.svg" alt="Banco 1" className="h-8" />
-          <img src="/logo-banco2.svg" alt="Banco 2" className="h-8" />
-          <img src="/logo-banco3.svg" alt="Banco 3" className="h-8" />
-        </div>
       </section>
 
       {/* Benefits Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Por que milhares escolhem o FinPlan+?
+            Por que milhares escolhem o FinanceFlow?
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Recursos pensados especificamente para quem tem renda variável e
-            quer ter controle total
+            Recursos pensados para quem quer ter controle total da vida
+            financeira
           </p>
         </div>
 
@@ -275,7 +258,7 @@ const Landing = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 ">
           {plans.map((plan, index) => (
             <Card
               key={index}
@@ -375,7 +358,7 @@ const Landing = () => {
             Perguntas Frequentes
           </h2>
           <p className="text-xl text-gray-600">
-            Tire suas dúvidas sobre o FinPlan+
+            Tire suas dúvidas sobre o FinanceFlow
           </p>
         </div>
 
@@ -421,7 +404,7 @@ const Landing = () => {
               <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold">FinPlan+</span>
+              <span className="font-bold">FinanciControl</span>
             </div>
             <p className="text-gray-600 text-sm">
               A plataforma mais completa para controle financeiro pessoal.
@@ -482,7 +465,7 @@ const Landing = () => {
         <Separator className="my-8" />
 
         <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-          <p>© 2024 FinPlan+. Todos os direitos reservados.</p>
+          <p> © 2025 FinanciControl. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4 mt-4 md:mt-0">
             <Shield className="w-4 h-4" />
             <span>Dados protegidos por criptografia bancária</span>
@@ -510,7 +493,9 @@ const Landing = () => {
             >
               ✕
             </button>
-            <h3 className="text-xl font-bold mb-4">Demonstração do FinPlan+</h3>
+            <h3 className="text-xl font-bold mb-4">
+              Demonstração do FinanceFlow
+            </h3>
             <div className="aspect-w-16 aspect-h-9">
               <iframe
                 src="https://www.youtube.com/embed/SEU_VIDEO_ID"
