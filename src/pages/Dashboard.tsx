@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { SummaryCard } from "@/components/SummaryCard";
@@ -27,17 +26,17 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
-  const { 
-    transactions, 
-    categories, 
-    financialGoals, 
-    piggyBankEntries, 
-    debts, 
-    creditCards, 
+  const {
+    transactions,
+    categories,
+    financialGoals,
+    piggyBankEntries,
+    debts,
+    creditCards,
     wishlistItems,
     getPiggyBankTotal,
     getTotalDebt,
-    getTotalInvestments
+    getTotalInvestments,
   } = useFinanceExtendedContext();
 
   // Calculate balance
@@ -108,11 +107,15 @@ const Dashboard = () => {
     .reduce((sum, t) => sum + t.amount, 0);
 
   // Get active goals progress
-  const activeGoals = financialGoals.filter(goal => goal.status === 'active');
-  const completedGoals = financialGoals.filter(goal => goal.status === 'completed');
+  const activeGoals = financialGoals.filter((goal) => goal.status === "active");
+  const completedGoals = financialGoals.filter(
+    (goal) => goal.status === "completed"
+  );
 
   // Get urgent wishlist items
-  const urgentWishlist = wishlistItems.filter(item => item.urgency === 'high' && item.status === 'thinking');
+  const urgentWishlist = wishlistItems.filter(
+    (item) => item.urgency === "high" && item.status === "thinking"
+  );
 
   // Ordenar transações por data (desc)
   const recentTransactions = [...transactions].sort(
@@ -261,37 +264,67 @@ const Dashboard = () => {
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3 mb-6 lg:mb-8">
-          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="h-16 flex-col gap-1"
+          >
             <Link to="/metas">
               <Target className="h-5 w-5" />
               <span className="text-xs">Metas</span>
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="h-16 flex-col gap-1"
+          >
             <Link to="/wishlist">
               <Heart className="h-5 w-5" />
               <span className="text-xs">Wishlist</span>
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="h-16 flex-col gap-1"
+          >
             <Link to="/cofrinho">
               <PiggyBank className="h-5 w-5" />
               <span className="text-xs">Cofrinho</span>
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="h-16 flex-col gap-1"
+          >
             <Link to="/limites">
               <Shield className="h-5 w-5" />
               <span className="text-xs">Limites</span>
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="h-16 flex-col gap-1"
+          >
             <Link to="/relatorios">
               <BarChart3 className="h-5 w-5" />
               <span className="text-xs">Relatórios</span>
             </Link>
           </Button>
-          <Button asChild variant="outline" size="sm" className="h-16 flex-col gap-1">
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="h-16 flex-col gap-1"
+          >
             <Link to="/historico">
               <Calendar className="h-5 w-5" />
               <span className="text-xs">Histórico</span>
@@ -324,19 +357,28 @@ const Dashboard = () => {
               ) : (
                 <div className="space-y-3">
                   {activeGoals.slice(0, 3).map((goal) => {
-                    const progress = Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+                    const progress = Math.min(
+                      (goal.currentAmount / goal.targetAmount) * 100,
+                      100
+                    );
                     return (
                       <div key={goal.id} className="space-y-2">
                         <div className="flex justify-between items-center">
-                          <span className="font-medium text-sm truncate">{goal.title}</span>
+                          <span className="font-medium text-sm truncate">
+                            {goal.title}
+                          </span>
                           <Badge variant="outline" className="text-xs">
                             {progress.toFixed(0)}%
                           </Badge>
                         </div>
                         <Progress value={progress} className="h-2" />
                         <div className="flex justify-between text-xs text-muted-foreground">
-                          <span>R$ {goal.currentAmount.toLocaleString('pt-BR')}</span>
-                          <span>R$ {goal.targetAmount.toLocaleString('pt-BR')}</span>
+                          <span>
+                            R$ {goal.currentAmount.toLocaleString("pt-BR")}
+                          </span>
+                          <span>
+                            R$ {goal.targetAmount.toLocaleString("pt-BR")}
+                          </span>
                         </div>
                       </div>
                     );
@@ -366,16 +408,23 @@ const Dashboard = () => {
               ) : (
                 <div className="space-y-3">
                   {urgentWishlist.slice(0, 3).map((item) => (
-                    <div key={item.id} className="flex justify-between items-center p-3 bg-muted/50 rounded-lg">
+                    <div
+                      key={item.id}
+                      className="flex justify-between items-center p-3 bg-muted/50 rounded-lg"
+                    >
                       <div>
                         <p className="font-medium text-sm">{item.title}</p>
-                        <p className="text-xs text-muted-foreground">{item.reason}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.reason}
+                        </p>
                       </div>
                       <div className="text-right">
                         <p className="font-semibold text-sm">
-                          R$ {item.estimatedPrice.toLocaleString('pt-BR')}
+                          R$ {item.estimatedPrice.toLocaleString("pt-BR")}
                         </p>
-                        <Badge variant="destructive" className="text-xs">Alta</Badge>
+                        <Badge variant="destructive" className="text-xs">
+                          Alta
+                        </Badge>
                       </div>
                     </div>
                   ))}

@@ -26,6 +26,11 @@ import Dividas from "./pages/Dividas";
 import Cartoes from "./pages/Cartoes";
 import Investimentos from "./pages/Investimentos";
 import Receitas from "./pages/Receitas";
+import Funcionalidades from "./pages/Funcionalidades";
+import Privacidade from "./pages/Privacidade";
+import Termos from "./pages/Termos";
+import LGPD from "./pages/Lgpd";
+import Status from "./pages/Status";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +45,12 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
+            <Route path="/funcionalidades" element={<Funcionalidades />} />
+            <Route path="/privacidade" element={<Privacidade />} />
+            <Route path="/termos" element={<Termos />} />
+            <Route path="/lgpd" element={<LGPD />} />
+            <Route path="/status" element={<Status />} />
+            <Route path="*" element={<NotFound />} />
             <Route
               path="/*"
               element={
@@ -77,7 +88,6 @@ const App = () => (
                             element={<Investimentos />}
                           />
                           <Route path="/receitas" element={<Receitas />} />
-                          <Route path="*" element={<NotFound />} />
                         </Routes>
                       </div>
                     </main>

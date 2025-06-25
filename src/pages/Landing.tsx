@@ -9,6 +9,8 @@ import {
   Download,
   Users,
   MessageCircle,
+  PiggyBank,
+  CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -31,31 +33,55 @@ const Landing = () => {
       icon: <TrendingUp className="w-8 h-8 text-primary" />,
       title: "Controle de Gastos Automático",
       description:
-        "Categorização inteligente das suas despesas com insights em tempo real",
+        "Categorização inteligente das suas despesas com insights em tempo real.",
     },
     {
       icon: <Target className="w-8 h-8 text-primary" />,
       title: "Limite de Categoria Inteligente",
       description:
-        "Defina limites por categoria e receba alertas antes de estourar o orçamento",
+        "Defina limites por categoria e receba alertas antes de estourar o orçamento.",
     },
     {
       icon: <Star className="w-8 h-8 text-primary" />,
       title: "Mural de Metas e Wishlist",
       description:
-        "Visualize seus objetivos e acompanhe o progresso de forma gamificada",
+        "Visualize seus objetivos e acompanhe o progresso de forma gamificada.",
     },
     {
       icon: <PieChart className="w-8 h-8 text-primary" />,
       title: "Relatórios e Gráficos Personalizados",
       description:
-        "Dashboards intuitivos com análises detalhadas do seu dinheiro",
+        "Dashboards intuitivos com análises detalhadas do seu dinheiro.",
     },
     {
       icon: <Download className="w-8 h-8 text-primary" />,
       title: "Exportação Fácil",
       description:
-        "Exporte seus dados em CSV, Excel ou PDF com apenas um clique",
+        "Exporte seus dados em CSV, Excel ou PDF com apenas um clique.",
+    },
+    {
+      icon: <CreditCard className="w-8 h-8 text-primary" />,
+      title: "Gestão de Cartões de Crédito",
+      description:
+        "Controle limites, datas de vencimento e gastos de múltiplos cartões.",
+    },
+    {
+      icon: <Shield className="w-8 h-8 text-primary" />,
+      title: "Backup e Segurança",
+      description:
+        "Seus dados protegidos com criptografia e backup automático.",
+    },
+    {
+      icon: <PiggyBank className="w-8 h-8 text-primary" />,
+      title: "Cofrinho Digital",
+      description:
+        "Registre e acompanhe suas economias mensais de forma visual.",
+    },
+    {
+      icon: <TrendingUp className="w-8 h-8 text-primary" />,
+      title: "Investimentos Centralizados",
+      description:
+        "Monitore seus investimentos e veja a evolução do seu patrimônio.",
     },
   ];
 
@@ -90,7 +116,7 @@ const Landing = () => {
     },
     {
       name: "Plus",
-      price: "R$ 59,90",
+      price: "R$ 69,90",
       period: "/mês",
       description: "Para freelancers",
       features: [
@@ -219,11 +245,12 @@ const Landing = () => {
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Por que milhares escolhem o FinanceFlow?
+            Por que milhares escolhem o FinanciControl?
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Recursos pensados para quem quer ter controle total da vida
-            financeira
+            financeira, com praticidade, segurança e visão completa do seu
+            dinheiro.
           </p>
         </div>
 
@@ -231,14 +258,16 @@ const Landing = () => {
           {benefits.map((benefit, index) => (
             <Card
               key={index}
-              className="border-0 shadow-lg hover:shadow-xl transition-shadow"
+              className="border-0 shadow-lg hover:shadow-xl transition-shadow rounded-2xl bg-white/90 hover:bg-white"
             >
-              <CardHeader>
+              <CardHeader className="flex flex-col items-center">
                 <div className="mb-4">{benefit.icon}</div>
-                <CardTitle className="text-xl">{benefit.title}</CardTitle>
+                <CardTitle className="text-xl text-center">
+                  {benefit.title}
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-gray-600">
+                <CardDescription className="text-gray-600 text-center">
                   {benefit.description}
                 </CardDescription>
               </CardContent>
@@ -358,41 +387,55 @@ const Landing = () => {
             Perguntas Frequentes
           </h2>
           <p className="text-xl text-gray-600">
-            Tire suas dúvidas sobre o FinanceFlow
+            Tire suas dúvidas sobre o FinanciControl
           </p>
         </div>
 
-        <div className="max-w-3xl mx-auto space-y-6">
+        <div className="max-w-3xl mx-auto space-y-4">
           {faqs.map((faq, index) => (
-            <Card key={index} className="border-0 shadow-sm">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5 text-primary" />
-                  {faq.question}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-600">{faq.answer}</p>
-              </CardContent>
-            </Card>
+            <details
+              key={index}
+              className="group rounded-xl bg-white shadow-sm transition-all"
+              open={index === 0}
+            >
+              <summary className="flex items-center gap-2 px-6 py-4 cursor-pointer text-lg font-medium text-gray-900 group-open:rounded-t-xl group-open:bg-primary/10 transition-colors">
+                <MessageCircle className="w-5 h-5 text-primary" />
+                {faq.question}
+              </summary>
+              <div className="px-6 pb-4 pt-2 text-gray-600 text-base">
+                {faq.answer}
+              </div>
+            </details>
           ))}
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="container mx-auto px-4 py-16 text-center bg-gradient-to-r from-primary to-blue-600 rounded-3xl my-16 text-white">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">
+      <section className="container mx-auto px-4 py-16 text-center bg-gradient-to-r from-primary to-blue-700 rounded-3xl my-16 text-white shadow-xl animate-fade-in">
+        <h2 className="text-3xl md:text-4xl font-bold mb-4 drop-shadow">
           Pronto para transformar sua vida financeira?
         </h2>
-        <p className="text-xl mb-8 opacity-90">
-          Junte-se a milhares de pessoas que já organizaram suas finanças
+        <p className="text-xl mb-8 opacity-90 max-w-2xl mx-auto">
+          Junte-se a milhares de pessoas que já conquistaram o controle do
+          próprio dinheiro com o FinanciControl.
         </p>
-        <Button size="lg" variant="secondary" className="text-lg px-8">
-          Começar Minha Jornada Financeira
-          <ArrowRight className="ml-2 w-5 h-5" />
+        <Button
+          size="lg"
+          variant="secondary"
+          className="text-lg px-8 font-semibold shadow-lg hover:scale-105 transition-transform"
+          asChild
+        >
+          <a href="/cadastro">
+            Começar Minha Jornada Financeira
+            <ArrowRight className="ml-2 w-5 h-5" />
+          </a>
         </Button>
-        <div className="mt-6 text-sm opacity-75">
-          ✅ 7 dias grátis • ✅ Cancele quando quiser • ✅ Suporte 24/7
+        <div className="mt-6 text-sm opacity-80 flex flex-col sm:flex-row gap-2 justify-center items-center">
+          <span>✅ 7 dias grátis</span>
+          <span className="hidden sm:inline">•</span>
+          <span>✅ Cancele quando quiser</span>
+          <span className="hidden sm:inline">•</span>
+          <span>✅ Suporte 24/7</span>
         </div>
       </section>
 
@@ -409,13 +452,18 @@ const Landing = () => {
             <p className="text-gray-600 text-sm">
               A plataforma mais completa para controle financeiro pessoal.
             </p>
+            <div className="mt-4">
+              <span className="inline-block bg-primary/10 text-primary text-xs px-3 py-1 rounded-full font-semibold">
+                +10.000 usuários
+              </span>
+            </div>
           </div>
 
           <div>
             <h4 className="font-semibold mb-4">Produto</h4>
             <ul className="space-y-2 text-sm text-gray-600">
               <li>
-                <Link to="/#benefits" className="hover:underline">
+                <Link to="/funcionalidades" className="hover:underline">
                   Funcionalidades
                 </Link>
               </li>
@@ -429,35 +477,71 @@ const Landing = () => {
                   Segurança
                 </Link>
               </li>
-              <li>
-                <a
-                  href="https://api.seusite.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
-                  API
-                </a>
-              </li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-semibold mb-4">Suporte</h4>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li>Central de Ajuda</li>
-              <li>Contato</li>
-              <li>Status</li>
-              <li>Comunidade</li>
+              <li>
+                <a
+                  href="https://t.me/FinanciSuporte"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-primary font-semibold hover:underline"
+                >
+                  Suporte via Telegram
+                </a>
+              </li>
+              <li>
+                <a
+                  href="mailto:jotasuportetec@gmail.com"
+                  className="flex items-center gap-2 text-primary font-semibold hover:underline"
+                >
+                  Via email
+                </a>
+              </li>
+              <li>
+                <a
+                  href="/status"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  Status do Sistema
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://t.me/FinanciSuporte"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:underline"
+                >
+                  Comunidade
+                </a>
+              </li>
             </ul>
           </div>
 
           <div>
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-2 text-sm text-gray-600">
-              <li>Política de Privacidade</li>
-              <li>Termos de Uso</li>
-              <li>LGPD</li>
+              <li>
+                <a href="/privacidade" className="hover:underline">
+                  Política de Privacidade
+                </a>
+              </li>
+              <li>
+                <a href="/termos" className="hover:underline">
+                  Termos de Uso
+                </a>
+              </li>
+              <li>
+                <a href="/lgpd" className="hover:underline">
+                  LGPD
+                </a>
+              </li>
             </ul>
           </div>
         </div>
@@ -465,7 +549,7 @@ const Landing = () => {
         <Separator className="my-8" />
 
         <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-          <p> © 2025 FinanciControl. Todos os direitos reservados.</p>
+          <p>© 2025 FinanciControl. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4 mt-4 md:mt-0">
             <Shield className="w-4 h-4" />
             <span>Dados protegidos por criptografia bancária</span>
@@ -504,6 +588,7 @@ const Landing = () => {
                 allow="autoplay; encrypted-media"
                 allowFullScreen
                 className="w-full h-64"
+                sandbox="allow-scripts allow-same-origin"
               />
             </div>
           </div>
