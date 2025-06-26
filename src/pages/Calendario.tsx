@@ -38,7 +38,7 @@ const months = [
 ];
 
 const Calendario = () => {
-  const { transactions, debts } = useFinanceExtendedContext();
+  const { transactions, debts, fixedExpenses } = useFinanceExtendedContext();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   // Função para calcular os totais por mês
@@ -52,33 +52,30 @@ const Calendario = () => {
       )
       .reduce((sum, t) => sum + t.amount, 0);
 
-    const gastosFixos = transactions
+    // Usar fixedExpenses para gastos fixos
+    const gastosFixos = fixedExpenses
       .filter(
-        (t) =>
-          t.type === "expense" &&
-          t.fixed &&
-          new Date(t.date).getMonth() === monthIdx &&
-          new Date(t.date).getFullYear() === selectedYear
+        (f) =>
+          f.isActive &&
+          // Assumindo que gastos fixos se aplicam a todos os meses do ano selecionado
+          selectedYear === new Date().getFullYear()
       )
-      .reduce((sum, t) => sum + t.amount, 0);
+      .reduce((sum, f) => sum + f.amount, 0);
 
+    // Gastos variáveis são todas as despesas que não estão nos gastos fixos
     const gastosVariaveis = transactions
       .filter(
         (t) =>
           t.type === "expense" &&
-          !t.fixed &&
           new Date(t.date).getMonth() === monthIdx &&
           new Date(t.date).getFullYear() === selectedYear
       )
       .reduce((sum, t) => sum + t.amount, 0);
 
+    // Usar currentAmount das dívidas ativas (não há campo date, então consideramos todas as ativas)
     const dividas = debts
-      .filter(
-        (d) => 
-          new Date(d.date).getMonth() === monthIdx &&
-          new Date(d.date).getFullYear() === selectedYear
-      )
-      .reduce((sum, d) => sum + d.totalValue, 0);
+      .filter(d => d.status === 'active')
+      .reduce((sum, d) => sum + d.currentAmount, 0) / 12; // Dividindo por 12 meses
 
     const balanco = receitas - gastosFixos - gastosVariaveis - dividas;
 
