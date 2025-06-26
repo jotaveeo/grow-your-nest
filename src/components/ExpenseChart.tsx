@@ -1,38 +1,43 @@
-
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 interface ExpenseChartProps {
-  data: any[]
+  data: {
+    name: string
+    amount: number
+    color: string
+    icon?: React.ReactNode
+  }[]
   title: string
 }
 
 export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
   const RADIAN = Math.PI / 180
-  
+
+  // Label customizado para fatias maiores que 5%
   const renderCustomizedLabel = ({
     cx, cy, midAngle, innerRadius, outerRadius, percent
   }: any) => {
-    if (percent < 0.05) return null // Hide labels for slices smaller than 5%
-    
+    if (percent < 0.05) return null
     const radius = innerRadius + (outerRadius - innerRadius) * 0.5
     const x = cx + radius * Math.cos(-midAngle * RADIAN)
     const y = cy + radius * Math.sin(-midAngle * RADIAN)
-
     return (
-      <text 
-        x={x} 
-        y={y} 
-        fill="white" 
-        textAnchor={x > cx ? 'start' : 'end'} 
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
         className="text-xs font-medium"
+        aria-label={`Porcentagem: ${(percent * 100).toFixed(0)}%`}
       >
         {`${(percent * 100).toFixed(0)}%`}
       </text>
     )
   }
 
+  // Tooltip customizado acessível
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
@@ -51,16 +56,17 @@ export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
     return null
   }
 
+  // Legenda customizada, responsiva e acessível
   const CustomLegend = ({ payload }: any) => {
     if (!payload || payload.length === 0) return null
-    
     return (
       <div className="flex flex-wrap justify-center gap-2 lg:gap-4 mt-4 px-2">
         {data.map((entry, index) => (
           <div key={`legend-${index}`} className="flex items-center gap-1 lg:gap-2 min-w-0">
-            <div 
-              className="w-3 h-3 rounded-full flex-shrink-0" 
+            <div
+              className="w-3 h-3 rounded-full flex-shrink-0"
               style={{ backgroundColor: entry.color }}
+              aria-label={`Cor da categoria ${entry.name}`}
             />
             <span className="text-xs lg:text-sm truncate">
               {entry.icon} {entry.name}
@@ -71,6 +77,7 @@ export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
     )
   }
 
+  // Mensagem para ausência de dados
   if (!data || data.length === 0) {
     return (
       <Card className="h-full">
@@ -83,6 +90,9 @@ export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
       </Card>
     )
   }
+
+  // Responsividade para o raio do gráfico
+  const getOuterRadius = () => (window.innerWidth < 768 ? 80 : 100)
 
   return (
     <Card className="h-full">
@@ -98,9 +108,11 @@ export const ExpenseChart = ({ data, title }: ExpenseChartProps) => {
               cy="50%"
               labelLine={false}
               label={renderCustomizedLabel}
-              outerRadius={window.innerWidth < 768 ? 80 : 100}
+              outerRadius={getOuterRadius()}
               fill="#8884d8"
               dataKey="amount"
+              isAnimationActive={true}
+              aria-label="Gráfico de pizza de despesas por categoria"
             >
               {data.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={entry.color} />

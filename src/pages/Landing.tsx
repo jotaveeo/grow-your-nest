@@ -91,7 +91,7 @@ const Landing = () => {
       price: "Grátis",
       description: "Ideal para começar",
       features: [
-        "Até 3 categorias",
+        "Criar até 3 categorias",
         "Relatórios básicos",
         "1 meta ativa",
         "Suporte por email",

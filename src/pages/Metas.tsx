@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 import { useFinanceExtendedContext } from '@/contexts/FinanceExtendedContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -7,15 +6,16 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
-import { Target, Plus, Calendar, TrendingUp, Archive, CheckCircle } from 'lucide-react'
+import { Target, Plus, Calendar, TrendingUp, Archive, CheckCircle, Edit } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { BackButton } from '@/components/BackButton'
 
 const Metas = () => {
-  const { financialGoals, addFinancialGoal, updateFinancialGoal, deleteFinancialGoal } = useFinanceExtendedContext()
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const { financialGoals, addFinancialGoal, updateFinancialGoal, deleteFinancialGoal } = useFinanceExtendedContext();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<any>(null);
   const [formData, setFormData] = useState({
     title: '',
     targetAmount: 0,
@@ -23,11 +23,15 @@ const Metas = () => {
     deadline: '',
     description: '',
     status: 'active' as const
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    addFinancialGoal(formData)
+    e.preventDefault();
+    if (editingGoal) {
+      updateFinancialGoal(editingGoal.id, formData);
+    } else {
+      addFinancialGoal(formData);
+    }
     setFormData({
       title: '',
       targetAmount: 0,
@@ -35,9 +39,16 @@ const Metas = () => {
       deadline: '',
       description: '',
       status: 'active'
-    })
-    setIsDialogOpen(false)
-  }
+    });
+    setEditingGoal(null);
+    setIsDialogOpen(false);
+  };
+
+  const handleEdit = (goal: any) => {
+    setFormData({ ...goal });
+    setEditingGoal(goal);
+    setIsDialogOpen(true);
+  };
 
   const getProgressPercentage = (current: number, target: number) => {
     return Math.min((current / target) * 100, 100)
@@ -70,7 +81,10 @@ const Metas = () => {
                 Defina e acompanhe seus objetivos financeiros
               </p>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) setEditingGoal(null);
+            }}>
               <DialogTrigger asChild>
                 <Button className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />
@@ -79,7 +93,7 @@ const Metas = () => {
               </DialogTrigger>
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                  <DialogTitle>Criar Nova Meta</DialogTitle>
+                  <DialogTitle>{editingGoal ? "Editar Meta" : "Criar Nova Meta"}</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div>
@@ -135,7 +149,9 @@ const Metas = () => {
                       rows={3}
                     />
                   </div>
-                  <Button type="submit" className="w-full">Criar Meta</Button>
+                  <Button type="submit" className="w-full">
+                    {editingGoal ? "Salvar Alterações" : "Criar Meta"}
+                  </Button>
                 </form>
               </DialogContent>
             </Dialog>
@@ -145,19 +161,29 @@ const Metas = () => {
         {/* Goals Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {financialGoals.map((goal, index) => {
-            const progress = getProgressPercentage(goal.currentAmount, goal.targetAmount)
-            const isCompleted = progress >= 100
-            const daysLeft = Math.ceil((new Date(goal.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24))
-            
+            const progress = getProgressPercentage(goal.currentAmount, goal.targetAmount);
+            const isCompleted = progress >= 100;
+            const daysLeft = Math.ceil((new Date(goal.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+
             return (
               <Card key={goal.id} className="relative overflow-hidden animate-scale-in hover-lift" style={{ animationDelay: `${200 + index * 100}ms` }}>
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg line-clamp-2">{goal.title}</CardTitle>
-                    <Badge className={getStatusColor(goal.status)}>
-                      {goal.status === 'completed' ? 'Concluída' : 
-                       goal.status === 'archived' ? 'Arquivada' : 'Ativa'}
-                    </Badge>
+                    <div className="flex gap-2">
+                      <Badge className={getStatusColor(goal.status)}>
+                        {goal.status === 'completed' ? 'Concluída' :
+                          goal.status === 'archived' ? 'Arquivada' : 'Ativa'}
+                      </Badge>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleEdit(goal)}
+                        aria-label="Editar meta"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">

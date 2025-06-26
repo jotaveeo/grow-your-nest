@@ -252,7 +252,7 @@ const Cartoes = () => {
                   {card.name}
                 </div>
                 {card.main && (
-                  <Badge className="absolute top-3 right-3 bg-green-600 text-white">
+                  <Badge className="absolute top-3 right-3 bg-violet-950 text-white">
                     <Star className="h-3 w-3 mr-1" />
                     Principal
                   </Badge>
@@ -284,7 +284,7 @@ const Cartoes = () => {
                     size="sm"
                     variant={card.main ? "default" : "outline"}
                     onClick={() => handleSetMain(card.id)}
-                    className={card.main ? "bg-green-600 hover:bg-green-700" : "hover-scale"}
+                    className={card.main ? "bg-violet-700 hover:bg-violet-900" : "hover-scale"}
                   >
                     <Star className="h-4 w-4 mr-2" />
                     {card.main ? "Principal" : "Definir Principal"}
