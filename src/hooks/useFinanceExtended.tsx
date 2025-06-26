@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react'
 import { 
   Transaction, 
@@ -15,15 +14,89 @@ import {
 } from '@/types/finance'
 
 const defaultCategories: Category[] = [
+  // Categorias de Receita
   { id: '1', name: 'Salário', icon: '💰', color: '#10B981', type: 'income' },
   { id: '2', name: 'Freelance', icon: '💻', color: '#3B82F6', type: 'income' },
   { id: '3', name: 'Investimentos', icon: '📈', color: '#8B5CF6', type: 'income' },
-  { id: '4', name: 'Alimentação', icon: '🍽️', color: '#EF4444', type: 'expense' },
-  { id: '5', name: 'Transporte', icon: '🚗', color: '#F59E0B', type: 'expense' },
-  { id: '6', name: 'Lazer', icon: '🎮', color: '#EC4899', type: 'expense' },
-  { id: '7', name: 'Saúde', icon: '🏥', color: '#06B6D4', type: 'expense' },
-  { id: '8', name: 'Educação', icon: '📚', color: '#84CC16', type: 'expense' },
-  { id: '9', name: 'Casa', icon: '🏠', color: '#F97316', type: 'expense' },
+  { id: '4', name: 'Comissões', icon: '🤝', color: '#06B6D4', type: 'income' },
+  { id: '5', name: 'Aluguel Recebido', icon: '🏠', color: '#84CC16', type: 'income' },
+  { id: '6', name: 'Vendas', icon: '🛍️', color: '#F59E0B', type: 'income' },
+  { id: '7', name: '13º Salário', icon: '🎁', color: '#EC4899', type: 'income' },
+  { id: '8', name: 'Férias', icon: '🏖️', color: '#14B8A6', type: 'income' },
+  { id: '9', name: 'Bonificação', icon: '🏆', color: '#F97316', type: 'income' },
+  { id: '10', name: 'Restituição IR', icon: '📋', color: '#6366F1', type: 'income' },
+  { id: '11', name: 'Pensão Recebida', icon: '👨‍👩‍👧‍👦', color: '#8B5CF6', type: 'income' },
+  { id: '12', name: 'Renda Extra', icon: '💪', color: '#10B981', type: 'income' },
+
+  // Categorias de Despesa - Essenciais
+  { id: '13', name: 'Alimentação', icon: '🍽️', color: '#EF4444', type: 'expense' },
+  { id: '14', name: 'Supermercado', icon: '🛒', color: '#DC2626', type: 'expense' },
+  { id: '15', name: 'Transporte', icon: '🚗', color: '#F59E0B', type: 'expense' },
+  { id: '16', name: 'Combustível', icon: '⛽', color: '#D97706', type: 'expense' },
+  { id: '17', name: 'Moradia', icon: '🏠', color: '#F97316', type: 'expense' },
+  { id: '18', name: 'Aluguel', icon: '🔑', color: '#EA580C', type: 'expense' },
+  { id: '19', name: 'Contas Básicas', icon: '📄', color: '#7C2D12', type: 'expense' },
+  { id: '20', name: 'Energia Elétrica', icon: '💡', color: '#FCD34D', type: 'expense' },
+  { id: '21', name: 'Água', icon: '💧', color: '#0EA5E9', type: 'expense' },
+  { id: '22', name: 'Internet', icon: '📶', color: '#3B82F6', type: 'expense' },
+  { id: '23', name: 'Telefone', icon: '📱', color: '#6366F1', type: 'expense' },
+  { id: '24', name: 'Gás', icon: '🔥', color: '#F59E0B', type: 'expense' },
+
+  // Saúde e Bem-estar
+  { id: '25', name: 'Saúde', icon: '🏥', color: '#06B6D4', type: 'expense' },
+  { id: '26', name: 'Medicamentos', icon: '💊', color: '#0891B2', type: 'expense' },
+  { id: '27', name: 'Plano de Saúde', icon: '🩺', color: '#0E7490', type: 'expense' },
+  { id: '28', name: 'Academia', icon: '💪', color: '#DC2626', type: 'expense' },
+  { id: '29', name: 'Terapia', icon: '🧠', color: '#7C3AED', type: 'expense' },
+
+  // Educação e Desenvolvimento
+  { id: '30', name: 'Educação', icon: '📚', color: '#84CC16', type: 'expense' },
+  { id: '31', name: 'Cursos', icon: '🎓', color: '#65A30D', type: 'expense' },
+  { id: '32', name: 'Livros', icon: '📖', color: '#16A34A', type: 'expense' },
+  { id: '33', name: 'Material Escolar', icon: '✏️', color: '#15803D', type: 'expense' },
+
+  // Lazer e Entretenimento
+  { id: '34', name: 'Lazer', icon: '🎮', color: '#EC4899', type: 'expense' },
+  { id: '35', name: 'Cinema', icon: '🎬', color: '#DB2777', type: 'expense' },
+  { id: '36', name: 'Streaming', icon: '📺', color: '#BE185D', type: 'expense' },
+  { id: '37', name: 'Jogos', icon: '🎯', color: '#9D174D', type: 'expense' },
+  { id: '38', name: 'Viagens', icon: '✈️', color: '#0EA5E9', type: 'expense' },
+  { id: '39', name: 'Restaurantes', icon: '🍕', color: '#F97316', type: 'expense' },
+  { id: '40', name: 'Bares', icon: '🍺', color: '#EA580C', type: 'expense' },
+
+  // Vestuário e Cuidados Pessoais
+  { id: '41', name: 'Roupas', icon: '👕', color: '#8B5CF6', type: 'expense' },
+  { id: '42', name: 'Sapatos', icon: '👟', color: '#7C3AED', type: 'expense' },
+  { id: '43', name: 'Cabeleireiro', icon: '💇', color: '#EC4899', type: 'expense' },
+  { id: '44', name: 'Cosméticos', icon: '💄', color: '#DB2777', type: 'expense' },
+
+  // Financeiro
+  { id: '45', name: 'Cartão de Crédito', icon: '💳', color: '#EF4444', type: 'expense' },
+  { id: '46', name: 'Empréstimos', icon: '🏦', color: '#DC2626', type: 'expense' },
+  { id: '47', name: 'Financiamentos', icon: '🏠', color: '#B91C1C', type: 'expense' },
+  { id: '48', name: 'Taxas Bancárias', icon: '🏛️', color: '#991B1B', type: 'expense' },
+  { id: '49', name: 'Seguros', icon: '🛡️', color: '#7F1D1D', type: 'expense' },
+
+  // Impostos e Obrigações
+  { id: '50', name: 'Impostos', icon: '📊', color: '#374151', type: 'expense' },
+  { id: '51', name: 'IPTU', icon: '🏘️', color: '#4B5563', type: 'expense' },
+  { id: '52', name: 'IPVA', icon: '🚙', color: '#6B7280', type: 'expense' },
+  { id: '53', name: 'Multas', icon: '⚠️', color: '#9CA3AF', type: 'expense' },
+
+  // Família e Pets
+  { id: '54', name: 'Crianças', icon: '👶', color: '#FCD34D', type: 'expense' },
+  { id: '55', name: 'Pets', icon: '🐕', color: '#FBBF24', type: 'expense' },
+  { id: '56', name: 'Presentes', icon: '🎁', color: '#F59E0B', type: 'expense' },
+
+  // Investimentos e Poupança
+  { id: '57', name: 'Poupança', icon: '🐷', color: '#10B981', type: 'expense' },
+  { id: '58', name: 'Investimentos', icon: '📈', color: '#059669', type: 'expense' },
+  { id: '59', name: 'Previdência', icon: '👴', color: '#047857', type: 'expense' },
+
+  // Diversos
+  { id: '60', name: 'Doações', icon: '❤️', color: '#F87171', type: 'expense' },
+  { id: '61', name: 'Assinaturas', icon: '📝', color: '#6366F1', type: 'expense' },
+  { id: '62', name: 'Outros', icon: '📦', color: '#6B7280', type: 'expense' },
 ]
 
 export const useFinanceExtended = () => {
