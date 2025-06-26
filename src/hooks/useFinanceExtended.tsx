@@ -200,6 +200,26 @@ export const useFinanceExtended = () => {
     setCreditCards(prev => prev.filter(card => card.id !== id))
   }
 
+  // Fixed Expenses
+  const addFixedExpense = (expense: Omit<FixedExpense, 'id' | 'createdAt'>) => {
+    const newExpense: FixedExpense = {
+      ...expense,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString()
+    }
+    setFixedExpenses(prev => [newExpense, ...prev])
+  }
+
+  const updateFixedExpense = (id: string, updates: Partial<FixedExpense>) => {
+    setFixedExpenses(prev => prev.map(expense => 
+      expense.id === id ? { ...expense, ...updates } : expense
+    ))
+  }
+
+  const deleteFixedExpense = (id: string) => {
+    setFixedExpenses(prev => prev.filter(expense => expense.id !== id))
+  }
+
   // Calculate totals
   const getPiggyBankTotal = () => {
     return piggyBankEntries.reduce((sum, entry) => sum + entry.amount, 0)
@@ -262,6 +282,11 @@ export const useFinanceExtended = () => {
     addCreditCard,
     updateCreditCard,
     deleteCreditCard,
+    
+    // Fixed Expenses
+    addFixedExpense,
+    updateFixedExpense,
+    deleteFixedExpense,
     
     // Calculations
     getPiggyBankTotal,
