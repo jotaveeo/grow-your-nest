@@ -1,22 +1,16 @@
+
 import { useState } from "react";
 import {
   Calendar as CalendarIcon,
-  Plus,
-  Target,
   TrendingUp,
+  DollarSign,
+  ArrowUpCircle,
+  ArrowDownCircle,
+  CreditCard,
   AlertCircle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -43,112 +37,18 @@ const months = [
   "Dezembro",
 ];
 
-type YearGoal = {
-  id: string;
-  month: string;
-  description: string;
-  targetAmount: string;
-  currentAmount: string;
-  category: string;
-};
-
-const categories = ["Economia", "Investimento", "Dívida", "Receita", "Outro"];
-
 const Calendario = () => {
   const { transactions, debts } = useFinanceExtendedContext();
-  const [yearGoals, setYearGoals] = useState<YearGoal[]>([]);
-  const [selectedMonth, setSelectedMonth] = useState(
-    months[new Date().getMonth()]
-  );
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [form, setForm] = useState<Omit<YearGoal, "id">>({
-    month: "",
-    description: "",
-    targetAmount: "",
-    currentAmount: "",
-    category: "",
-  });
-  const [editingGoal, setEditingGoal] = useState<YearGoal | null>(null);
-
-  // Função para abrir o modal para editar
-  const handleEditGoal = (goal: YearGoal) => {
-    setForm({ ...goal });
-    setEditingGoal(goal);
-    setIsDialogOpen(true);
-  };
-
-  // Função para remover meta
-  const handleRemoveGoal = (id: string) => {
-    setYearGoals((prev) => prev.filter((g) => g.id !== id));
-  };
-
-  // Atualize o handleSubmit para editar ou criar
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (
-      !form.month ||
-      !form.category ||
-      !form.description ||
-      !form.targetAmount
-    ) {
-      alert("Preencha todos os campos obrigatórios.");
-      return;
-    }
-    if (parseFloat(form.targetAmount) <= 0) {
-      alert("O valor da meta deve ser maior que zero.");
-      return;
-    }
-    if (editingGoal) {
-      setYearGoals((prev) =>
-        prev.map((g) =>
-          g.id === editingGoal.id ? { ...editingGoal, ...form } : g
-        )
-      );
-      setEditingGoal(null);
-    } else {
-      setYearGoals((prev) => [...prev, { ...form, id: Date.now().toString() }]);
-    }
-    setForm({
-      month: "",
-      description: "",
-      targetAmount: "",
-      currentAmount: "",
-      category: "",
-    });
-    setIsDialogOpen(false);
-  };
-
-  const filteredGoals = yearGoals.filter(
-    (goal) => goal.month === selectedMonth
-  );
-
-  const getProgressPercentage = (current: string, target: string) => {
-    const currentVal = parseFloat(current) || 0;
-    const targetVal = parseFloat(target) || 1;
-    return Math.min((currentVal / targetVal) * 100, 100);
-  };
-
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case "Economia":
-        return "bg-green-100 text-green-800";
-      case "Investimento":
-        return "bg-blue-100 text-blue-800";
-      case "Dívida":
-        return "bg-red-100 text-red-800";
-      case "Receita":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
   // Função para calcular os totais por mês
   const getMonthSummary = (monthIdx: number) => {
-    const monthStr = String(monthIdx + 1).padStart(2, "0");
     const receitas = transactions
       .filter(
-        (t) => t.type === "income" && new Date(t.date).getMonth() === monthIdx
+        (t) => 
+          t.type === "income" && 
+          new Date(t.date).getMonth() === monthIdx &&
+          new Date(t.date).getFullYear() === selectedYear
       )
       .reduce((sum, t) => sum + t.amount, 0);
 
@@ -157,7 +57,8 @@ const Calendario = () => {
         (t) =>
           t.type === "expense" &&
           t.fixed &&
-          new Date(t.date).getMonth() === monthIdx
+          new Date(t.date).getMonth() === monthIdx &&
+          new Date(t.date).getFullYear() === selectedYear
       )
       .reduce((sum, t) => sum + t.amount, 0);
 
@@ -166,18 +67,50 @@ const Calendario = () => {
         (t) =>
           t.type === "expense" &&
           !t.fixed &&
-          new Date(t.date).getMonth() === monthIdx
+          new Date(t.date).getMonth() === monthIdx &&
+          new Date(t.date).getFullYear() === selectedYear
       )
       .reduce((sum, t) => sum + t.amount, 0);
 
     const dividas = debts
-      .filter((d) => new Date(d.date).getMonth() === monthIdx)
+      .filter(
+        (d) => 
+          new Date(d.date).getMonth() === monthIdx &&
+          new Date(d.date).getFullYear() === selectedYear
+      )
       .reduce((sum, d) => sum + d.totalValue, 0);
 
     const balanco = receitas - gastosFixos - gastosVariaveis - dividas;
 
     return { receitas, gastosFixos, gastosVariaveis, dividas, balanco };
   };
+
+  // Calcular totais do ano
+  const getYearTotals = () => {
+    let totalReceitas = 0;
+    let totalGastosFixos = 0;
+    let totalGastosVariaveis = 0;
+    let totalDividas = 0;
+
+    for (let i = 0; i < 12; i++) {
+      const monthData = getMonthSummary(i);
+      totalReceitas += monthData.receitas;
+      totalGastosFixos += monthData.gastosFixos;
+      totalGastosVariaveis += monthData.gastosVariaveis;
+      totalDividas += monthData.dividas;
+    }
+
+    return {
+      totalReceitas,
+      totalGastosFixos,
+      totalGastosVariaveis,
+      totalDividas,
+      totalBalanco: totalReceitas - totalGastosFixos - totalGastosVariaveis - totalDividas,
+    };
+  };
+
+  const yearTotals = getYearTotals();
+  const availableYears = [2023, 2024, 2025];
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
@@ -195,391 +128,309 @@ const Calendario = () => {
             <div>
               <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
                 <CalendarIcon className="h-6 w-6 lg:h-8 lg:w-8 text-primary" />
-                Controle do Ano
+                Controle do Ano - Mês por mês
               </h1>
               <p className="text-sm lg:text-base text-muted-foreground">
-                Defina e acompanhe suas metas mensais do ano
+                Acompanhe seu resumo financeiro mensal do ano de {selectedYear}
               </p>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  Nova Meta
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingGoal
-                      ? "Editar Meta do Ano"
-                      : "Criar Nova Meta do Ano"}
-                  </DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="month">Mês</Label>
-                    <Select
-                      value={form.month}
-                      onValueChange={(value) =>
-                        setForm((prev) => ({ ...prev, month: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o mês" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {months.map((month) => (
-                          <SelectItem key={month} value={month}>
-                            {month}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="description">Descrição da Meta</Label>
-                    <Input
-                      id="description"
-                      value={form.description}
-                      onChange={(e) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          description: e.target.value,
-                        }))
-                      }
-                      placeholder="Ex: Economizar para viagem"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="category">Categoria</Label>
-                    <Select
-                      value={form.category}
-                      onValueChange={(value) =>
-                        setForm((prev) => ({ ...prev, category: value }))
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a categoria" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat} value={cat}>
-                            {cat}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="targetAmount">Meta (R$)</Label>
-                      <Input
-                        id="targetAmount"
-                        type="number"
-                        step="0.01"
-                        value={form.targetAmount}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            targetAmount: e.target.value,
-                          }))
-                        }
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="currentAmount">Atual (R$)</Label>
-                      <Input
-                        id="currentAmount"
-                        type="number"
-                        step="0.01"
-                        value={form.currentAmount}
-                        onChange={(e) =>
-                          setForm((prev) => ({
-                            ...prev,
-                            currentAmount: e.target.value,
-                          }))
-                        }
-                      />
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full">
-                    {editingGoal ? "Salvar Alterações" : "Criar Meta"}
-                  </Button>
-                </form>
-              </DialogContent>
-            </Dialog>
+            <Select 
+              value={selectedYear.toString()} 
+              onValueChange={(value) => setSelectedYear(Number(value))}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue placeholder="Ano" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableYears.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
-        {/* Month Selector */}
+        {/* Summary Cards */}
         <div
-          className="flex flex-wrap gap-2 mb-6 animate-slide-in-left"
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-8 animate-scale-in"
           style={{ animationDelay: "200ms" }}
         >
-          {months.map((month) => (
-            <Button
-              key={month}
-              variant={selectedMonth === month ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedMonth(month)}
-              className="hover-scale"
-            >
-              {month}
-            </Button>
-          ))}
-        </div>
-
-        {/* Goals Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {filteredGoals.map((goal, index) => {
-            const progress = getProgressPercentage(
-              goal.currentAmount,
-              goal.targetAmount
-            );
-            const isCompleted = progress >= 100;
-
-            return (
-              <Card
-                key={goal.id}
-                className={`animate-scale-in hover-lift ${
-                  !isCompleted &&
-                  new Date().getMonth() > months.indexOf(goal.month)
-                    ? "ring-2 ring-orange-400"
-                    : ""
-                }`}
-                style={{ animationDelay: `${300 + index * 100}ms` }}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="text-lg line-clamp-2">
-                      {goal.description}
-                    </CardTitle>
-                    <Badge className={getCategoryColor(goal.category)}>
-                      {goal.category}
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span>Progresso</span>
-                      <span className="font-medium">
-                        {progress.toFixed(1)}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-secondary rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full transition-all duration-300 ${
-                          isCompleted ? "bg-green-500" : "bg-primary"
-                        }`}
-                        style={{ width: `${progress}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Atual</p>
-                      <p className="font-semibold text-success">
-                        R${" "}
-                        {parseFloat(goal.currentAmount || "0").toLocaleString(
-                          "pt-BR",
-                          { minimumFractionDigits: 2 }
-                        )}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Meta</p>
-                      <p className="font-semibold">
-                        R${" "}
-                        {parseFloat(goal.targetAmount).toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </p>
-                    </div>
-                  </div>
-
-                  {isCompleted && (
-                    <div className="flex items-center gap-2 text-sm text-green-600 bg-green-50 p-2 rounded-lg">
-                      <Target className="h-4 w-4" />
-                      <span className="font-medium">Meta atingida! 🎉</span>
-                    </div>
-                  )}
-
-                  <div className="flex gap-2 pt-2">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleEditGoal(goal)}
-                      aria-label="Editar meta"
-                    >
-                      Editar
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="destructive"
-                      onClick={() => handleRemoveGoal(goal.id)}
-                      aria-label="Remover meta"
-                    >
-                      Remover
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-
-          {filteredGoals.length === 0 && (
-            <Card
-              className="col-span-full animate-scale-in"
-              style={{ animationDelay: "300ms" }}
-            >
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <CalendarIcon className="h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">
-                  Nenhuma meta para {selectedMonth}
-                </h3>
-                <p className="text-muted-foreground text-center mb-4">
-                  Defina suas metas mensais para ter um controle anual
-                  organizado
-                </p>
-                <Button onClick={() => setIsDialogOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Criar Primeira Meta
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-        </div>
-
-        {/* Summary Card */}
-        {yearGoals.length > 0 && (
-          <Card
-            className="mt-6 animate-scale-in"
-            style={{ animationDelay: "400ms" }}
-          >
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                Resumo do Ano
+          <Card className="hover-lift">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <ArrowUpCircle className="h-4 w-4 text-green-500" />
+                Total de Ganhos
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-primary">
-                    {yearGoals.length}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Metas Criadas</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-green-600">
-                    {
-                      yearGoals.filter(
-                        (g) =>
-                          getProgressPercentage(
-                            g.currentAmount,
-                            g.targetAmount
-                          ) >= 100
-                      ).length
-                    }
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Metas Concluídas
-                  </p>
-                </div>
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-orange-600">
-                    {
-                      yearGoals.filter(
-                        (g) =>
-                          getProgressPercentage(
-                            g.currentAmount,
-                            g.targetAmount
-                          ) < 100
-                      ).length
-                    }
-                  </p>
-                  <p className="text-sm text-muted-foreground">Em Andamento</p>
-                </div>
+              <div className="text-2xl font-bold text-green-600">
+                R$ {yearTotals.totalReceitas.toLocaleString("pt-BR", {
+                  minimumFractionDigits: 2,
+                })}
               </div>
             </CardContent>
           </Card>
-        )}
 
-        {/* Finance Summary Table */}
-        <div className="mt-8 animate-scale-in">
-          <h2 className="text-xl font-bold mb-4">
-            Resumo Financeiro - Mês a mês
-          </h2>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead>
-                <tr className="bg-muted/50">
-                  <th className="text-left px-4 py-2">Mês</th>
-                  <th className="text-right px-4 py-2">Ganhos</th>
-                  <th className="text-right px-4 py-2">Gastos Fixos</th>
-                  <th className="text-right px-4 py-2">Gastos Variáveis</th>
-                  <th className="text-right px-4 py-2">Dívidas</th>
-                  <th className="text-right px-4 py-2">Balanço</th>
-                </tr>
-              </thead>
-              <tbody>
-                {months.map((month, idx) => {
-                  const {
-                    receitas,
-                    gastosFixos,
-                    gastosVariaveis,
-                    dividas,
-                    balanco,
-                  } = getMonthSummary(idx);
-                  return (
-                    <tr key={month} className="border-b last:border-0">
-                      <td className="px-4 py-2">{month}</td>
-                      <td className="px-4 py-2 text-right text-success">
-                        R${" "}
-                        {receitas.toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        R${" "}
-                        {gastosFixos.toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                      <td className="px-4 py-2 text-right">
-                        R${" "}
-                        {gastosVariaveis.toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                      <td className="px-4 py-2 text-right text-destructive">
-                        R${" "}
-                        {dividas.toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                      <td
-                        className={`px-4 py-2 text-right font-bold ${
-                          balanco >= 0 ? "text-success" : "text-destructive"
+          <Card className="hover-lift">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <ArrowDownCircle className="h-4 w-4 text-red-500" />
+                Total Gastos Fixos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-600">
+                R$ {yearTotals.totalGastosFixos.toLocaleString("pt-BR", {
+                  minimumFractionDigits: 2,
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-lift">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-orange-500" />
+                Total Gastos Variáveis
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-600">
+                R$ {yearTotals.totalGastosVariaveis.toLocaleString("pt-BR", {
+                  minimumFractionDigits: 2,
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-lift">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <CreditCard className="h-4 w-4 text-purple-500" />
+                Total Dívidas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-600">
+                R$ {yearTotals.totalDividas.toLocaleString("pt-BR", {
+                  minimumFractionDigits: 2,
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="hover-lift">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-blue-500" />
+                Balanço Total
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className={`text-2xl font-bold ${
+                yearTotals.totalBalanco >= 0 ? "text-green-600" : "text-red-600"
+              }`}>
+                R$ {yearTotals.totalBalanco.toLocaleString("pt-BR", {
+                  minimumFractionDigits: 2,
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Monthly Finance Summary Table */}
+        <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <CalendarIcon className="h-5 w-5 text-primary" />
+              Resumo Mensal {selectedYear}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <table className="min-w-full text-sm">
+                <thead>
+                  <tr className="bg-muted/50 border-b">
+                    <th className="text-left px-4 py-3 font-semibold">Mês</th>
+                    <th className="text-right px-4 py-3 font-semibold text-green-700">
+                      Total de Ganhos
+                    </th>
+                    <th className="text-right px-4 py-3 font-semibold text-red-700">
+                      Total Gastos Fixos
+                    </th>
+                    <th className="text-right px-4 py-3 font-semibold text-orange-700">
+                      Total Gastos Variáveis
+                    </th>
+                    <th className="text-right px-4 py-3 font-semibold text-purple-700">
+                      Total Dívidas
+                    </th>
+                    <th className="text-right px-4 py-3 font-semibold text-blue-700">
+                      Balanço
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {months.map((month, idx) => {
+                    const {
+                      receitas,
+                      gastosFixos,
+                      gastosVariaveis,
+                      dividas,
+                      balanco,
+                    } = getMonthSummary(idx);
+                    
+                    const hasData = receitas > 0 || gastosFixos > 0 || gastosVariaveis > 0 || dividas > 0;
+                    const currentMonth = new Date().getMonth();
+                    const isCurrentMonth = idx === currentMonth && selectedYear === new Date().getFullYear();
+
+                    return (
+                      <tr 
+                        key={month} 
+                        className={`border-b last:border-0 hover:bg-muted/30 transition-colors ${
+                          isCurrentMonth ? "bg-blue-50 dark:bg-blue-950/20" : ""
+                        } ${
+                          hasData ? "font-medium" : "text-muted-foreground"
                         }`}
                       >
-                        R${" "}
-                        {balanco.toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
+                        <td className="px-4 py-3 flex items-center gap-2">
+                          <CalendarIcon className="h-4 w-4 text-primary" />
+                          {month} {selectedYear}
+                          {isCurrentMonth && (
+                            <Badge variant="secondary" className="text-xs">
+                              Atual
+                            </Badge>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right text-green-600">
+                          R$ {receitas.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td className="px-4 py-3 text-right text-red-600">
+                          R$ {gastosFixos.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td className="px-4 py-3 text-right text-orange-600">
+                          R$ {gastosVariaveis.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td className="px-4 py-3 text-right text-purple-600">
+                          R$ {dividas.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                        <td
+                          className={`px-4 py-3 text-right font-bold flex items-center justify-end gap-1 ${
+                            balanco >= 0 ? "text-green-600" : "text-red-600"
+                          }`}
+                        >
+                          {balanco < 0 && <AlertCircle className="h-4 w-4" />}
+                          R$ {balanco.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr className="bg-muted/80 font-bold text-base border-t-2">
+                    <td className="px-4 py-4 font-bold">TOTAL {selectedYear}</td>
+                    <td className="px-4 py-4 text-right text-green-600">
+                      R$ {yearTotals.totalReceitas.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td className="px-4 py-4 text-right text-red-600">
+                      R$ {yearTotals.totalGastosFixos.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td className="px-4 py-4 text-right text-orange-600">
+                      R$ {yearTotals.totalGastosVariaveis.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td className="px-4 py-4 text-right text-purple-600">
+                      R$ {yearTotals.totalDividas.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </td>
+                    <td className={`px-4 py-4 text-right font-bold text-lg ${
+                      yearTotals.totalBalanco >= 0 ? "text-green-600" : "text-red-600"
+                    }`}>
+                      R$ {yearTotals.totalBalanco.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Monthly Insights */}
+        <Card className="mt-6 animate-scale-in" style={{ animationDelay: "400ms" }}>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              Insights do Ano {selectedYear}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+                <p className="text-sm text-muted-foreground">Melhor Mês (Balanço)</p>
+                <p className="text-lg font-bold text-green-600">
+                  {(() => {
+                    let bestMonth = 0;
+                    let bestBalance = getMonthSummary(0).balanco;
+                    for (let i = 1; i < 12; i++) {
+                      const balance = getMonthSummary(i).balanco;
+                      if (balance > bestBalance) {
+                        bestBalance = balance;
+                        bestMonth = i;
+                      }
+                    }
+                    return bestBalance > 0 ? months[bestMonth] : "Nenhum";
+                  })()}
+                </p>
+              </div>
+              
+              <div className="text-center p-4 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                <p className="text-sm text-muted-foreground">Mês com Mais Gastos</p>
+                <p className="text-lg font-bold text-red-600">
+                  {(() => {
+                    let worstMonth = 0;
+                    let worstExpenses = getMonthSummary(0).gastosFixos + getMonthSummary(0).gastosVariaveis;
+                    for (let i = 1; i < 12; i++) {
+                      const expenses = getMonthSummary(i).gastosFixos + getMonthSummary(i).gastosVariaveis;
+                      if (expenses > worstExpenses) {
+                        worstExpenses = expenses;
+                        worstMonth = i;
+                      }
+                    }
+                    return worstExpenses > 0 ? months[worstMonth] : "Nenhum";
+                  })()}
+                </p>
+              </div>
+              
+              <div className="text-center p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
+                <p className="text-sm text-muted-foreground">Média Mensal</p>
+                <p className="text-lg font-bold text-blue-600">
+                  R$ {(yearTotals.totalBalanco / 12).toLocaleString("pt-BR", {
+                    minimumFractionDigits: 2,
+                  })}
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
