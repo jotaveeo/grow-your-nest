@@ -4,6 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
+import { auth, googleProvider } from "@/lib/firebase";
+import { signInWithPopup } from "firebase/auth";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -18,6 +20,18 @@ const Login = () => {
       localStorage.setItem("financi_logged_in", "true");
       navigate("/dashboard");
     }, 1000);
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setLoading(true);
+      await signInWithPopup(auth, googleProvider);
+      navigate("/dashboard");
+    } catch (error) {
+      alert("Erro ao autenticar com Google");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -54,6 +68,14 @@ const Login = () => {
               {loading ? "Entrando..." : "Entrar"}
             </Button>
           </form>
+          <Button
+            type="button"
+            className="w-full mt-2"
+            onClick={handleGoogleSignIn}
+            variant="outline"
+          >
+            {loading ? "Entrando..." : "Entrar com Google"}
+          </Button>
           <div className="text-center text-sm mt-4">
             Não tem conta?{" "}
             <Link to="/cadastro" className="text-primary hover:underline">
