@@ -53,21 +53,14 @@ import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { FixedExpense } from "@/types/finance";
 import { useToast } from "@/hooks/use-toast";
 
-const categories = [
-  { id: "alimentacao", name: "Alimentação", icon: Utensils, color: "#EF4444" },
-  { id: "cartao", name: "Cartão de Crédito", icon: CreditCard, color: "#8B5CF6" },
-  { id: "streaming", name: "Streaming", icon: Music, color: "#EC4899" },
-  { id: "jogos", name: "Jogos", icon: Gamepad2, color: "#06B6D4" },
-  { id: "assinaturas", name: "Assinaturas", icon: Smartphone, color: "#F59E0B" },
-  { id: "moradia", name: "Moradia", icon: Home, color: "#10B981" },
-  { id: "transporte", name: "Transporte", icon: Car, color: "#F97316" },
-  { id: "saude", name: "Saúde", icon: Heart, color: "#84CC16" },
-  { id: "internet", name: "Internet/Telefone", icon: Wifi, color: "#3B82F6" },
-  { id: "outros", name: "Outros", icon: ShoppingBag, color: "#6B7280" },
-];
-
 const GastosFixos = () => {
-  const { fixedExpenses, addFixedExpense, updateFixedExpense, deleteFixedExpense } = useFinanceExtendedContext();
+  const { 
+    fixedExpenses, 
+    addFixedExpense, 
+    updateFixedExpense, 
+    deleteFixedExpense,
+    categories 
+  } = useFinanceExtendedContext();
   const { toast } = useToast();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingExpense, setEditingExpense] = useState<FixedExpense | null>(null);
@@ -84,6 +77,9 @@ const GastosFixos = () => {
     "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
     "July", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
   ];
+
+  // Usar apenas categorias de despesa do contexto
+  const expenseCategories = categories.filter(cat => cat.type === 'expense');
 
   const resetForm = () => {
     setDescription("");
@@ -161,23 +157,17 @@ const GastosFixos = () => {
   const totalMonthly = activeExpenses.reduce((sum, expense) => sum + expense.amount, 0);
   const totalAnnual = totalMonthly * 12;
 
-  // Agrupar por categoria
-  const expensesByCategory = categories.map(cat => ({
+  // Agrupar por categoria usando as categorias do contexto
+  const expensesByCategory = expenseCategories.map(cat => ({
     ...cat,
-    expenses: activeExpenses.filter(expense => expense.category === cat.id),
+    expenses: activeExpenses.filter(expense => expense.category === cat.name),
     total: activeExpenses
-      .filter(expense => expense.category === cat.id)
+      .filter(expense => expense.category === cat.name)
       .reduce((sum, expense) => sum + expense.amount, 0)
   })).filter(cat => cat.expenses.length > 0);
 
-  const getCategoryIcon = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category ? category.icon : ShoppingBag;
-  };
-
-  const getCategoryColor = (categoryId: string) => {
-    const category = categories.find(cat => cat.id === categoryId);
-    return category ? category.color : "#6B7280";
+  const getCategoryData = (categoryName: string) => {
+    return categories.find(cat => cat.name === categoryName);
   };
 
   return (
@@ -249,10 +239,10 @@ const GastosFixos = () => {
                         <SelectValue placeholder="Selecione uma categoria" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map((cat) => (
-                          <SelectItem key={cat.id} value={cat.id}>
+                        {expenseCategories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.name}>
                             <div className="flex items-center gap-2">
-                              <cat.icon className="h-4 w-4" style={{ color: cat.color }} />
+                              <span style={{ color: cat.color }}>{cat.icon}</span>
                               {cat.name}
                             </div>
                           </SelectItem>
@@ -349,63 +339,59 @@ const GastosFixos = () => {
         {/* Expenses by Category */}
         {expensesByCategory.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {expensesByCategory.map((categoryGroup) => {
-              const CategoryIcon = categoryGroup.icon;
-              return (
-                <Card key={categoryGroup.id} className="animate-scale-in">
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <CategoryIcon 
-                        className="h-5 w-5" 
-                        style={{ color: categoryGroup.color }} 
-                      />
-                      {categoryGroup.name}
-                      <Badge variant="secondary" className="ml-auto">
-                        R$ {categoryGroup.total.toLocaleString("pt-BR", {
-                          minimumFractionDigits: 2,
-                        })}
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {categoryGroup.expenses.map((expense) => (
-                      <div
-                        key={expense.id}
-                        className="flex items-center justify-between p-2 rounded-lg bg-muted/30"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium">{expense.description}</p>
-                          <p className="text-sm text-muted-foreground">
-                            Vence dia {expense.dayOfMonth}
-                          </p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm">
-                            R$ {expense.amount.toLocaleString("pt-BR", {
-                              minimumFractionDigits: 2,
-                            })}
-                          </span>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(expense)}
-                          >
-                            <Edit2 className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDelete(expense.id, expense.description)}
-                          >
-                            <Trash2 className="h-3 w-3 text-red-500" />
-                          </Button>
-                        </div>
+            {expensesByCategory.map((categoryGroup) => (
+              <Card key={categoryGroup.id} className="animate-scale-in">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <span style={{ color: categoryGroup.color }}>
+                      {categoryGroup.icon}
+                    </span>
+                    {categoryGroup.name}
+                    <Badge variant="secondary" className="ml-auto">
+                      R$ {categoryGroup.total.toLocaleString("pt-BR", {
+                        minimumFractionDigits: 2,
+                      })}
+                    </Badge>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {categoryGroup.expenses.map((expense) => (
+                    <div
+                      key={expense.id}
+                      className="flex items-center justify-between p-2 rounded-lg bg-muted/30"
+                    >
+                      <div className="flex-1">
+                        <p className="font-medium">{expense.description}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Vence dia {expense.dayOfMonth}
+                        </p>
                       </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              );
-            })}
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm">
+                          R$ {expense.amount.toLocaleString("pt-BR", {
+                            minimumFractionDigits: 2,
+                          })}
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(expense)}
+                        >
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(expense.id, expense.description)}
+                        >
+                          <Trash2 className="h-3 w-3 text-red-500" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+            ))}
           </div>
         )}
 
@@ -432,7 +418,7 @@ const GastosFixos = () => {
                 </TableHeader>
                 <TableBody>
                   {fixedExpenses.map((expense) => {
-                    const CategoryIcon = getCategoryIcon(expense.category);
+                    const categoryData = getCategoryData(expense.category);
                     return (
                       <TableRow key={expense.id}>
                         <TableCell className="font-medium">
@@ -440,11 +426,10 @@ const GastosFixos = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
-                            <CategoryIcon 
-                              className="h-4 w-4" 
-                              style={{ color: getCategoryColor(expense.category) }} 
-                            />
-                            {categories.find(cat => cat.id === expense.category)?.name || expense.category}
+                            <span style={{ color: categoryData?.color || '#6B7280' }}>
+                              {categoryData?.icon || '📁'}
+                            </span>
+                            {expense.category}
                           </div>
                         </TableCell>
                         <TableCell className="font-bold">
@@ -500,6 +485,21 @@ const GastosFixos = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Aviso sobre categorias */}
+        {expenseCategories.length === 0 && (
+          <Card className="mt-6 border-orange-200 bg-orange-50">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2 text-orange-700">
+                <AlertCircle className="h-5 w-5" />
+                <p className="text-sm">
+                  <strong>Nenhuma categoria de despesa encontrada.</strong><br />
+                  Vá para a página de <strong>Categorias</strong> e crie algumas categorias de despesa para organizar melhor seus gastos fixos.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
