@@ -369,7 +369,7 @@ const Configuracoes = () => {
                   <strong>Desenvolvido por:</strong> FinanceFlow Team
                 </p>
                 <p>
-                  <strong>Última atualização:</strong> Janeiro 2024
+                  <strong>Última atualização:</strong> Junho 2025
                 </p>
                 <p className="pt-2">
                   Sistema moderno de controle financeiro pessoal com foco em
