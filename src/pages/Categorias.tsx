@@ -32,24 +32,56 @@ const Categorias = () => {
 
   const handleAddCategory = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newCategory.name && newCategory.icon) {
-      if (editingCategory) {
-        updateCategory(editingCategory, newCategory);
-        toast({
-          title: "Categoria atualizada",
-          description: "A categoria foi editada com sucesso.",
-        });
-      } else {
-        addCategory(newCategory);
-        toast({
-          title: "Categoria criada",
-          description: "A nova categoria foi adicionada com sucesso.",
-        });
-      }
-      setNewCategory({ name: "", icon: "", color: "#3b82f6", type: "expense" });
-      setEditingCategory(null);
-      setIsDialogOpen(false);
+    // Validação de nome duplicado para o mesmo tipo
+    if (
+      categories.some(
+        (cat) =>
+          cat.name.trim().toLowerCase() === newCategory.name.trim().toLowerCase() &&
+          cat.type === newCategory.type &&
+          cat.id !== editingCategory
+      )
+    ) {
+      toast({
+        title: "Nome de categoria já existe",
+        description: "Escolha um nome diferente para esta categoria.",
+        variant: "destructive",
+      });
+      return;
     }
+    // Validação de emoji/ícone
+    if (!/^\p{Emoji}|.{1}$/u.test(newCategory.icon)) {
+      toast({
+        title: "Emoji/ícone inválido",
+        description: "Use apenas um emoji ou caractere.",
+        variant: "destructive",
+      });
+      return;
+    }
+    // Validação de cor
+    if (!/^#[0-9A-Fa-f]{6}$/.test(newCategory.color)) {
+      toast({
+        title: "Cor inválida",
+        description: "Use um código hexadecimal válido.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (editingCategory) {
+      updateCategory(editingCategory, newCategory);
+      toast({
+        title: "Categoria atualizada",
+        description: "A categoria foi editada com sucesso.",
+      });
+    } else {
+      addCategory(newCategory);
+      toast({
+        title: "Categoria criada",
+        description: "A nova categoria foi adicionada com sucesso.",
+      });
+    }
+    setNewCategory({ name: "", icon: "", color: "#3b82f6", type: "expense" });
+    setEditingCategory(null);
+    setIsDialogOpen(false);
   };
 
   const handleEditCategory = (category: any) => {
@@ -99,6 +131,8 @@ const Categorias = () => {
           size="sm"
           className="h-8 w-8 p-0"
           onClick={() => onEdit(category)}
+          aria-label={`Editar categoria ${category.name}`}
+          title="Editar categoria"
         >
           <Edit className="h-4 w-4" />
         </Button>
@@ -107,6 +141,8 @@ const Categorias = () => {
           size="sm"
           className="h-8 w-8 p-0 text-destructive hover:text-destructive"
           onClick={() => onDelete(category.id)}
+          aria-label={`Excluir categoria ${category.name}`}
+          title="Excluir categoria"
         >
           <Trash2 className="h-4 w-4" />
         </Button>

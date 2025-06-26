@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   CreditCard,
@@ -22,12 +21,13 @@ import {
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/BackButton";
+import { useToast } from "@/hooks/use-toast"; // Se você já usa toast no projeto
 
 const initialCards = [
   {
     id: 1,
     name: "Nubank",
-    color: "#8a2be2",
+    color: "#A020F0",
     limit: 3000,
     dueDay: 11,
     main: true,
@@ -35,7 +35,7 @@ const initialCards = [
   {
     id: 2,
     name: "Banco do Brasil",
-    color: "#ffcc00",
+    color: "#FFDE21",
     limit: 2493,
     dueDay: 16,
     main: false,
@@ -43,7 +43,7 @@ const initialCards = [
   {
     id: 3,
     name: "Itaú",
-    color: "#ff6600",
+    color: "#FF6200",
     limit: 6000,
     dueDay: 5,
     main: false,
@@ -69,9 +69,41 @@ const Cartoes = () => {
     main: false,
   });
   const [editingId, setEditingId] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const handleAddOrEditCard = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.name.trim()) {
+      toast({ title: "Nome obrigatório", variant: "destructive" });
+      return;
+    }
+    if (
+      cards.some(
+        (c) =>
+          c.name.toLowerCase() === form.name.trim().toLowerCase() &&
+          c.id !== editingId
+      )
+    ) {
+      toast({
+        title: "Já existe um cartão com esse nome",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (Number(form.limit) <= 0) {
+      toast({
+        title: "O limite deve ser maior que zero",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (Number(form.dueDay) < 1 || Number(form.dueDay) > 31) {
+      toast({
+        title: "O dia de vencimento deve ser entre 1 e 31",
+        variant: "destructive",
+      });
+      return;
+    }
     if (editingId !== null) {
       setCards((prev) =>
         prev.map((c) =>
@@ -120,7 +152,10 @@ const Cartoes = () => {
   };
 
   const handleDelete = (id: number) => {
-    setCards((prev) => prev.filter((c) => c.id !== id));
+    if (window.confirm("Tem certeza que deseja remover este cartão?")) {
+      setCards((prev) => prev.filter((c) => c.id !== id));
+      toast({ title: "Cartão removido com sucesso!" });
+    }
   };
 
   const handleSetMain = (id: number) => {
@@ -133,9 +168,15 @@ const Cartoes = () => {
         {/* Header */}
         <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
           <BackButton />
+          <span className="ml-auto text-sm text-muted-foreground">
+            {cards.length} cartão{cards.length !== 1 && "s"}
+          </span>
         </div>
 
-        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
+        <div
+          className="mb-6 lg:mb-8 animate-slide-in-left"
+          style={{ animationDelay: "100ms" }}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
@@ -239,7 +280,9 @@ const Cartoes = () => {
           {cards.map((card, index) => (
             <Card
               key={card.id}
-              className="relative overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg animate-scale-in hover-lift"
+              className={`relative overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg animate-scale-in hover-lift
+                ${card.main ? "ring-2 ring-violet-700" : ""}
+              `}
               style={{ animationDelay: `${200 + index * 100}ms` }}
             >
               {/* Card Header com a cor do cartão */}
@@ -266,7 +309,8 @@ const Cartoes = () => {
                     <Target className="h-4 w-4 text-primary" />
                     <span className="text-muted-foreground">Limite:</span>
                     <span className="font-semibold ml-auto">
-                      R$ {card.limit.toLocaleString("pt-BR", {
+                      R${" "}
+                      {card.limit.toLocaleString("pt-BR", {
                         minimumFractionDigits: 2,
                       })}
                     </span>
@@ -274,7 +318,9 @@ const Cartoes = () => {
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="h-4 w-4 text-primary" />
                     <span className="text-muted-foreground">Vencimento:</span>
-                    <span className="font-semibold ml-auto">Dia {card.dueDay}</span>
+                    <span className="font-semibold ml-auto">
+                      Dia {card.dueDay}
+                    </span>
                   </div>
                 </div>
 
@@ -284,7 +330,11 @@ const Cartoes = () => {
                     size="sm"
                     variant={card.main ? "default" : "outline"}
                     onClick={() => handleSetMain(card.id)}
-                    className={card.main ? "bg-violet-700 hover:bg-violet-900" : "hover-scale"}
+                    className={
+                      card.main
+                        ? "bg-violet-700 hover:bg-violet-900"
+                        : "hover-scale"
+                    }
                   >
                     <Star className="h-4 w-4 mr-2" />
                     {card.main ? "Principal" : "Definir Principal"}
@@ -295,6 +345,8 @@ const Cartoes = () => {
                       variant="outline"
                       onClick={() => handleEdit(card)}
                       className="flex-1 hover-scale"
+                      aria-label={`Editar cartão ${card.name}`}
+                      title="Editar"
                     >
                       <Edit className="h-4 w-4" />
                     </Button>
@@ -303,6 +355,8 @@ const Cartoes = () => {
                       variant="destructive"
                       onClick={() => handleDelete(card.id)}
                       className="flex-1 hover-scale"
+                      aria-label={`Remover cartão ${card.name}`}
+                      title="Remover"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -315,7 +369,10 @@ const Cartoes = () => {
 
         {/* Empty State */}
         {cards.length === 0 && (
-          <Card className="mt-8 animate-scale-in" style={{ animationDelay: "200ms" }}>
+          <Card
+            className="mt-8 animate-scale-in"
+            style={{ animationDelay: "200ms" }}
+          >
             <CardContent className="flex flex-col items-center justify-center py-12">
               <CreditCard className="h-12 w-12 text-muted-foreground mb-4" />
               <h3 className="text-lg font-semibold mb-2">

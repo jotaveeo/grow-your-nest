@@ -46,8 +46,9 @@ const planningItems = [
 const controlItems = [
   { title: "Minhas Dívidas", url: "/dividas", icon: Receipt },
   { title: "Cartões de Crédito", url: "/cartoes", icon: CreditCard },
-  { title: "Calendário", url: "/calendario", icon: CalendarDays },
+  { title: "Resumo Calendário", url: "/calendario", icon: CalendarDays },
   { title: "Limites de Gastos", url: "/limites", icon: Shield },
+  { title: "Gastos Fixos", url: "/gastosfixos", icon: Shield },
 ];
 
 const investmentItems = [

@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/BackButton";
+import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 
 const months = [
   "Janeiro",
@@ -54,6 +55,7 @@ type YearGoal = {
 const categories = ["Economia", "Investimento", "Dívida", "Receita", "Outro"];
 
 const Calendario = () => {
+  const { transactions, debts } = useFinanceExtendedContext();
   const [yearGoals, setYearGoals] = useState<YearGoal[]>([]);
   const [selectedMonth, setSelectedMonth] = useState(
     months[new Date().getMonth()]
@@ -139,6 +141,42 @@ const Calendario = () => {
       default:
         return "bg-gray-100 text-gray-800";
     }
+  };
+
+  // Função para calcular os totais por mês
+  const getMonthSummary = (monthIdx: number) => {
+    const monthStr = String(monthIdx + 1).padStart(2, "0");
+    const receitas = transactions
+      .filter(
+        (t) => t.type === "income" && new Date(t.date).getMonth() === monthIdx
+      )
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const gastosFixos = transactions
+      .filter(
+        (t) =>
+          t.type === "expense" &&
+          t.fixed &&
+          new Date(t.date).getMonth() === monthIdx
+      )
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const gastosVariaveis = transactions
+      .filter(
+        (t) =>
+          t.type === "expense" &&
+          !t.fixed &&
+          new Date(t.date).getMonth() === monthIdx
+      )
+      .reduce((sum, t) => sum + t.amount, 0);
+
+    const dividas = debts
+      .filter((d) => new Date(d.date).getMonth() === monthIdx)
+      .reduce((sum, d) => sum + d.totalValue, 0);
+
+    const balanco = receitas - gastosFixos - gastosVariaveis - dividas;
+
+    return { receitas, gastosFixos, gastosVariaveis, dividas, balanco };
   };
 
   return (
@@ -471,6 +509,77 @@ const Calendario = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Finance Summary Table */}
+        <div className="mt-8 animate-scale-in">
+          <h2 className="text-xl font-bold mb-4">
+            Resumo Financeiro - Mês a mês
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-muted/50">
+                  <th className="text-left px-4 py-2">Mês</th>
+                  <th className="text-right px-4 py-2">Ganhos</th>
+                  <th className="text-right px-4 py-2">Gastos Fixos</th>
+                  <th className="text-right px-4 py-2">Gastos Variáveis</th>
+                  <th className="text-right px-4 py-2">Dívidas</th>
+                  <th className="text-right px-4 py-2">Balanço</th>
+                </tr>
+              </thead>
+              <tbody>
+                {months.map((month, idx) => {
+                  const {
+                    receitas,
+                    gastosFixos,
+                    gastosVariaveis,
+                    dividas,
+                    balanco,
+                  } = getMonthSummary(idx);
+                  return (
+                    <tr key={month} className="border-b last:border-0">
+                      <td className="px-4 py-2">{month}</td>
+                      <td className="px-4 py-2 text-right text-success">
+                        R${" "}
+                        {receitas.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        R${" "}
+                        {gastosFixos.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        R${" "}
+                        {gastosVariaveis.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </td>
+                      <td className="px-4 py-2 text-right text-destructive">
+                        R${" "}
+                        {dividas.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </td>
+                      <td
+                        className={`px-4 py-2 text-right font-bold ${
+                          balanco >= 0 ? "text-success" : "text-destructive"
+                        }`}
+                      >
+                        R${" "}
+                        {balanco.toLocaleString("pt-BR", {
+                          minimumFractionDigits: 2,
+                        })}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   );
