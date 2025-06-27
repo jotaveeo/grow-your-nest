@@ -453,7 +453,7 @@ const Historico = () => {
                 )}
               </div>
             </div>
-            {!importResult.success && importResult.errors && importResult.errors.length > 0 && (
+            {!importResult.success && (
               <div className="mt-2 text-xs text-destructive">
                 <strong>Linhas ignoradas:</strong>
                 <ul className="list-disc ml-4">
