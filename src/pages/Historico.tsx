@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from "react";
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,11 +38,6 @@ const Historico = () => {
     category: "",
     date: "",
   });
-  const [importResult, setImportResult] = useState<
-    | { success: true; message: string; count: number }
-    | { success: false; message: string; errors: string[] }
-    | null
-  >(null);
 
   const filteredTransactions = useMemo(() => {
     return transactions.filter((transaction) => {
@@ -429,45 +423,6 @@ const Historico = () => {
             </form>
           </DialogContent>
         </Dialog>
-
-        {importResult && (
-          <div className="mt-4">
-            <div
-              className={`p-3 rounded-lg flex items-center gap-2 ${
-                importResult.success
-                  ? "bg-success/10 text-success border border-success/20"
-                  : "bg-destructive/10 text-destructive border border-destructive/20"
-              }`}
-            >
-              {importResult.success ? (
-                <CheckCircle className="h-4 w-4 flex-shrink-0" />
-              ) : (
-                <AlertCircle className="h-4 w-4 flex-shrink-0" />
-              )}
-              <div className="min-w-0">
-                <p className="text-sm font-medium">{importResult.message}</p>
-                {importResult.success && (
-                  <p className="text-xs opacity-80">
-                    {importResult.count} transações importadas
-                  </p>
-                )}
-              </div>
-            </div>
-            {!importResult.success && (
-              <div className="mt-2 text-xs text-destructive">
-                <strong>Linhas ignoradas:</strong>
-                <ul className="list-disc ml-4">
-                  {importResult.errors.slice(0, 5).map((err, i) => (
-                    <li key={i}>{err}</li>
-                  ))}
-                  {importResult.errors.length > 5 && (
-                    <li>...e mais {importResult.errors.length - 5} linhas</li>
-                  )}
-                </ul>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
