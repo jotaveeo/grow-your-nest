@@ -3,13 +3,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Upload, FileText, AlertCircle, CheckCircle, Download } from "lucide-react"
+import { Upload, FileText, AlertCircle, CheckCircle, Download, Zap, Settings } from "lucide-react"
 import { BackButton } from "@/components/BackButton"
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext"
+import { useAutoCategorization } from "@/hooks/useAutoCategorization"
 import { useToast } from "@/hooks/use-toast"
+import { CategorizationRules } from "@/components/CategorizationRules"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Badge } from "@/components/ui/badge"
 
 const Importar = () => {
   const { addTransaction } = useFinanceExtendedContext()
+  const { categorizeMultipleTransactions } = useAutoCategorization()
   const { toast } = useToast()
   const [file, setFile] = useState<File | null>(null)
   const [importing, setImporting] = useState(false)
@@ -17,8 +22,10 @@ const Importar = () => {
     success: boolean
     message: string
     count?: number
+    categorizedCount?: number
+    transactions?: any[]
   } | null>(null)
-  const [dragActive, setDragActive] = useState(false);
+  const [dragActive, setDragActive] = useState(false)
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0]
@@ -78,7 +85,6 @@ const Importar = () => {
         description,
         amount: Math.abs(amount),
         type: amount < 0 ? "expense" : "income",
-        category: "Sem categoria",
       });
     }
     return { transactions, errors };
@@ -96,19 +102,28 @@ const Importar = () => {
         setImportResult({
           success: false,
           message: "Nenhuma transação válida encontrada no arquivo",
-          errors,
         });
         setImporting(false);
         return;
       }
 
+      // Aplicar categorização automática
+      const categorizedTransactions = categorizeMultipleTransactions(transactions);
+      const categorizedCount = categorizedTransactions.filter(t => t.category !== 'Sem categoria').length;
+
       let successCount = 0;
-      for (const transaction of transactions) {
+      for (const transaction of categorizedTransactions) {
         try {
-          addTransaction(transaction);
+          addTransaction({
+            date: transaction.date,
+            description: transaction.description,
+            amount: transaction.amount,
+            type: transaction.type,
+            category: transaction.category
+          });
           successCount++;
         } catch (error) {
-          // Aqui você pode adicionar erros de adição se quiser
+          console.error('Erro ao adicionar transação:', error);
         }
       }
 
@@ -116,12 +131,13 @@ const Importar = () => {
         success: true,
         message: `Arquivo importado com sucesso!`,
         count: successCount,
-        errors,
+        categorizedCount,
+        transactions: categorizedTransactions,
       });
 
       toast({
         title: "Importação concluída",
-        description: `${successCount} transações importadas. ${errors.length > 0 ? errors.length + " linhas ignoradas." : ""}`,
+        description: `${successCount} transações importadas. ${categorizedCount} categorizadas automaticamente. ${errors.length > 0 ? errors.length + " linhas ignoradas." : ""}`,
       });
 
     } catch (error) {
@@ -166,7 +182,7 @@ const Importar = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
-      <div className="container mx-auto p-4 lg:p-6 max-w-4xl">
+      <div className="container mx-auto p-4 lg:p-6 max-w-6xl">
         {/* Header */}
         <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
           <BackButton />
@@ -177,202 +193,239 @@ const Importar = () => {
             Importar Transações
           </h1>
           <p className="text-sm lg:text-base text-muted-foreground">
-            Importe suas transações de planilhas CSV ou extratos bancários
+            Importe suas transações com categorização automática inteligente
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Upload Section */}
-          <Card className="animate-scale-in" style={{ animationDelay: "200ms" }}>
-            <CardHeader className="px-4 lg:px-6 py-4 lg:py-6">
-              <CardTitle className="text-base lg:text-lg flex items-center gap-2">
-                <Upload className="h-4 w-4 lg:h-5 lg:w-5" />
-                Upload de Arquivo
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6 space-y-4">
-              <div>
-                <Label htmlFor="file-upload" className="text-sm font-medium">
-                  Selecione um arquivo CSV
-                </Label>
-                <div className="mt-2">
-                  <div
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${dragActive ? "border-primary bg-primary/10" : "border-muted"}`}
-                  >
-                    <Input
-                      id="file-upload"
-                      type="file"
-                      accept=".csv,.txt"
-                      onChange={handleFileChange}
-                      className="cursor-pointer"
-                      aria-label="Selecionar arquivo para importação"
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Arraste e solte o arquivo aqui ou clique para selecionar
-                    </p>
-                    {file && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-2"
-                        onClick={() => setFile(null)}
-                        aria-label="Limpar arquivo selecionado"
+        <Tabs defaultValue="importar" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="importar" className="flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Importar Arquivo
+            </TabsTrigger>
+            <TabsTrigger value="regras" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Regras de Categorização
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="importar" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Upload Section */}
+              <Card className="animate-scale-in" style={{ animationDelay: "200ms" }}>
+                <CardHeader className="px-4 lg:px-6 py-4 lg:py-6">
+                  <CardTitle className="text-base lg:text-lg flex items-center gap-2">
+                    <Upload className="h-4 w-4 lg:h-5 lg:w-5" />
+                    Upload de Arquivo
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6 space-y-4">
+                  <div>
+                    <Label htmlFor="file-upload" className="text-sm font-medium">
+                      Selecione um arquivo CSV
+                    </Label>
+                    <div className="mt-2">
+                      <div
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                        onDrop={handleDrop}
+                        className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${dragActive ? "border-primary bg-primary/10" : "border-muted"}`}
                       >
-                        Limpar arquivo
-                      </Button>
-                    )}
+                        <Input
+                          id="file-upload"
+                          type="file"
+                          accept=".csv,.txt"
+                          onChange={handleFileChange}
+                          className="cursor-pointer"
+                          aria-label="Selecionar arquivo para importação"
+                        />
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Arraste e solte o arquivo aqui ou clique para selecionar
+                        </p>
+                        {file && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-2"
+                            onClick={() => setFile(null)}
+                            aria-label="Limpar arquivo selecionado"
+                          >
+                            Limpar arquivo
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Formatos suportados: CSV, TXT (separado por tabs)
+                    </p>
                   </div>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Formatos suportados: CSV, TXT (separado por tabs)
-                </p>
-              </div>
 
-              {file && (
-                <div className="p-3 bg-muted/50 rounded-lg">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium truncate">{file.name}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Tamanho: {(file.size / 1024).toFixed(1)} KB
-                  </p>
-                </div>
-              )}
-
-              <Button 
-                onClick={handleImport}
-                disabled={!file || importing}
-                className="w-full"
-              >
-                {importing ? "Importando..." : "Importar Transações"}
-              </Button>
-
-              {importResult && (
-                <div className={`p-3 rounded-lg flex items-center gap-2 ${
-                  importResult.success 
-                    ? 'bg-success/10 text-success border border-success/20' 
-                    : 'bg-destructive/10 text-destructive border border-destructive/20'
-                }`}>
-                  {importResult.success ? (
-                    <CheckCircle className="h-4 w-4 flex-shrink-0" />
-                  ) : (
-                    <AlertCircle className="h-4 w-4 flex-shrink-0" />
-                  )}
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium">{importResult.message}</p>
-                    {importResult.count && (
-                      <p className="text-xs opacity-80">
-                        {importResult.count} transações importadas
+                  {file && (
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium truncate">{file.name}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Tamanho: {(file.size / 1024).toFixed(1)} KB
                       </p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                    </div>
+                  )}
 
-          {/* Instructions */}
-          <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
-            <CardHeader className="px-4 lg:px-6 py-4 lg:py-6">
-              <CardTitle className="text-base lg:text-lg">
-                Como Importar
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6 space-y-4">
-              <div className="space-y-3">
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-semibold">
-                    1
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Prepare seu arquivo</p>
-                    <p className="text-xs text-muted-foreground">
-                      Use o formato CSV com as colunas: data, descrição, valor, tipo, categoria
-                    </p>
-                  </div>
-                </div>
+                  <Button 
+                    onClick={handleImport}
+                    disabled={!file || importing}
+                    className="w-full flex items-center gap-2"
+                  >
+                    <Zap className="h-4 w-4" />
+                    {importing ? "Importando..." : "Importar com Categorização Automática"}
+                  </Button>
 
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-semibold">
-                    2
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Faça o upload</p>
-                    <p className="text-xs text-muted-foreground">
-                      Clique em "Escolher arquivo" e selecione seu CSV
-                    </p>
-                  </div>
-                </div>
+                  {importResult && (
+                    <div className={`p-3 rounded-lg flex items-start gap-2 ${
+                      importResult.success 
+                        ? 'bg-success/10 text-success border border-success/20' 
+                        : 'bg-destructive/10 text-destructive border border-destructive/20'
+                    }`}>
+                      {importResult.success ? (
+                        <CheckCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      ) : (
+                        <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5" />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium">{importResult.message}</p>
+                        {importResult.count && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            <Badge variant="outline">
+                              {importResult.count} transações importadas
+                            </Badge>
+                            {importResult.categorizedCount !== undefined && (
+                              <Badge variant="default">
+                                <Zap className="h-3 w-3 mr-1" />
+                                {importResult.categorizedCount} categorizadas automaticamente
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-                <div className="flex gap-3">
-                  <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-semibold">
-                    3
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Importe os dados</p>
-                    <p className="text-xs text-muted-foreground">
-                      Clique em "Importar" e aguarde o processamento
-                    </p>
-                  </div>
-                </div>
-              </div>
+              {/* Instructions */}
+              <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
+                <CardHeader className="px-4 lg:px-6 py-4 lg:py-6">
+                  <CardTitle className="text-base lg:text-lg">
+                    Como Funciona a Categorização
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6 space-y-4">
+                  <div className="space-y-3">
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-semibold">
+                        1
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Regras Automáticas</p>
+                        <p className="text-xs text-muted-foreground">
+                          Sistema aplica regras baseadas em palavras-chave (Uber → Transporte)
+                        </p>
+                      </div>
+                    </div>
 
-              <div className="pt-4 border-t">
-                <Button
-                  variant="outline"
-                  onClick={downloadTemplate}
-                  className="w-full flex items-center gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Baixar Modelo CSV
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-semibold">
+                        2
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Histórico Inteligente</p>
+                        <p className="text-xs text-muted-foreground">
+                          Aprende com suas categorizações anteriores
+                        </p>
+                      </div>
+                    </div>
 
-        {/* Format Example */}
-        <Card className="mt-6 animate-scale-in" style={{ animationDelay: "400ms" }}>
-          <CardHeader className="px-4 lg:px-6 py-4">
-            <CardTitle className="text-base lg:text-lg">
-              Exemplo de Formato
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
-            <div className="bg-muted p-4 rounded-lg overflow-x-auto">
-              <table className="w-full text-xs lg:text-sm min-w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-2">Data</th>
-                    <th className="text-left py-2">Descrição</th>
-                    <th className="text-left py-2">Valor</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="py-1">1900-05-21 00:00:00</td>
-                    <td className="py-1">Dinheiro do pai</td>
-                    <td className="py-1">100</td>
-                  </tr>
-                  <tr>
-                    <td className="py-1">2024-01-16</td>
-                    <td className="py-1">Compra supermercado</td>
-                    <td className="py-1">-150.50</td>
-                  </tr>
-                </tbody>
-              </table>
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-semibold">
+                        3
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Revisão Manual</p>
+                        <p className="text-xs text-muted-foreground">
+                          Transações não categorizadas ficam marcadas para revisão
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      onClick={downloadTemplate}
+                      className="w-full flex items-center gap-2"
+                    >
+                      <Download className="h-4 w-4" />
+                      Baixar Modelo CSV
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              * Valores negativos são considerados despesas, positivos como receitas
-              <br />
-              * Transações sem categoria serão marcadas como "Sem categoria"
-            </p>
-          </CardContent>
-        </Card>
+
+            {/* Format Example */}
+            <Card className="animate-scale-in" style={{ animationDelay: "400ms" }}>
+              <CardHeader className="px-4 lg:px-6 py-4">
+                <CardTitle className="text-base lg:text-lg">
+                  Exemplo de Formato Suportado
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
+                <div className="bg-muted p-4 rounded-lg overflow-x-auto">
+                  <table className="w-full text-xs lg:text-sm min-w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2">Data</th>
+                        <th className="text-left py-2">Descrição</th>
+                        <th className="text-left py-2">Valor</th>
+                        <th className="text-left py-2">Categoria Sugerida</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="py-1">01/05/2025</td>
+                        <td className="py-1">Compra no débito via NuPay - iFood</td>
+                        <td className="py-1">-37.79</td>
+                        <td className="py-1"><Badge variant="outline">Alimentação</Badge></td>
+                      </tr>
+                      <tr>
+                        <td className="py-1">02/05/2025</td>
+                        <td className="py-1">Transferência enviada pelo Pix - Uber</td>
+                        <td className="py-1">-8.51</td>
+                        <td className="py-1"><Badge variant="outline">Transporte</Badge></td>
+                      </tr>
+                      <tr>
+                        <td className="py-1">03/05/2025</td>
+                        <td className="py-1">Resgate RDB</td>
+                        <td className="py-1">11.00</td>
+                        <td className="py-1"><Badge variant="outline">Investimentos</Badge></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  * O sistema reconhece automaticamente padrões como "iFood", "Uber", "RDB" e aplica as categorias correspondentes
+                  <br />
+                  * Valores negativos são considerados despesas, positivos como receitas
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="regras">
+            <CategorizationRules />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   )
