@@ -14,7 +14,8 @@ export const resetAllData = () => {
     'financeflow_fixedexpenses',
     'financeflow_incomesources',
     'financeflow_categorization_rules',
-    'financeflow_categorization_history'
+    'financeflow_categorization_history',
+    'financeflow_custom_limits'
   ];
 
   // Remove todas as chaves do localStorage

@@ -15,7 +15,17 @@ const Limites = () => {
   const [selectedYear] = useState(new Date().getFullYear());
   const [editingLimitCategory, setEditingLimitCategory] = useState(null);
   const [limitValue, setLimitValue] = useState(0);
-  const [customLimits, setCustomLimits] = useState<{ [key: string]: number }>({});
+  const [customLimits, setCustomLimits] = useState<{ [key: string]: number }>(() => {
+    // Carregar limites personalizados do localStorage
+    const saved = localStorage.getItem('financeflow_custom_limits');
+    return saved ? JSON.parse(saved) : {};
+  });
+
+  // Salvar limites personalizados no localStorage sempre que mudarem
+  const updateCustomLimits = (newLimits: { [key: string]: number }) => {
+    setCustomLimits(newLimits);
+    localStorage.setItem('financeflow_custom_limits', JSON.stringify(newLimits));
+  };
 
   // Calcular gastos por categoria no mês atual
   const getCategoryLimits = () => {
@@ -37,20 +47,66 @@ const Limites = () => {
           0
         );
 
-        // Definir limites fictícios para demonstração (em uma aplicação real, isso viria do estado)
-        const limits = {
-          Alimentação: 800,
-          Transporte: 400,
-          Lazer: 300,
-          Saúde: 200,
-          Educação: 150,
-          Casa: 500,
+        // Definir limites padrão baseados no tipo de categoria
+        const getDefaultLimit = (categoryName: string) => {
+          // Limites padrão mais realistas baseados nas novas categorias
+          const defaultLimits: { [key: string]: number } = {
+            // Essenciais - Alimentação
+            'Alimentação': 800,
+            'Supermercado': 600,
+            'Restaurantes': 300,
+            
+            // Transporte
+            'Transporte': 400,
+            'Combustível': 300,
+            
+            // Moradia
+            'Moradia': 1200,
+            'Aluguel': 1500,
+            'Contas Básicas': 400,
+            'Energia Elétrica': 200,
+            'Água': 100,
+            'Internet': 100,
+            'Telefone': 80,
+            'Gás': 80,
+            
+            // Saúde
+            'Saúde': 300,
+            'Medicamentos': 150,
+            'Plano de Saúde': 400,
+            'Academia': 100,
+            
+            // Educação
+            'Educação': 200,
+            'Cursos': 300,
+            'Livros': 100,
+            
+            // Lazer
+            'Lazer': 250,
+            'Cinema': 100,
+            'Streaming': 50,
+            'Viagens': 500,
+            
+            // Vestuário
+            'Roupas': 200,
+            'Sapatos': 150,
+            'Cabeleireiro': 80,
+            'Cosméticos': 100,
+            
+            // Financeiro
+            'Cartão de Crédito': 1000,
+            'Empréstimos': 500,
+            'Seguros': 200,
+            
+            // Outros
+            'Pets': 150,
+            'Presentes': 200,
+          };
+          
+          return defaultLimits[categoryName] || 300;
         };
 
-        const budget =
-          customLimits[category.name] ??
-          limits[category.name as keyof typeof limits] ??
-          300;
+        const budget = customLimits[category.name] ?? getDefaultLimit(category.name);
         const percentage = budget > 0 ? (spent / budget) * 100 : 0;
         const remaining = budget - spent;
 
@@ -85,22 +141,19 @@ const Limites = () => {
     setLimitValue(category.budget);
   };
 
-  // Função para remover limite personalizado
   const handleDeleteLimit = (category) => {
-    setCustomLimits((prev) => {
-      const updated = { ...prev };
-      delete updated[category.name];
-      return updated;
-    });
+    const newLimits = { ...customLimits };
+    delete newLimits[category.name];
+    updateCustomLimits(newLimits);
   };
 
   const handleUpdateLimit = (e) => {
     e.preventDefault();
-    // Salve o limite personalizado
-    setCustomLimits((prev) => ({
-      ...prev,
-      [editingLimitCategory.name]: Number(limitValue),
-    }));
+    const newLimits = {
+      ...customLimits,
+      [editingLimitCategory.name]: limitValue,
+    };
+    updateCustomLimits(newLimits);
     setEditingLimitCategory(null);
   };
 
@@ -149,7 +202,6 @@ const Limites = () => {
                   >
                     <Edit className="h-3 w-3" />
                   </Button>
-                  {/* No botão de delete, chame a função: */}
                   <Button
                     variant="ghost"
                     size="sm"
