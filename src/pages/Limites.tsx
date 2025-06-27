@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -360,7 +361,7 @@ const Limites = () => {
                   type="number"
                   min={1}
                   value={limitValue}
-                  onChange={(e) => setLimitValue(e.target.value)}
+                  onChange={(e) => setLimitValue(Number(e.target.value))}
                   required
                 />
                 <Button type="submit">Salvar</Button>

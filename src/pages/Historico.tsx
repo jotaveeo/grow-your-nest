@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from "react";
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Search, Filter, Trash2, Edit, Calendar } from "lucide-react";
+import { Search, Filter, Trash2, Edit, Calendar, CheckCircle, AlertCircle } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 
@@ -445,14 +446,14 @@ const Historico = () => {
               )}
               <div className="min-w-0">
                 <p className="text-sm font-medium">{importResult.message}</p>
-                {importResult.count && (
+                {importResult.success && (
                   <p className="text-xs opacity-80">
                     {importResult.count} transações importadas
                   </p>
                 )}
               </div>
             </div>
-            {importResult.errors && importResult.errors.length > 0 && (
+            {!importResult.success && importResult.errors && importResult.errors.length > 0 && (
               <div className="mt-2 text-xs text-destructive">
                 <strong>Linhas ignoradas:</strong>
                 <ul className="list-disc ml-4">
