@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,6 +13,7 @@ const Relatorios = () => {
   const { transactions, categories } = useFinanceExtendedContext()
   const [selectedPeriod, setSelectedPeriod] = useState("month")
   const [selectedYear, setSelectedYear] = useState("2024")
+  const [selectedMonth, setSelectedMonth] = useState("01")
   const { toast } = useToast()
 
   // Create getCategoryData function to match the expected format
@@ -81,6 +81,22 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
     URL.revokeObjectURL(url)
   }
 
+  const exportCSV = () => {
+    const csv = [
+      "Categoria,Valor",
+      ...categoryExpenses.map(c => `"${c.name}",${c.amount}`)
+    ].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `relatorio-${selectedPeriod}-${selectedYear}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
@@ -132,6 +148,24 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
                     <SelectItem value="2024">2024</SelectItem>
                     <SelectItem value="2023">2023</SelectItem>
                     <SelectItem value="2022">2022</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex-1 sm:flex-none">
+                <label className="text-sm font-medium mb-2 block">Mês</label>
+                <Select
+                  value={selectedMonth}
+                  onValueChange={setSelectedMonth}
+                  disabled={selectedPeriod !== "month"}
+                >
+                  <SelectTrigger className="w-full sm:w-32">
+                    <SelectValue placeholder="Mês" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {["01","02","03","04","05","06","07","08","09","10","11","12"].map(m => (
+                      <SelectItem key={m} value={m}>{m}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

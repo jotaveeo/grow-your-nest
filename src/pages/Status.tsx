@@ -22,12 +22,16 @@ const Status = () => (
             {status.online ? (
               <>
                 <CheckCircle className="text-green-600 w-5 h-5" />
-                <span className="font-semibold text-green-700">Operando normalmente</span>
+                <span className="font-semibold text-green-700">
+                  Operando normalmente
+                </span>
               </>
             ) : (
               <>
                 <XCircle className="text-red-600 w-5 h-5" />
-                <span className="font-semibold text-red-700">Instabilidade detectada</span>
+                <span className="font-semibold text-red-700">
+                  Instabilidade detectada
+                </span>
               </>
             )}
           </div>
@@ -37,7 +41,9 @@ const Status = () => (
           {status.incidents.length > 0 ? (
             <div className="space-y-2">
               <AlertTriangle className="text-yellow-600 w-4 h-4 inline" />{" "}
-              <span className="font-semibold text-yellow-700">Incidentes recentes:</span>
+              <span className="font-semibold text-yellow-700">
+                Incidentes recentes:
+              </span>
               <ul className="list-disc ml-6">
                 {status.incidents.map((inc, i) => (
                   <li key={i}>{inc}</li>
@@ -45,7 +51,9 @@ const Status = () => (
               </ul>
             </div>
           ) : (
-            <div className="text-green-700 text-sm">Nenhum incidente registrado.</div>
+            <div className="text-green-700 text-sm">
+              Nenhum incidente registrado.
+            </div>
           )}
           <div className="pt-4">
             <a

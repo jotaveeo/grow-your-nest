@@ -502,14 +502,9 @@ const Landing = () => {
                 </a>
               </li>
               <li>
-                <a
-                  href="/status"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:underline"
-                >
+                <Link to="/status" className="hover:underline">
                   Status do Sistema
-                </a>
+                </Link>
               </li>
               <li>
                 <a
@@ -528,19 +523,19 @@ const Landing = () => {
             <h4 className="font-semibold mb-4">Legal</h4>
             <ul className="space-y-2 text-sm text-gray-600">
               <li>
-                <a href="/privacidade" className="hover:underline">
+                <Link to="/privacidade" className="hover:underline">
                   Política de Privacidade
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/termos" className="hover:underline">
+                <Link to="/termos" className="hover:underline">
                   Termos de Uso
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="/lgpd" className="hover:underline">
+                <Link to="/lgpd" className="hover:underline">
                   LGPD
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
@@ -562,9 +557,12 @@ const Landing = () => {
         <Button
           size="lg"
           className="w-full bg-primary hover:bg-primary/90 shadow-lg"
+          asChild
         >
-          Começar de Graça
-          <ArrowRight className="ml-2 w-5 h-5" />
+          <Link to="/cadastro">
+            Começar de Graça
+            <ArrowRight className="ml-2 w-5 h-5" />
+          </Link>
         </Button>
       </div>
 
@@ -578,7 +576,7 @@ const Landing = () => {
               ✕
             </button>
             <h3 className="text-xl font-bold mb-4">
-              Demonstração do FinanceFlow
+              Demonstração do FinanciControl
             </h3>
             <div className="aspect-w-16 aspect-h-9">
               <iframe

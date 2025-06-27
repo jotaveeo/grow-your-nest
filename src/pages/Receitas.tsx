@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { DollarSign, Plus, Trash2, Edit, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,6 +58,15 @@ const Receitas = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.source || !form.type || !form.amount || !form.date) {
+      // Exemplo de toast (adicione seu componente de toast)
+      alert("Preencha todos os campos obrigatórios.");
+      return;
+    }
+    if (parseFloat(form.amount) <= 0) {
+      alert("O valor deve ser maior que zero.");
+      return;
+    }
     if (editingId) {
       setIncomes((prev) =>
         prev.map((inc) => (inc.id === editingId ? { ...inc, ...form } : inc))

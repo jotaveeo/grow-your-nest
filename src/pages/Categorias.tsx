@@ -16,8 +16,7 @@ import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { useToast } from "@/hooks/use-toast";
 
 const Categorias = () => {
-  const { categories, addCategory, updateCategory, deleteCategory } =
-    useFinanceExtendedContext();
+  const { categories, addCategory, updateCategory, deleteCategory, transactions } = useFinanceExtendedContext();
   const { toast } = useToast();
 
   const [newCategory, setNewCategory] = useState({
@@ -107,6 +106,9 @@ const Categorias = () => {
 
   const expenseCategories = categories.filter((cat) => cat.type === "expense");
   const incomeCategories = categories.filter((cat) => cat.type === "income");
+  const unusedCategories = categories.filter(
+    cat => !transactions.some(t => t.category === cat.name)
+  );
 
   const CategoryCard = ({ category, onEdit, onDelete }: any) => (
     <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors hover-lift">
@@ -413,7 +415,9 @@ const Categorias = () => {
                 </p>
               </div>
               <div className="text-center p-4 bg-muted/50 rounded-lg hover-lift">
-                <p className="text-2xl font-bold text-warning">0</p>
+                <p className="text-2xl font-bold text-warning">
+                  {unusedCategories.length}
+                </p>
                 <p className="text-sm text-muted-foreground">
                   Categorias Não Utilizadas
                 </p>

@@ -81,14 +81,30 @@ const Dashboard = () => {
 
   // Get monthly expenses for trend chart
   const getMonthlyExpenses = () => {
-    return [
-      { month: "Jan", income: 5000, expenses: 3200 },
-      { month: "Fev", income: 5200, expenses: 3100 },
-      { month: "Mar", income: 4800, expenses: 3400 },
-      { month: "Abr", income: 5100, expenses: 3300 },
-      { month: "Mai", income: 5300, expenses: 3500 },
-      { month: "Jun", income: 5000, expenses: 3200 },
-    ];
+    const months = Array.from({ length: 12 }, (_, i) => i);
+    return months.map((monthIdx) => {
+      const income = transactions
+        .filter(
+          (t) =>
+            t.type === "income" &&
+            new Date(t.date).getMonth() === monthIdx
+        )
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const expenses = transactions
+        .filter(
+          (t) =>
+            t.type === "expense" &&
+            new Date(t.date).getMonth() === monthIdx
+        )
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      return {
+        month: new Date(0, monthIdx).toLocaleString("pt-BR", { month: "short" }),
+        income,
+        expenses,
+      };
+    });
   };
 
   const balance = getBalance();

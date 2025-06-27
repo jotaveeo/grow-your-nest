@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { TrendingUp, Plus, Trash2, Edit, Calendar } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -29,6 +28,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/BackButton";
+import { toast } from "@/components/ui/use-toast";
+import { TrendChart } from "@/components/TrendChart";
 
 type Investment = {
   id: string;
@@ -73,6 +74,22 @@ const Investimentos = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!form.product || !form.broker || !form.type || !form.amount || !form.date) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Preencha todos os campos antes de salvar.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (parseFloat(form.amount) <= 0) {
+      toast({
+        title: "Valor inválido",
+        description: "O valor investido deve ser maior que zero.",
+        variant: "destructive",
+      });
+      return;
+    }
     if (editingId) {
       setInvestments((prev) =>
         prev.map((inv) => (inv.id === editingId ? { ...inv, ...form } : inv))
@@ -109,6 +126,13 @@ const Investimentos = () => {
     0
   );
 
+  const distribution = investmentTypes.map((type) => ({
+    type,
+    value: investments
+      .filter((inv) => inv.type === type)
+      .reduce((sum, inv) => sum + (parseFloat(inv.amount) || 0), 0),
+  }));
+
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
@@ -117,7 +141,10 @@ const Investimentos = () => {
           <BackButton />
         </div>
 
-        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
+        <div
+          className="mb-6 lg:mb-8 animate-slide-in-left"
+          style={{ animationDelay: "100ms" }}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
               <TrendingUp className="h-8 w-8 text-primary" />
@@ -150,7 +177,9 @@ const Investimentos = () => {
               <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                   <DialogTitle>
-                    {editingId ? "Editar Investimento" : "Adicionar Investimento"}
+                    {editingId
+                      ? "Editar Investimento"
+                      : "Adicionar Investimento"}
                   </DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-2">
@@ -240,7 +269,10 @@ const Investimentos = () => {
           </div>
         </div>
 
-        <Card className="mb-6 border-l-4 border-l-primary bg-primary/10 animate-scale-in" style={{ animationDelay: "200ms" }}>
+        <Card
+          className="mb-6 border-l-4 border-l-primary bg-primary/10 animate-scale-in"
+          style={{ animationDelay: "200ms" }}
+        >
           <CardContent className="flex items-center gap-4 py-4">
             <TrendingUp className="h-6 w-6 text-primary" />
             <div>
@@ -288,7 +320,10 @@ const Investimentos = () => {
                     </TableRow>
                   ) : (
                     investments.map((inv) => (
-                      <TableRow key={inv.id} className="hover:bg-muted/30 transition-colors">
+                      <TableRow
+                        key={inv.id}
+                        className="hover:bg-muted/30 transition-colors"
+                      >
                         <TableCell className="font-medium">
                           {inv.product}
                         </TableCell>
@@ -346,6 +381,15 @@ const Investimentos = () => {
             )}
           </CardContent>
         </Card>
+
+        {investments.length > 0 && (
+          <div className="mb-6">
+            <TrendChart
+              data={distribution.map((d) => ({ name: d.type, amount: d.value }))}
+              title="Distribuição por Tipo"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

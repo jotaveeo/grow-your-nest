@@ -4,8 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
-import { TrendChart } from "@/components/TrendChart"; // Use um gráfico de barras simples
-
+import { TrendChart } from "@/components/TrendChart"; //
 const months = [
   "Janeiro",
   "Fevereiro",
@@ -105,8 +104,6 @@ const Cofrinho = () => {
               data={months.map((month, idx) => ({
                 month: month.slice(0, 3),
                 receitas: parseFloat(savings[idx]) || 0,
-                despesas: 0,
-                saldo: parseFloat(savings[idx]) || 0,
               }))}
               title="Poupança Mensal"
             />

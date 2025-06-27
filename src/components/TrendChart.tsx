@@ -1,48 +1,70 @@
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { useFinanceExtendedContext } from '@/contexts/FinanceExtendedContext'
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 
 interface TrendChartProps {
-  data?: any[]
-  title?: string
+  data?: any[];
+  title?: string;
 }
 
-export const TrendChart = ({ data: propData, title = "Evolução Mensal" }: TrendChartProps) => {
-  const { transactions } = useFinanceExtendedContext()
+export const TrendChart = ({
+  data: propData,
+  title = "Evolução Mensal",
+}: TrendChartProps) => {
+  const { transactions } = useFinanceExtendedContext();
 
   // Gera dados do gráfico a partir das transações, se não vier via prop
-  const chartData = propData || (() => {
-    const monthlyData = transactions.reduce((acc, transaction) => {
-      const date = new Date(transaction.date)
-      const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+  const chartData =
+    propData ||
+    (() => {
+      const monthlyData = transactions.reduce((acc, transaction) => {
+        const date = new Date(transaction.date);
+        const monthYear = `${date.getFullYear()}-${String(
+          date.getMonth() + 1
+        ).padStart(2, "0")}`;
 
-      if (!acc[monthYear]) {
-        acc[monthYear] = {
-          month: new Date(date.getFullYear(), date.getMonth(), 1).toLocaleDateString('pt-BR', {
-            month: 'short',
-            year: 'numeric'
-          }),
-          receitas: 0,
-          despesas: 0,
-          saldo: 0
+        if (!acc[monthYear]) {
+          acc[monthYear] = {
+            month: new Date(
+              date.getFullYear(),
+              date.getMonth(),
+              1
+            ).toLocaleDateString("pt-BR", {
+              month: "short",
+              year: "numeric",
+            }),
+            receitas: 0,
+            despesas: 0,
+            saldo: 0,
+          };
         }
-      }
 
-      if (transaction.type === 'income') {
-        acc[monthYear].receitas += transaction.amount
-      } else {
-        acc[monthYear].despesas += transaction.amount
-      }
+        if (transaction.type === "income") {
+          acc[monthYear].receitas += transaction.amount;
+        } else {
+          acc[monthYear].despesas += transaction.amount;
+        }
 
-      acc[monthYear].saldo = acc[monthYear].receitas - acc[monthYear].despesas
+        acc[monthYear].saldo =
+          acc[monthYear].receitas - acc[monthYear].despesas;
 
-      return acc
-    }, {} as Record<string, any>)
+        return acc;
+      }, {} as Record<string, any>);
 
-    return Object.values(monthlyData).sort((a: any, b: any) =>
-      new Date(a.month).getTime() - new Date(b.month).getTime()
-    )
-  })()
+      return Object.values(monthlyData).sort(
+        (a: any, b: any) =>
+          new Date(a.month).getTime() - new Date(b.month).getTime()
+      );
+    })();
 
   // Compatibilidade retroativa
   const transformedData = chartData.map((item: any) => {
@@ -51,11 +73,11 @@ export const TrendChart = ({ data: propData, title = "Evolução Mensal" }: Tren
         month: item.month,
         receitas: item.income,
         despesas: item.expenses,
-        saldo: item.income - item.expenses
-      }
+        saldo: item.income - item.expenses,
+      };
     }
-    return item
-  })
+    return item;
+  });
 
   // Tooltip customizado acessível
   const CustomTooltip = ({ active, payload, label }: any) => {
@@ -65,14 +87,17 @@ export const TrendChart = ({ data: propData, title = "Evolução Mensal" }: Tren
           <p className="font-medium">{label}</p>
           {payload.map((entry: any, index: number) => (
             <p key={index} style={{ color: entry.color }} className="text-sm">
-              {entry.name}: R$ {entry.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              {entry.name}: R${" "}
+              {entry.value.toLocaleString("pt-BR", {
+                minimumFractionDigits: 2,
+              })}
             </p>
           ))}
         </div>
-      )
+      );
     }
-    return null
-  }
+    return null;
+  };
 
   if (!transformedData || transformedData.length === 0) {
     return (
@@ -84,7 +109,7 @@ export const TrendChart = ({ data: propData, title = "Evolução Mensal" }: Tren
           <p className="text-muted-foreground">Nenhum dado disponível</p>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -107,10 +132,12 @@ export const TrendChart = ({ data: propData, title = "Evolução Mensal" }: Tren
             <YAxis
               className="text-xs"
               tick={{ fontSize: 12 }}
-              tickFormatter={(value) => `R$ ${value.toLocaleString('pt-BR', {
-                minimumFractionDigits: 0,
-                maximumFractionDigits: 0
-              })}`}
+              tickFormatter={(value) =>
+                `R$ ${value.toLocaleString("pt-BR", {
+                  minimumFractionDigits: 0,
+                  maximumFractionDigits: 0,
+                })}`
+              }
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend wrapperStyle={{ fontSize: 12 }} />
@@ -145,5 +172,5 @@ export const TrendChart = ({ data: propData, title = "Evolução Mensal" }: Tren
         </ResponsiveContainer>
       </CardContent>
     </Card>
-  )
-}
+  );
+};

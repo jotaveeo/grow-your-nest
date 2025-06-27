@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,9 @@ const NovoLancamento = () => {
     date: new Date().toISOString().split("T")[0],
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.amount || !formData.description || !formData.category) {
@@ -42,21 +43,38 @@ const NovoLancamento = () => {
       });
       return;
     }
+    if (parseFloat(formData.amount) <= 0) {
+      toast({
+        title: "Valor inválido",
+        description: "O valor deve ser maior que zero.",
+        variant: "destructive",
+      });
+      return;
+    }
 
-    addTransaction({
-      type: formData.type,
-      amount: parseFloat(formData.amount),
-      description: formData.description,
-      category: formData.category,
-      date: formData.date,
-    });
-
-    toast({
-      title: "Transação adicionada",
-      description: "A transação foi registrada com sucesso.",
-    });
-
-    navigate("/dashboard");
+    setLoading(true);
+    try {
+      await addTransaction({
+        type: formData.type,
+        amount: parseFloat(formData.amount),
+        description: formData.description,
+        category: formData.category,
+        date: formData.date,
+      });
+      toast({
+        title: "Transação adicionada",
+        description: "A transação foi registrada com sucesso.",
+      });
+      navigate("/dashboard");
+    } catch (error) {
+      toast({
+        title: "Erro ao salvar",
+        description: "Não foi possível registrar a transação.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredCategories = categories.filter(
@@ -77,7 +95,7 @@ const NovoLancamento = () => {
           </p>
         </div>
 
-        <br/>
+        <br />
 
         <Card>
           <CardHeader>
@@ -134,7 +152,10 @@ const NovoLancamento = () => {
                     className="pl-10"
                     value={formData.amount}
                     onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, amount: e.target.value }))
+                      setFormData((prev) => ({
+                        ...prev,
+                        amount: e.target.value,
+                      }))
                     }
                   />
                 </div>
@@ -196,9 +217,9 @@ const NovoLancamento = () => {
 
               {/* Actions */}
               <div className="flex gap-3 pt-4">
-                <Button type="submit" className="flex-1">
+                <Button type="submit" className="flex-1" disabled={loading} aria-label="Salvar transação">
                   <Save className="h-4 w-4 mr-2" />
-                  Salvar Transação
+                  {loading ? "Salvando..." : "Salvar Transação"}
                 </Button>
                 <Button
                   type="button"

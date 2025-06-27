@@ -23,6 +23,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const Configuracoes = () => {
   const [settings, setSettings] = useState({
@@ -38,6 +39,7 @@ const Configuracoes = () => {
   });
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   // Sincroniza o modo escuro com a tag <html>
   useEffect(() => {
@@ -93,9 +95,24 @@ const Configuracoes = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(settings.email)) {
+      toast({
+        title: "E-mail inválido",
+        description: "Digite um e-mail válido.",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     setTimeout(() => {
       setLoading(false);
-      localStorage.setItem("financi_user_name", settings.name); // Salva o nome
+      localStorage.setItem("financi_user_name", settings.name);
+      toast({
+        title: "Perfil salvo",
+        description: "Suas configurações foram atualizadas.",
+      });
       navigate("/login");
     }, 1200);
   };
@@ -109,7 +126,7 @@ const Configuracoes = () => {
             Configurações
           </h1>
           <p className="text-sm lg:text-base text-muted-foreground">
-            Personalize sua experiência no FinanceFlow
+            Personalize sua experiência no FinanciControl
           </p>
         </div>
 
@@ -123,35 +140,40 @@ const Configuracoes = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="name">Nome Completo</Label>
-                  <Input
-                    id="name"
-                    value={settings.name}
-                    onChange={(e) =>
-                      handleSettingChange("name", e.target.value)
-                    }
-                    className="mt-1"
-                  />
+              <form onSubmit={handleSubmit}>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="name">Nome Completo</Label>
+                    <Input
+                      id="name"
+                      value={settings.name}
+                      onChange={(e) =>
+                        handleSettingChange("name", e.target.value)
+                      }
+                      className="mt-1"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={settings.email}
+                      onChange={(e) =>
+                        handleSettingChange("email", e.target.value)
+                      }
+                      className="mt-1"
+                      required
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={settings.email}
-                    onChange={(e) =>
-                      handleSettingChange("email", e.target.value)
-                    }
-                    className="mt-1"
-                  />
+                <div className="flex justify-end ">
+                  <Button type="submit" disabled={loading} className="m">
+                    {loading ? "Salvando..." : "Salvar Perfil"}
+                  </Button>
                 </div>
-              </div>
-
-              <div className="flex justify-end">
-                <Button>Salvar Perfil</Button>
-              </div>
+              </form>
             </CardContent>
           </Card>
 

@@ -1,62 +1,115 @@
-
-import { useState } from "react"
-import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { Plus, Edit, Trash2, Shield, AlertTriangle } from "lucide-react"
+import { useState } from "react";
+import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Edit, Trash2, Shield, AlertTriangle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 const Limites = () => {
-  const { transactions, categories } = useFinanceExtendedContext()
-  const [selectedMonth] = useState(new Date().getMonth())
-  const [selectedYear] = useState(new Date().getFullYear())
+  const { transactions, categories } = useFinanceExtendedContext();
+  const [selectedMonth] = useState(new Date().getMonth());
+  const [selectedYear] = useState(new Date().getFullYear());
+  const [editingLimitCategory, setEditingLimitCategory] = useState(null);
+  const [limitValue, setLimitValue] = useState(0);
+  const [customLimits, setCustomLimits] = useState<{ [key: string]: number }>({});
 
   // Calcular gastos por categoria no mês atual
   const getCategoryLimits = () => {
-    return categories.filter(cat => cat.type === 'expense').map(category => {
-      const categoryTransactions = transactions.filter(t => {
-        const transactionDate = new Date(t.date)
-        return t.category === category.name && 
-               t.type === 'expense' &&
-               transactionDate.getMonth() === selectedMonth &&
-               transactionDate.getFullYear() === selectedYear
-      })
+    return categories
+      .filter((cat) => cat.type === "expense")
+      .map((category) => {
+        const categoryTransactions = transactions.filter((t) => {
+          const transactionDate = new Date(t.date);
+          return (
+            t.category === category.name &&
+            t.type === "expense" &&
+            transactionDate.getMonth() === selectedMonth &&
+            transactionDate.getFullYear() === selectedYear
+          );
+        });
 
-      const spent = categoryTransactions.reduce((sum, t) => sum + t.amount, 0)
-      
-      // Definir limites fictícios para demonstração (em uma aplicação real, isso viria do estado)
-      const limits = {
-        'Alimentação': 800,
-        'Transporte': 400,
-        'Lazer': 300,
-        'Saúde': 200,
-        'Educação': 150,
-        'Casa': 500
-      }
+        const spent = categoryTransactions.reduce(
+          (sum, t) => sum + t.amount,
+          0
+        );
 
-      const budget = limits[category.name as keyof typeof limits] || 300
-      const percentage = budget > 0 ? (spent / budget) * 100 : 0
-      const remaining = budget - spent
+        // Definir limites fictícios para demonstração (em uma aplicação real, isso viria do estado)
+        const limits = {
+          Alimentação: 800,
+          Transporte: 400,
+          Lazer: 300,
+          Saúde: 200,
+          Educação: 150,
+          Casa: 500,
+        };
 
-      return {
-        ...category,
-        spent,
-        budget,
-        percentage: Math.min(percentage, 100),
-        remaining,
-        transactions: categoryTransactions.length,
-        status: percentage >= 100 ? 'exceeded' : percentage >= 80 ? 'warning' : 'safe'
-      }
-    })
-  }
+        const budget =
+          customLimits[category.name] ??
+          limits[category.name as keyof typeof limits] ??
+          300;
+        const percentage = budget > 0 ? (spent / budget) * 100 : 0;
+        const remaining = budget - spent;
 
-  const categoryLimits = getCategoryLimits()
-  const safeCategories = categoryLimits.filter(cat => cat.status === 'safe')
-  const warningCategories = categoryLimits.filter(cat => cat.status === 'warning')
-  const exceededCategories = categoryLimits.filter(cat => cat.status === 'exceeded')
+        return {
+          ...category,
+          spent,
+          budget,
+          percentage: Math.min(percentage, 100),
+          remaining,
+          transactions: categoryTransactions.length,
+          status:
+            percentage >= 100
+              ? "exceeded"
+              : percentage >= 80
+              ? "warning"
+              : "safe",
+        };
+      });
+  };
 
-  const KanbanColumn = ({ title, categories, bgColor, textColor, icon: Icon }) => (
+  const categoryLimits = getCategoryLimits();
+  const safeCategories = categoryLimits.filter((cat) => cat.status === "safe");
+  const warningCategories = categoryLimits.filter(
+    (cat) => cat.status === "warning"
+  );
+  const exceededCategories = categoryLimits.filter(
+    (cat) => cat.status === "exceeded"
+  );
+
+  const handleEditLimit = (category) => {
+    setEditingLimitCategory(category);
+    setLimitValue(category.budget);
+  };
+
+  // Função para remover limite personalizado
+  const handleDeleteLimit = (category) => {
+    setCustomLimits((prev) => {
+      const updated = { ...prev };
+      delete updated[category.name];
+      return updated;
+    });
+  };
+
+  const handleUpdateLimit = (e) => {
+    e.preventDefault();
+    // Salve o limite personalizado
+    setCustomLimits((prev) => ({
+      ...prev,
+      [editingLimitCategory.name]: Number(limitValue),
+    }));
+    setEditingLimitCategory(null);
+  };
+
+  const KanbanColumn = ({
+    title,
+    categories,
+    bgColor,
+    textColor,
+    icon: Icon,
+  }) => (
     <Card className="h-fit">
       <CardHeader className="pb-3">
         <CardTitle className={`text-base flex items-center gap-2 ${textColor}`}>
@@ -69,7 +122,10 @@ const Limites = () => {
       </CardHeader>
       <CardContent className="space-y-3">
         {categories.map((category) => (
-          <Card key={category.id} className={`border-l-4 ${bgColor} hover:shadow-md transition-shadow`}>
+          <Card
+            key={category.id}
+            className={`border-l-4 ${bgColor} hover:shadow-md transition-shadow`}
+          >
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
@@ -82,10 +138,25 @@ const Limites = () => {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => handleEditLimit(category)}
+                    aria-label={`Editar limite da categoria ${category.name}`}
+                    title="Editar limite"
+                  >
                     <Edit className="h-3 w-3" />
                   </Button>
-                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+                  {/* No botão de delete, chame a função: */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => handleDeleteLimit(category)}
+                    aria-label={`Remover limite da categoria ${category.name}`}
+                    title="Remover limite"
+                  >
                     <Trash2 className="h-3 w-3" />
                   </Button>
                 </div>
@@ -95,33 +166,55 @@ const Limites = () => {
                 <div className="flex justify-between text-xs">
                   <span>Gasto total:</span>
                   <span className="font-semibold text-destructive">
-                    R$ {category.spent.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    R${" "}
+                    {category.spent.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span>Orçamento:</span>
                   <span className="font-semibold">
-                    R$ {category.budget.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    R${" "}
+                    {category.budget.toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
-                <Progress 
-                  value={category.percentage} 
-                  className="h-2"
-                />
+                <Progress value={category.percentage} className="h-2" />
                 <div className="flex justify-between text-xs">
-                  <span className={category.remaining >= 0 ? 'text-success' : 'text-destructive'}>
-                    {category.remaining >= 0 ? 'Restante:' : 'Excesso:'}
+                  <span
+                    className={
+                      category.remaining >= 0
+                        ? "text-success"
+                        : "text-destructive"
+                    }
+                  >
+                    {category.remaining >= 0 ? "Restante:" : "Excesso:"}
                   </span>
-                  <span className={`font-semibold ${category.remaining >= 0 ? 'text-success' : 'text-destructive'}`}>
-                    R$ {Math.abs(category.remaining).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  <span
+                    className={`font-semibold ${
+                      category.remaining >= 0
+                        ? "text-success"
+                        : "text-destructive"
+                    }`}
+                  >
+                    R${" "}
+                    {Math.abs(category.remaining).toLocaleString("pt-BR", {
+                      minimumFractionDigits: 2,
+                    })}
                   </span>
                 </div>
                 <div className="text-center">
-                  <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                    category.status === 'safe' ? 'bg-green-100 text-green-800' :
-                    category.status === 'warning' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-red-100 text-red-800'
-                  }`}>
+                  <span
+                    className={`text-xs font-medium px-2 py-1 rounded-full ${
+                      category.status === "safe"
+                        ? "bg-green-100 text-green-800"
+                        : category.status === "warning"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
+                  >
                     {category.percentage.toFixed(0)}% utilizado
                   </span>
                 </div>
@@ -129,7 +222,7 @@ const Limites = () => {
             </CardContent>
           </Card>
         ))}
-        
+
         {categories.length === 0 && (
           <div className="text-center py-8 text-muted-foreground">
             <p className="text-sm">Nenhuma categoria neste status</p>
@@ -137,7 +230,7 @@ const Limites = () => {
         )}
       </CardContent>
     </Card>
-  )
+  );
 
   return (
     <div className="min-h-screen bg-background">
@@ -151,14 +244,19 @@ const Limites = () => {
             </h1>
           </div>
           <p className="text-sm lg:text-base text-muted-foreground">
-            Organize suas transações com categorias personalizadas e acompanhe seus limites
+            Organize suas transações com categorias personalizadas e acompanhe
+            seus limites
           </p>
         </div>
 
         {/* Controls */}
         <div className="flex justify-between items-center mb-6">
           <div className="text-sm text-muted-foreground">
-            Período: {new Date(selectedYear, selectedMonth).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}
+            Período:{" "}
+            {new Date(selectedYear, selectedMonth).toLocaleDateString("pt-BR", {
+              month: "long",
+              year: "numeric",
+            })}
           </div>
           <Button className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
@@ -175,7 +273,7 @@ const Limites = () => {
             textColor="text-green-700"
             icon={Shield}
           />
-          
+
           <KanbanColumn
             title="Atenção (80%+)"
             categories={warningCategories}
@@ -183,7 +281,7 @@ const Limites = () => {
             textColor="text-yellow-700"
             icon={AlertTriangle}
           />
-          
+
           <KanbanColumn
             title="Limite Excedido"
             categories={exceededCategories}
@@ -198,8 +296,12 @@ const Limites = () => {
           <Card className="border-l-4 border-l-green-500">
             <CardContent className="p-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">{safeCategories.length}</p>
-                <p className="text-xs text-muted-foreground">Dentro do Limite</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {safeCategories.length}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Dentro do Limite
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -207,7 +309,9 @@ const Limites = () => {
           <Card className="border-l-4 border-l-yellow-500">
             <CardContent className="p-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-yellow-600">{warningCategories.length}</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {warningCategories.length}
+                </p>
                 <p className="text-xs text-muted-foreground">Em Atenção</p>
               </div>
             </CardContent>
@@ -216,7 +320,9 @@ const Limites = () => {
           <Card className="border-l-4 border-l-red-500">
             <CardContent className="p-4">
               <div className="text-center">
-                <p className="text-2xl font-bold text-red-600">{exceededCategories.length}</p>
+                <p className="text-2xl font-bold text-red-600">
+                  {exceededCategories.length}
+                </p>
                 <p className="text-xs text-muted-foreground">Limite Excedido</p>
               </div>
             </CardContent>
@@ -226,16 +332,45 @@ const Limites = () => {
             <CardContent className="p-4">
               <div className="text-center">
                 <p className="text-2xl font-bold text-primary">
-                  {categoryLimits.reduce((sum, cat) => sum + cat.budget, 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                  {categoryLimits
+                    .reduce((sum, cat) => sum + cat.budget, 0)
+                    .toLocaleString("pt-BR", {
+                      style: "currency",
+                      currency: "BRL",
+                    })}
                 </p>
                 <p className="text-xs text-muted-foreground">Orçamento Total</p>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Edit Limit Dialog */}
+        {editingLimitCategory && (
+          <Dialog open={!!editingLimitCategory} onOpenChange={() => setEditingLimitCategory(null)}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Editar Limite - {editingLimitCategory.name}</DialogTitle>
+              </DialogHeader>
+              <form
+                onSubmit={handleUpdateLimit}
+                className="space-y-4"
+              >
+                <Input
+                  type="number"
+                  min={1}
+                  value={limitValue}
+                  onChange={(e) => setLimitValue(e.target.value)}
+                  required
+                />
+                <Button type="submit">Salvar</Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Limites
+export default Limites;

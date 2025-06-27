@@ -18,6 +18,7 @@ const Importar = () => {
     message: string
     count?: number
   } | null>(null)
+  const [dragActive, setDragActive] = useState(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0]
@@ -28,102 +29,114 @@ const Importar = () => {
   }
 
   const parseCSV = (csvText: string) => {
-    const lines = csvText.trim().split('\n')
-    const headers = lines[0].split('\t') // Usando tab como separador
-    const transactions = []
+    let separator = ",";
+    if (csvText.includes("\t")) separator = "\t";
+    else if (csvText.includes(";")) separator = ";";
+
+    const lines = csvText.trim().split("\n");
+    const headers = lines[0].split(separator).map(h => h.trim().toLowerCase());
+
+    const idxData = headers.findIndex(h => h.startsWith("data"));
+    const idxDesc = headers.findIndex(h => h.startsWith("descri"));
+    const idxValor = headers.findIndex(h => h.startsWith("valor"));
+
+    const transactions = [];
+    const errors: string[] = [];
 
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split('\t')
-      if (values.length >= 3) {
-        const dateStr = values[0]?.trim()
-        const description = values[1]?.trim()
-        const amountStr = values[2]?.trim()
-
-        if (dateStr && description && amountStr) {
-          // Processar a data
-          let formattedDate = dateStr
-          if (dateStr.includes(' ')) {
-            // Se tem horário, pegar apenas a data
-            formattedDate = dateStr.split(' ')[0]
-          }
-          
-          // Converter formato de data se necessário
-          if (formattedDate.includes('-') && formattedDate.length > 10) {
-            const date = new Date(formattedDate)
-            if (!isNaN(date.getTime())) {
-              formattedDate = date.toISOString().split('T')[0]
-            }
-          }
-
-          const amount = parseFloat(amountStr.replace(',', '.'))
-          if (!isNaN(amount)) {
-            transactions.push({
-              date: formattedDate,
-              description,
-              amount: Math.abs(amount),
-              type: amount < 0 ? 'expense' : 'income',
-              category: 'Sem categoria' // Categoria padrão
-            })
-          }
-        }
+      const values = lines[i].split(separator);
+      if (values.length < 3) {
+        errors.push(`Linha ${i + 1}: colunas insuficientes`);
+        continue;
       }
+
+      const dateStr = values[idxData]?.trim();
+      const description = values[idxDesc]?.trim();
+      const amountStr = values[idxValor]?.replace(",", ".").trim();
+
+      if (!dateStr || !description || !amountStr) {
+        errors.push(`Linha ${i + 1}: campo obrigatório ausente`);
+        continue;
+      }
+
+      let formattedDate = dateStr;
+      if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+        const [d, m, y] = dateStr.split("/");
+        formattedDate = `${y}-${m}-${d}`;
+      } else if (dateStr.includes(" ")) {
+        formattedDate = dateStr.split(" ")[0];
+      }
+
+      const amount = parseFloat(amountStr);
+      if (isNaN(amount)) {
+        errors.push(`Linha ${i + 1}: valor inválido`);
+        continue;
+      }
+
+      transactions.push({
+        date: formattedDate,
+        description,
+        amount: Math.abs(amount),
+        type: amount < 0 ? "expense" : "income",
+        category: "Sem categoria",
+      });
     }
-    return transactions
+    return { transactions, errors };
   }
 
   const handleImport = async () => {
-    if (!file) return
-    
-    setImporting(true)
-    
+    if (!file) return;
+    setImporting(true);
+
     try {
-      const text = await file.text()
-      const transactions = parseCSV(text)
-      
+      const text = await file.text();
+      const { transactions, errors } = parseCSV(text);
+
       if (transactions.length === 0) {
         setImportResult({
           success: false,
-          message: "Nenhuma transação válida encontrada no arquivo"
-        })
-        setImporting(false)
-        return
+          message: "Nenhuma transação válida encontrada no arquivo",
+          errors,
+        });
+        setImporting(false);
+        return;
       }
 
-      // Adicionar cada transação
-      let successCount = 0
+      let successCount = 0;
       for (const transaction of transactions) {
         try {
-          addTransaction(transaction)
-          successCount++
+          addTransaction(transaction);
+          successCount++;
         } catch (error) {
-          console.error('Erro ao adicionar transação:', error)
+          // Aqui você pode adicionar erros de adição se quiser
         }
       }
 
       setImportResult({
         success: true,
-        message: "Arquivo importado com sucesso!",
-        count: successCount
-      })
+        message: `Arquivo importado com sucesso!`,
+        count: successCount,
+        errors,
+      });
 
       toast({
         title: "Importação concluída",
-        description: `${successCount} transações foram importadas com sucesso.`,
-      })
+        description: `${successCount} transações importadas. ${errors.length > 0 ? errors.length + " linhas ignoradas." : ""}`,
+      });
 
     } catch (error) {
       setImportResult({
         success: false,
-        message: "Erro ao processar o arquivo. Verifique o formato."
-      })
+        message: "Erro ao processar o arquivo. Verifique o formato.",
+      });
       toast({
         title: "Erro na importação",
         description: "Verifique se o arquivo está no formato correto.",
-        variant: "destructive"
-      })
+        variant: "destructive",
+      });
     }
-    
-    setImporting(false)
+
+    setImporting(false);
   }
 
   const downloadTemplate = () => {
@@ -136,6 +149,20 @@ const Importar = () => {
     a.click()
     window.URL.revokeObjectURL(url)
   }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(true);
+  };
+  const handleDragLeave = () => setDragActive(false);
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setFile(e.dataTransfer.files[0]);
+      setImportResult(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
@@ -169,13 +196,35 @@ const Importar = () => {
                   Selecione um arquivo CSV
                 </Label>
                 <div className="mt-2">
-                  <Input
-                    id="file-upload"
-                    type="file"
-                    accept=".csv,.txt"
-                    onChange={handleFileChange}
-                    className="cursor-pointer"
-                  />
+                  <div
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${dragActive ? "border-primary bg-primary/10" : "border-muted"}`}
+                  >
+                    <Input
+                      id="file-upload"
+                      type="file"
+                      accept=".csv,.txt"
+                      onChange={handleFileChange}
+                      className="cursor-pointer"
+                      aria-label="Selecionar arquivo para importação"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Arraste e solte o arquivo aqui ou clique para selecionar
+                    </p>
+                    {file && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-2"
+                        onClick={() => setFile(null)}
+                        aria-label="Limpar arquivo selecionado"
+                      >
+                        Limpar arquivo
+                      </Button>
+                    )}
+                  </div>
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   Formatos suportados: CSV, TXT (separado por tabs)

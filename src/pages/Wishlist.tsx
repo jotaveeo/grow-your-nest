@@ -24,21 +24,42 @@ const Wishlist = () => {
     category: 'undefined' as const,
     status: 'thinking' as const
   })
+  const [editingItem, setEditingItem] = useState<any>(null);
+
+  const handleEdit = (item: any) => {
+    setFormData({ ...item });
+    setEditingItem(item);
+    setIsDialogOpen(true);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    addWishlistItem(formData)
+    e.preventDefault();
+    if (!formData.title.trim() || formData.estimatedPrice <= 0 || !formData.decisionDate) {
+      // Exemplo de toast (adicione seu componente de toast)
+      alert("Preencha todos os campos obrigatórios e insira um valor válido.");
+      return;
+    }
+    if (formData.priority < 1 || formData.priority > 10) {
+      alert("Prioridade deve ser entre 1 e 10.");
+      return;
+    }
+    if (editingItem) {
+      updateWishlistItem(editingItem.id, formData);
+    } else {
+      addWishlistItem(formData);
+    }
     setFormData({
-      title: '',
+      title: "",
       estimatedPrice: 0,
-      reason: '',
-      urgency: 'medium',
+      reason: "",
+      urgency: "medium",
       priority: 5,
-      decisionDate: '',
-      category: 'undefined',
-      status: 'thinking'
-    })
-    setIsDialogOpen(false)
+      decisionDate: "",
+      category: "undefined",
+      status: "thinking",
+    });
+    setEditingItem(null);
+    setIsDialogOpen(false);
   }
 
   const getUrgencyColor = (urgency: string) => {
@@ -91,7 +112,10 @@ const Wishlist = () => {
                 Controle seus desejos de consumo e tome decisões conscientes
               </p>
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog open={isDialogOpen} onOpenChange={(open) => {
+              setIsDialogOpen(open);
+              if (!open) setEditingItem(null);
+            }}>
               <DialogTrigger asChild>
                 <Button className="flex items-center gap-2">
                   <Plus className="h-4 w-4" />
@@ -282,6 +306,30 @@ const Wishlist = () => {
                       Marcar como Comprado
                     </Button>
                   )}
+
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleEdit(item)}
+                      aria-label="Editar item"
+                    >
+                      Editar
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="destructive"
+                      onClick={() => {
+                        if (window.confirm("Tem certeza que deseja excluir este item?")) {
+                          deleteWishlistItem(item.id);
+                          // toast de sucesso
+                        }
+                      }}
+                      aria-label="Excluir item"
+                    >
+                      Excluir
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             )

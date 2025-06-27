@@ -55,13 +55,10 @@ const Login = () => {
       {/* Overlay para contraste */}
       <div className="absolute inset-0 bg-white/30 dark:bg-black/30 z-0" />
       <div className="relative z-10 w-full max-w-md">
-      <Card
-        className="w-full max-w-md shadow-lg backdrop-blur-md bg-white/80 dark:bg-zinc-900/80 border border-white/40 dark:border-zinc-700/40 relative z-10"
-      >
+        <Card className="w-full max-w-md shadow-lg backdrop-blur-md bg-white/80 dark:bg-zinc-900/80 border border-white/40 dark:border-zinc-700/40 relative z-10">
           <CardHeader>
             <CardTitle className="text-2xl text-center text-gray-900 dark:text-white">
-              Entrar no{" "}
-              <span className="text-violet-700">FinanciControl</span>
+              Entrar no <span className="text-violet-700">FinanciControl</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
