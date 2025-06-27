@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react'
 import { 
   Transaction, 
@@ -102,7 +103,7 @@ const defaultCategories: Category[] = [
 export const useFinanceExtended = () => {
   // Existing states
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [categories, setCategories] = useState<Category[]>(defaultCategories)
+  const [categories, setCategories] = useState<Category[]>([])
   
   // New states
   const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>([])
@@ -117,13 +118,29 @@ export const useFinanceExtended = () => {
 
   // Load data from localStorage
   useEffect(() => {
-    const loadData = (key: string, setter: Function) => {
-      const saved = localStorage.getItem(`financeflow_${key}`)
-      if (saved) setter(JSON.parse(saved))
+    const loadData = (key: string, setter: Function, defaultValue: any = []) => {
+      try {
+        const saved = localStorage.getItem(`financeflow_${key}`)
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          setter(parsed)
+        } else if (key === 'categories') {
+          setter(defaultCategories)
+        } else {
+          setter(defaultValue)
+        }
+      } catch (error) {
+        console.error(`Error loading ${key}:`, error)
+        if (key === 'categories') {
+          setter(defaultCategories)
+        } else {
+          setter(defaultValue)
+        }
+      }
     }
 
     loadData('transactions', setTransactions)
-    loadData('categories', setCategories)
+    loadData('categories', setCategories, defaultCategories)
     loadData('goals', setFinancialGoals)
     loadData('wishlist', setWishlistItems)
     loadData('piggybank', setPiggyBankEntries)
@@ -135,27 +152,42 @@ export const useFinanceExtended = () => {
     loadData('incomesources', setIncomeSources)
   }, [])
 
-  // Save data to localStorage
-  useEffect(() => localStorage.setItem('financeflow_transactions', JSON.stringify(transactions)), [transactions])
-  useEffect(() => localStorage.setItem('financeflow_categories', JSON.stringify(categories)), [categories])
-  useEffect(() => localStorage.setItem('financeflow_goals', JSON.stringify(financialGoals)), [financialGoals])
-  useEffect(() => localStorage.setItem('financeflow_wishlist', JSON.stringify(wishlistItems)), [wishlistItems])
-  useEffect(() => localStorage.setItem('financeflow_piggybank', JSON.stringify(piggyBankEntries)), [piggyBankEntries])
-  useEffect(() => localStorage.setItem('financeflow_debts', JSON.stringify(debts)), [debts])
-  useEffect(() => localStorage.setItem('financeflow_creditcards', JSON.stringify(creditCards)), [creditCards])
-  useEffect(() => localStorage.setItem('financeflow_limits', JSON.stringify(categoryLimits)), [categoryLimits])
-  useEffect(() => localStorage.setItem('financeflow_investments', JSON.stringify(investments)), [investments])
-  useEffect(() => localStorage.setItem('financeflow_fixedexpenses', JSON.stringify(fixedExpenses)), [fixedExpenses])
-  useEffect(() => localStorage.setItem('financeflow_incomesources', JSON.stringify(incomeSources)), [incomeSources])
+  // Save data to localStorage - with error handling
+  const saveToLocalStorage = (key: string, data: any) => {
+    try {
+      localStorage.setItem(`financeflow_${key}`, JSON.stringify(data))
+    } catch (error) {
+      console.error(`Error saving ${key}:`, error)
+    }
+  }
 
-  // Transaction management - Fixed to auto-generate createdAt
+  useEffect(() => saveToLocalStorage('transactions', transactions), [transactions])
+  useEffect(() => saveToLocalStorage('categories', categories), [categories])
+  useEffect(() => saveToLocalStorage('goals', financialGoals), [financialGoals])
+  useEffect(() => saveToLocalStorage('wishlist', wishlistItems), [wishlistItems])
+  useEffect(() => saveToLocalStorage('piggybank', piggyBankEntries), [piggyBankEntries])
+  useEffect(() => saveToLocalStorage('debts', debts), [debts])
+  useEffect(() => saveToLocalStorage('creditcards', creditCards), [creditCards])
+  useEffect(() => saveToLocalStorage('limits', categoryLimits), [categoryLimits])
+  useEffect(() => saveToLocalStorage('investments', investments), [investments])
+  useEffect(() => saveToLocalStorage('fixedexpenses', fixedExpenses), [fixedExpenses])
+  useEffect(() => saveToLocalStorage('incomesources', incomeSources), [incomeSources])
+
+  // Transaction management - Fixed to auto-generate createdAt and force re-render
   const addTransaction = (transaction: Omit<Transaction, 'id' | 'createdAt'>) => {
     const newTransaction: Transaction = {
       ...transaction,
-      id: Date.now().toString(),
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       createdAt: new Date().toISOString()
     }
-    setTransactions(prev => [newTransaction, ...prev])
+    
+    console.log('Adding transaction:', newTransaction)
+    
+    setTransactions(prev => {
+      const updated = [newTransaction, ...prev]
+      console.log('Updated transactions count:', updated.length)
+      return updated
+    })
   }
 
   const updateTransaction = (id: string, updates: Partial<Transaction>) => {
