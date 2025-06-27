@@ -1,4 +1,5 @@
 
+
 export const resetAllData = () => {
   // Lista de todas as chaves do localStorage usadas pela aplicação
   const keys = [
@@ -23,8 +24,19 @@ export const resetAllData = () => {
     localStorage.removeItem(key);
   });
 
+  // Limpar também qualquer cache adicional
+  const allKeys = Object.keys(localStorage);
+  allKeys.forEach(key => {
+    if (key.startsWith('financeflow_')) {
+      localStorage.removeItem(key);
+    }
+  });
+
   console.log('Limpando dados...');
+  console.log('Dados removidos:', keys);
   
   // Recarrega a página para aplicar as mudanças
-  window.location.reload();
+  setTimeout(() => {
+    window.location.reload();
+  }, 500);
 };

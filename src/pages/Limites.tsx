@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,11 +14,27 @@ const Limites = () => {
   const [selectedYear] = useState(new Date().getFullYear());
   const [editingLimitCategory, setEditingLimitCategory] = useState(null);
   const [limitValue, setLimitValue] = useState(0);
-  const [customLimits, setCustomLimits] = useState<{ [key: string]: number }>(() => {
-    // Carregar limites personalizados do localStorage
-    const saved = localStorage.getItem('financeflow_custom_limits');
-    return saved ? JSON.parse(saved) : {};
-  });
+  const [customLimits, setCustomLimits] = useState<{ [key: string]: number }>({});
+
+  // Carregar limites personalizados do localStorage e forçar re-render quando categorias mudarem
+  useEffect(() => {
+    const loadCustomLimits = () => {
+      const saved = localStorage.getItem('financeflow_custom_limits');
+      setCustomLimits(saved ? JSON.parse(saved) : {});
+    };
+    
+    loadCustomLimits();
+    
+    // Adicionar listener para mudanças no localStorage
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'financeflow_custom_limits') {
+        loadCustomLimits();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [categories]);
 
   // Salvar limites personalizados no localStorage sempre que mudarem
   const updateCustomLimits = (newLimits: { [key: string]: number }) => {
@@ -157,6 +172,12 @@ const Limites = () => {
     setEditingLimitCategory(null);
   };
 
+  // Debug: adicionar console.log para verificar dados
+  console.log('Categories available:', categories.length);
+  console.log('Transactions available:', transactions.length);
+  console.log('Category limits calculated:', categoryLimits.length);
+
+  // Kanban Column component
   const KanbanColumn = ({
     title,
     categories,
@@ -300,6 +321,11 @@ const Limites = () => {
             Organize suas transações com categorias personalizadas e acompanhe
             seus limites
           </p>
+        </div>
+
+        {/* Debug Info */}
+        <div className="mb-4 p-3 bg-muted/50 rounded-lg text-sm">
+          <p>Debug: {categories.length} categorias carregadas, {transactions.length} transações, {categoryLimits.length} limites calculados</p>
         </div>
 
         {/* Controls */}
