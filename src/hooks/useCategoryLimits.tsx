@@ -6,6 +6,7 @@ interface CategoryLimit {
   id: string;
   name: string;
   icon: string;
+  color: string;
   type: string;
   spent: number;
   budget: number;
