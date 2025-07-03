@@ -1,4 +1,3 @@
-
 // CSV Data Preprocessing Utilities
 export interface PreprocessedTransaction {
   originalDescription: string;
@@ -17,7 +16,6 @@ const COMMON_TYPOS: { [key: string]: string } = {
   'supermerkado': 'supermercado',
   'restaurante': 'restaurante',
   'restorant': 'restaurante',
-  'farmacia': 'farmácia',
   'farmacia': 'farmácia',
   'gasolina': 'gasolina',
   'gasosa': 'gasolina',
