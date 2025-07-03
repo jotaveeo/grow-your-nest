@@ -15,11 +15,16 @@ import { Plus, Upload, FileText } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { useToast } from "@/hooks/use-toast";
-
-import { useAutoCategorization } from '@/hooks/useAutoCategorization'
+import { useAutoCategorization } from '@/hooks/useAutoCategorization';
+import { 
+  preprocessTransaction, 
+  processBancoDoBrasilCSV,
+  normalizeText,
+  tokenizeDescription 
+} from '@/utils/csvPreprocessor';
 
 const Importar = () => {
-  const { addTransaction, transactions } = useFinanceExtendedContext();
+  const { addTransaction } = useFinanceExtendedContext();
   const { categorizeTransaction } = useAutoCategorization();
   const { toast } = useToast();
 
@@ -40,144 +45,239 @@ const Importar = () => {
     const reader = new FileReader();
     reader.onload = (e) => {
       const text = e.target?.result as string;
-      const rows = text.split('\n');
       
-      if (rows.length < 2) {
-        toast({
-          title: "Arquivo inválido",
-          description: "O arquivo deve conter pelo menos uma linha de dados além do cabeçalho.",
-          variant: "destructive",
-        });
+      // Check if it's Banco do Brasil format
+      if (text.includes('Data,"Lançamento","Detalhes"')) {
+        handleBancoDoBrasilCSV(text);
         return;
       }
-
-      const header = rows[0].split(',').map(col => col.trim().replace(/"/g, ''));
-      console.log('CSV Header:', header);
       
-      const transactions = [];
-      const errors = [];
-
-      for (let i = 1; i < rows.length; i++) {
-        const row = rows[i].trim();
-        if (!row) continue;
-
-        try {
-          const columns = row.split(',').map(col => col.trim().replace(/"/g, ''));
-          
-          if (columns.length < 3) {
-            errors.push(`Linha ${i + 1}: dados insuficientes`);
-            continue;
-          }
-
-          // Mapear colunas baseado no cabeçalho
-          const dateIndex = header.findIndex(h => 
-            h.toLowerCase().includes('data') || 
-            h.toLowerCase().includes('date')
-          );
-          const descIndex = header.findIndex(h => 
-            h.toLowerCase().includes('descri') || 
-            h.toLowerCase().includes('description') ||
-            h.toLowerCase().includes('estabelecimento') ||
-            h.toLowerCase().includes('histórico')
-          );
-          const amountIndex = header.findIndex(h => 
-            h.toLowerCase().includes('valor') || 
-            h.toLowerCase().includes('amount') ||
-            h.toLowerCase().includes('quantia')
-          );
-
-          if (dateIndex === -1 || descIndex === -1 || amountIndex === -1) {
-            errors.push(`Linha ${i + 1}: colunas obrigatórias não encontradas`);
-            continue;
-          }
-
-          const dateStr = columns[dateIndex];
-          const description = columns[descIndex];
-          const amountStr = columns[amountIndex];
-
-          // Converter valor
-          const amount = Math.abs(parseFloat(
-            amountStr.replace(/[^\d,-]/g, '').replace(',', '.')
-          ));
-
-          if (isNaN(amount)) {
-            errors.push(`Linha ${i + 1}: valor inválido (${amountStr})`);
-            continue;
-          }
-
-          // Determinar tipo baseado na descrição ou valor original
-          const isNegative = amountStr.includes('-') || 
-                           description.toLowerCase().includes('débito') ||
-                           description.toLowerCase().includes('pagamento');
-          const type = isNegative ? 'expense' : 'income';
-
-          // Usar categorização automática
-          const categorizationResult = categorizeTransaction(description, type);
-
-          // Converter data
-          let date: string;
-          if (dateStr.includes('/')) {
-            const [day, month, year] = dateStr.split('/');
-            date = `${year.padStart(4, '20')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-          } else {
-            date = dateStr;
-          }
-
-          const transaction = {
-            date,
-            description: description.trim(),
-            amount,
-            type,
-            category: categorizationResult.category,
-            autoCategorizationResult: categorizationResult
-          };
-
-          transactions.push(transaction);
-        } catch (error) {
-          errors.push(`Linha ${i + 1}: erro ao processar dados`);
-        }
-      }
-
-      console.log('Parsed transactions:', transactions.length);
-      console.log('Errors:', errors.length);
-
-      if (transactions.length === 0) {
-        toast({
-          title: "Nenhuma transação válida",
-          description: "Não foi possível importar nenhuma transação do arquivo.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Adicionar transações ao contexto
-      let addedCount = 0;
-      transactions.forEach(transaction => {
-        addTransaction(transaction);
-        addedCount++;
-      });
-
-      console.log('Added transactions:', addedCount);
-      console.log('Total transactions in context after import:', transactions.length);
-
-      toast({
-        title: "Importação concluída",
-        description: `${addedCount} transações importadas com sucesso${errors.length > 0 ? `. ${errors.length} linhas com erro.` : '.'}`,
-      });
-
-      if (errors.length > 0) {
-        console.warn('Import errors:', errors);
-      }
-
-      // Reset file input
-      event.target.value = '';
+      // Handle generic CSV format
+      handleGenericCSV(text);
     };
 
     reader.readAsText(file);
   };
 
+  const handleBancoDoBrasilCSV = (csvContent: string) => {
+    try {
+      const preprocessedTransactions = processBancoDoBrasilCSV(csvContent);
+      
+      console.log('Preprocessed BB transactions:', preprocessedTransactions.length);
+      
+      if (preprocessedTransactions.length === 0) {
+        toast({
+          title: "Nenhuma transação válida",
+          description: "Não foi possível importar transações do arquivo do Banco do Brasil.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      let addedCount = 0;
+      let lowConfidenceCount = 0;
+
+      preprocessedTransactions.forEach(preprocessed => {
+        // Use auto-categorization on cleaned description
+        const categorizationResult = categorizeTransaction(
+          preprocessed.cleanedDescription, 
+          preprocessed.type
+        );
+
+        const transaction = {
+          date: preprocessed.date,
+          description: preprocessed.originalDescription,
+          amount: preprocessed.normalizedAmount,
+          type: preprocessed.type,
+          category: categorizationResult.category,
+          autoCategorizationResult: {
+            ...categorizationResult,
+            preprocessingConfidence: preprocessed.confidence,
+            cleanedDescription: preprocessed.cleanedDescription,
+            tokens: preprocessed.tokens
+          }
+        };
+
+        addTransaction(transaction);
+        addedCount++;
+
+        if (preprocessed.confidence < 0.7) {
+          lowConfidenceCount++;
+        }
+      });
+
+      toast({
+        title: "Importação Banco do Brasil concluída",
+        description: `${addedCount} transações importadas com pré-processamento inteligente${lowConfidenceCount > 0 ? `. ${lowConfidenceCount} transações com baixa confiança.` : '.'}`,
+      });
+
+      console.log('Added BB transactions:', addedCount);
+      console.log('Low confidence transactions:', lowConfidenceCount);
+
+    } catch (error) {
+      console.error('Error processing Banco do Brasil CSV:', error);
+      toast({
+        title: "Erro na importação",
+        description: "Erro ao processar arquivo do Banco do Brasil.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleGenericCSV = (text: string) => {
+    const rows = text.split('\n');
+    
+    if (rows.length < 2) {
+      toast({
+        title: "Arquivo inválido",
+        description: "O arquivo deve conter pelo menos uma linha de dados além do cabeçalho.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const header = rows[0].split(',').map(col => col.trim().replace(/"/g, ''));
+    console.log('CSV Header:', header);
+    
+    const transactions = [];
+    const errors = [];
+
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i].trim();
+      if (!row) continue;
+
+      try {
+        const columns = row.split(',').map(col => col.trim().replace(/"/g, ''));
+        
+        if (columns.length < 3) {
+          errors.push(`Linha ${i + 1}: dados insuficientes`);
+          continue;
+        }
+
+        const dateIndex = header.findIndex(h => 
+          h.toLowerCase().includes('data') || 
+          h.toLowerCase().includes('date')
+        );
+        const descIndex = header.findIndex(h => 
+          h.toLowerCase().includes('descri') || 
+          h.toLowerCase().includes('description') ||
+          h.toLowerCase().includes('estabelecimento') ||
+          h.toLowerCase().includes('histórico')
+        );
+        const amountIndex = header.findIndex(h => 
+          h.toLowerCase().includes('valor') || 
+          h.toLowerCase().includes('amount') ||
+          h.toLowerCase().includes('quantia')
+        );
+
+        if (dateIndex === -1 || descIndex === -1 || amountIndex === -1) {
+          errors.push(`Linha ${i + 1}: colunas obrigatórias não encontradas`);
+          continue;
+        }
+
+        const dateStr = columns[dateIndex];
+        const description = columns[descIndex];
+        const amountStr = columns[amountIndex];
+
+        // Use preprocessing for better data quality
+        const preprocessed = preprocessTransaction(dateStr, description, amountStr);
+
+        if (preprocessed.normalizedAmount === 0) {
+          errors.push(`Linha ${i + 1}: valor inválido (${amountStr})`);
+          continue;
+        }
+
+        // Use categorization on cleaned description
+        const categorizationResult = categorizeTransaction(
+          preprocessed.cleanedDescription, 
+          preprocessed.type
+        );
+
+        const transaction = {
+          date: preprocessed.date,
+          description: preprocessed.originalDescription,
+          amount: preprocessed.normalizedAmount,
+          type: preprocessed.type,
+          category: categorizationResult.category,
+          autoCategorizationResult: {
+            ...categorizationResult,
+            preprocessingConfidence: preprocessed.confidence,
+            cleanedDescription: preprocessed.cleanedDescription,
+            tokens: preprocessed.tokens
+          }
+        };
+
+        transactions.push(transaction);
+      } catch (error) {
+        errors.push(`Linha ${i + 1}: erro ao processar dados`);
+      }
+    }
+
+    console.log('Parsed transactions:', transactions.length);
+    console.log('Errors:', errors.length);
+
+    if (transactions.length === 0) {
+      toast({
+        title: "Nenhuma transação válida",
+        description: "Não foi possível importar nenhuma transação do arquivo.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    let addedCount = 0;
+    transactions.forEach(transaction => {
+      addTransaction(transaction);
+      addedCount++;
+    });
+
+    console.log('Added transactions:', addedCount);
+
+    toast({
+      title: "Importação concluída",
+      description: `${addedCount} transações importadas com pré-processamento${errors.length > 0 ? `. ${errors.length} linhas com erro.` : '.'}`,
+    });
+
+    if (errors.length > 0) {
+      console.warn('Import errors:', errors);
+    }
+  };
+
+  const handleTextImport = () => {
+    if (!fileContent.trim()) {
+      toast({
+        title: "Conteúdo vazio",
+        description: "Cole o conteúdo do arquivo antes de importar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if it's Banco do Brasil format
+    if (fileContent.includes('Data,"Lançamento","Detalhes"')) {
+      handleBancoDoBrasilCSV(fileContent);
+    } else {
+      handleGenericCSV(fileContent);
+    }
+
+    setFileContent("");
+  };
+
   const handleAddManualTransaction = () => {
-    addTransaction(manualTransaction);
+    // Preprocess manual transaction description
+    const tokens = tokenizeDescription(manualTransaction.description);
+    const cleanedDescription = normalizeText(manualTransaction.description);
+
+    const transactionWithPreprocessing = {
+      ...manualTransaction,
+      preprocessingData: {
+        cleanedDescription,
+        tokens,
+        originalDescription: manualTransaction.description
+      }
+    };
+
+    addTransaction(transactionWithPreprocessing);
     setManualTransaction({
       date: "",
       description: "",
@@ -210,7 +310,7 @@ const Importar = () => {
                 Importar Transações
               </h1>
               <p className="text-sm lg:text-base text-muted-foreground">
-                Adicione suas transações de forma rápida e fácil
+                Importe com pré-processamento inteligente e categorização automática
               </p>
             </div>
 
@@ -316,7 +416,7 @@ const Importar = () => {
           </CardHeader>
           <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
             <p className="text-sm text-muted-foreground mb-4">
-              Selecione um arquivo CSV para importar suas transações.
+              Suporte especial para Banco do Brasil e outros formatos CSV.
             </p>
             <Input
               type="file"
@@ -344,7 +444,9 @@ const Importar = () => {
               placeholder="Cole o conteúdo aqui..."
               className="w-full"
             />
-            <Button className="mt-4 w-full">Importar</Button>
+            <Button className="mt-4 w-full" onClick={handleTextImport}>
+              Importar com Pré-processamento
+            </Button>
           </CardContent>
         </Card>
       </div>

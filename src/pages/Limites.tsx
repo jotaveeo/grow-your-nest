@@ -1,174 +1,27 @@
-import { useState, useEffect } from "react";
-import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Plus, Edit, Trash2, Shield, AlertTriangle } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { CategoryLimitCard } from "@/components/CategoryLimitCard";
+
+import { useState } from "react";
+import { Shield } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { 
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { KanbanColumn } from "@/components/limits/KanbanColumn";
+import { LimitsSummaryStats } from "@/components/limits/LimitsSummaryStats";
+import { EditLimitDialog } from "@/components/limits/EditLimitDialog";
+import { useCategoryLimits } from "@/hooks/useCategoryLimits";
 
 const Limites = () => {
-  const { transactions, categories } = useFinanceExtendedContext();
-  const [selectedMonth] = useState(new Date().getMonth());
-  const [selectedYear] = useState(new Date().getFullYear());
+  const { categoryLimits, customLimits, updateCustomLimits, selectedMonth, selectedYear } = useCategoryLimits();
   const [editingLimitCategory, setEditingLimitCategory] = useState(null);
   const [limitValue, setLimitValue] = useState(0);
-  const [customLimits, setCustomLimits] = useState<{ [key: string]: number }>(
-    {}
-  );
 
-  // Carregar limites personalizados do localStorage e forçar re-render quando categorias mudarem
-  useEffect(() => {
-    const loadCustomLimits = () => {
-      const saved = localStorage.getItem("financeflow_custom_limits");
-      setCustomLimits(saved ? JSON.parse(saved) : {});
-    };
-
-    loadCustomLimits();
-
-    // Adicionar listener para mudanças no localStorage
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "financeflow_custom_limits") {
-        loadCustomLimits();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, [categories]);
-
-  // Salvar limites personalizados no localStorage sempre que mudarem
-  const updateCustomLimits = (newLimits: { [key: string]: number }) => {
-    setCustomLimits(newLimits);
-    localStorage.setItem(
-      "financeflow_custom_limits",
-      JSON.stringify(newLimits)
-    );
-  };
-
-  // Calcular gastos por categoria no mês atual
-  const getCategoryLimits = () => {
-    return categories
-      .filter((cat) => cat.type === "expense")
-      .map((category) => {
-        const categoryTransactions = transactions.filter((t) => {
-          const transactionDate = new Date(t.date);
-          return (
-            t.category === category.name &&
-            t.type === "expense" &&
-            transactionDate.getMonth() === selectedMonth &&
-            transactionDate.getFullYear() === selectedYear
-          );
-        });
-
-        const spent = categoryTransactions.reduce(
-          (sum, t) => sum + t.amount,
-          0
-        );
-
-        // Definir limites padrão baseados no tipo de categoria
-        const getDefaultLimit = (categoryName: string) => {
-          // Limites padrão mais realistas baseados nas novas categorias
-          const defaultLimits: { [key: string]: number } = {
-            // Essenciais - Alimentação
-            Alimentação: 800,
-            Supermercado: 600,
-            Restaurantes: 300,
-
-            // Transporte
-            Transporte: 400,
-            Combustível: 300,
-
-            // Moradia
-            Moradia: 1200,
-            Aluguel: 1500,
-            "Contas Básicas": 400,
-            "Energia Elétrica": 200,
-            Água: 100,
-            Internet: 100,
-            Telefone: 80,
-            Gás: 80,
-
-            // Saúde
-            Saúde: 300,
-            Medicamentos: 150,
-            "Plano de Saúde": 400,
-            Academia: 100,
-
-            // Educação
-            Educação: 200,
-            Cursos: 300,
-            Livros: 100,
-
-            // Lazer
-            Lazer: 250,
-            Cinema: 100,
-            Streaming: 50,
-            Viagens: 500,
-
-            // Vestuário
-            Roupas: 200,
-            Sapatos: 150,
-            Cabeleireiro: 80,
-            Cosméticos: 100,
-
-            // Financeiro
-            "Cartão de Crédito": 1000,
-            Empréstimos: 500,
-            Seguros: 200,
-
-            // Outros
-            Pets: 150,
-            Presentes: 200,
-          };
-
-          return defaultLimits[categoryName] || 300;
-        };
-
-        const budget =
-          customLimits[category.name] ?? getDefaultLimit(category.name);
-        const percentage = budget > 0 ? (spent / budget) * 100 : 0;
-        const remaining = budget - spent;
-
-        return {
-          ...category,
-          spent,
-          budget,
-          percentage: Math.min(percentage, 100),
-          remaining,
-          transactions: categoryTransactions.length,
-          status:
-            percentage >= 100
-              ? "exceeded"
-              : percentage >= 80
-              ? "warning"
-              : "safe",
-        };
-      });
-  };
-
-  const categoryLimits = getCategoryLimits();
+  // Group categories by status
   const safeCategories = categoryLimits.filter((cat) => cat.status === "safe");
-  const warningCategories = categoryLimits.filter(
-    (cat) => cat.status === "warning"
-  );
-  const exceededCategories = categoryLimits.filter(
-    (cat) => cat.status === "exceeded"
-  );
+  const warningCategories = categoryLimits.filter((cat) => cat.status === "warning");
+  const exceededCategories = categoryLimits.filter((cat) => cat.status === "exceeded");
 
   const handleEditLimit = (category) => {
     setEditingLimitCategory(category);
@@ -191,64 +44,9 @@ const Limites = () => {
     setEditingLimitCategory(null);
   };
 
-  // Debug: adicionar console.log para verificar dados
-  console.log("Categories available:", categories.length);
-  console.log("Transactions available:", transactions.length);
-  console.log("Category limits calculated:", categoryLimits.length);
-
-  // Kanban Column component
-  const KanbanColumn = ({
-    title,
-    categories,
-    bgColor,
-    textColor,
-    icon: Icon,
-  }) => (
-    <Card className="h-fit">
-      <CardHeader className="pb-3">
-        <CardTitle className={`text-base flex items-center gap-2 ${textColor}`}>
-          <Icon className="h-4 w-4" />
-          {title}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger className="cursor-help">
-                <Badge variant="secondary" className="ml-auto">
-                  {categories.length}
-                </Badge>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{categories.length} categorias neste status</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {categories.map((category) => (
-          <CategoryLimitCard
-            key={category.id}
-            category={category}
-            onEdit={handleEditLimit}
-            onDelete={handleDeleteLimit}
-          />
-        ))}
-
-        {categories.length === 0 && (
-          <div className="text-center py-8 text-muted-foreground">
-            <p className="text-sm">Nenhuma categoria neste status</p>
-            <p className="text-xs mt-1">
-              {title === "Dentro do Limite" 
-                ? "Suas categorias aparecerão aqui quando estiverem dentro do orçamento"
-                : title === "Atenção (80%+)"
-                ? "Categorias próximas do limite aparecerão aqui"
-                : "Categorias que excederam o limite aparecerão aqui"
-              }
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
+  const handleCloseDialog = () => {
+    setEditingLimitCategory(null);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -265,15 +63,6 @@ const Limites = () => {
             Monitore seus gastos por categoria e mantenha o controle do seu orçamento
           </p>
         </div>
-
-        {/* Debug Info - removido em produção */}
-        {/* <div className="mb-4 p-3 bg-muted/50 rounded-lg text-sm">
-          <p>
-            Debug: {categories.length} categorias carregadas,{" "}
-            {transactions.length} transações, {categoryLimits.length} limites
-            calculados
-          </p>
-        </div> */}
 
         {/* Controls */}
         <div className="flex justify-between items-center mb-6">
@@ -305,6 +94,8 @@ const Limites = () => {
             bgColor="border-l-green-500"
             textColor="text-green-700"
             icon={Shield}
+            onEdit={handleEditLimit}
+            onDelete={handleDeleteLimit}
           />
 
           <KanbanColumn
@@ -313,6 +104,8 @@ const Limites = () => {
             bgColor="border-l-yellow-500"
             textColor="text-yellow-700"
             icon={AlertTriangle}
+            onEdit={handleEditLimit}
+            onDelete={handleDeleteLimit}
           />
 
           <KanbanColumn
@@ -321,145 +114,29 @@ const Limites = () => {
             bgColor="border-l-red-500"
             textColor="text-red-700"
             icon={AlertTriangle}
+            onEdit={handleEditLimit}
+            onDelete={handleDeleteLimit}
           />
         </div>
 
-        {/* Summary Stats with improved tooltips */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Card className="border-l-4 border-l-green-500 cursor-help hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-green-600">
-                        {safeCategories.length}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Dentro do Limite
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Categorias que estão utilizando menos de 80% do orçamento</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Card className="border-l-4 border-l-yellow-500 cursor-help hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-yellow-600">
-                        {warningCategories.length}
-                      </p>
-                      <p className="text-xs text-muted-foreground">Em Atenção</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Categorias que estão utilizando entre 80% e 100% do orçamento</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Card className="border-l-4 border-l-red-500 cursor-help hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-red-600">
-                        {exceededCategories.length}
-                      </p>
-                      <p className="text-xs text-muted-foreground">Limite Excedido</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Categorias que já ultrapassaram o limite do orçamento</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Card className="border-l-4 border-l-primary cursor-help hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-primary">
-                        {categoryLimits
-                          .reduce((sum, cat) => sum + cat.budget, 0)
-                          .toLocaleString("pt-BR", {
-                            style: "currency",
-                            currency: "BRL",
-                          })}
-                      </p>
-                      <p className="text-xs text-muted-foreground">Orçamento Total</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Soma de todos os limites definidos para este mês</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        {/* Summary Stats */}
+        <div className="mt-8">
+          <LimitsSummaryStats
+            safeCategories={safeCategories}
+            warningCategories={warningCategories}
+            exceededCategories={exceededCategories}
+            categoryLimits={categoryLimits}
+          />
         </div>
 
         {/* Edit Limit Dialog */}
-        {editingLimitCategory && (
-          <Dialog
-            open={!!editingLimitCategory}
-            onOpenChange={() => setEditingLimitCategory(null)}
-          >
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>
-                  Editar Limite - {editingLimitCategory.name}
-                </DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleUpdateLimit} className="space-y-4">
-                <div>
-                  <Label htmlFor="limit-value">Valor do Limite (R$)</Label>
-                  <Input
-                    id="limit-value"
-                    type="number"
-                    min={1}
-                    step="0.01"
-                    value={limitValue}
-                    onChange={(e) => setLimitValue(Number(e.target.value))}
-                    placeholder="1000.00"
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Limite mensal para esta categoria
-                  </p>
-                </div>
-                <div className="flex gap-2">
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    onClick={() => setEditingLimitCategory(null)}
-                    className="flex-1"
-                  >
-                    Cancelar
-                  </Button>
-                  <Button type="submit" className="flex-1">
-                    Salvar Limite
-                  </Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
-        )}
+        <EditLimitDialog
+          editingLimitCategory={editingLimitCategory}
+          limitValue={limitValue}
+          setLimitValue={setLimitValue}
+          onClose={handleCloseDialog}
+          onSubmit={handleUpdateLimit}
+        />
       </div>
     </div>
   );
