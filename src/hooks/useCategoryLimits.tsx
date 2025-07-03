@@ -109,7 +109,11 @@ export const useCategoryLimits = () => {
         const remaining = budget - spent;
 
         return {
-          ...category,
+          id: category.id,
+          name: category.name,
+          icon: category.icon,
+          color: category.color,
+          type: category.type,
           spent,
           budget,
           percentage: Math.min(percentage, 100),
