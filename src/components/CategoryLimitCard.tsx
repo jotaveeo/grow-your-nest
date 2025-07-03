@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -11,10 +10,12 @@ import {
 } from "@/components/ui/tooltip";
 import { Edit, Trash2, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 
-interface CategoryData {
+interface CategoryLimit {
   id: string;
   name: string;
   icon: string;
+  color: string;
+  type: string;
   spent: number;
   budget: number;
   percentage: number;
@@ -24,9 +25,9 @@ interface CategoryData {
 }
 
 interface CategoryLimitCardProps {
-  category: CategoryData;
-  onEdit: (category: CategoryData) => void;
-  onDelete: (category: CategoryData) => void;
+  category: CategoryLimit;
+  onEdit: (category: CategoryLimit) => void;
+  onDelete: (category: CategoryLimit) => void;
 }
 
 export const CategoryLimitCard: React.FC<CategoryLimitCardProps> = ({
