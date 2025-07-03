@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { CategoryLimitCard } from "@/components/CategoryLimitCard";
 import { 
   Tooltip,
@@ -364,7 +365,8 @@ const Limites = () => {
               <TooltipContent>
                 <p>Categorias que estão utilizando entre 80% e 100% do orçamento</p>
               </TooltipContent>
-            </TooltipProvider>
+            </Tooltip>
+          </TooltipProvider>
 
           <TooltipProvider>
             <Tooltip>
