@@ -16,6 +16,7 @@ import {
   CalendarDays,
   Shield,
   DollarSign,
+  ShieldBan,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -48,7 +49,7 @@ const controlItems = [
   { title: "Cartões de Crédito", url: "/cartoes", icon: CreditCard },
   { title: "Resumo Calendário", url: "/calendario", icon: CalendarDays },
   { title: "Limites de Gastos", url: "/limites", icon: Shield },
-  { title: "Gastos Fixos", url: "/gastosfixos", icon: Shield },
+  { title: "Gastos Fixos", url: "/gastosfixos", icon: ShieldBan },
 ];
 
 const investmentItems = [

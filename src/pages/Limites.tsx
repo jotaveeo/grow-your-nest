@@ -5,7 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Edit, Trash2, Shield, AlertTriangle } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 
 const Limites = () => {
@@ -14,32 +19,37 @@ const Limites = () => {
   const [selectedYear] = useState(new Date().getFullYear());
   const [editingLimitCategory, setEditingLimitCategory] = useState(null);
   const [limitValue, setLimitValue] = useState(0);
-  const [customLimits, setCustomLimits] = useState<{ [key: string]: number }>({});
+  const [customLimits, setCustomLimits] = useState<{ [key: string]: number }>(
+    {}
+  );
 
   // Carregar limites personalizados do localStorage e forçar re-render quando categorias mudarem
   useEffect(() => {
     const loadCustomLimits = () => {
-      const saved = localStorage.getItem('financeflow_custom_limits');
+      const saved = localStorage.getItem("financeflow_custom_limits");
       setCustomLimits(saved ? JSON.parse(saved) : {});
     };
-    
+
     loadCustomLimits();
-    
+
     // Adicionar listener para mudanças no localStorage
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'financeflow_custom_limits') {
+      if (e.key === "financeflow_custom_limits") {
         loadCustomLimits();
       }
     };
-    
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, [categories]);
 
   // Salvar limites personalizados no localStorage sempre que mudarem
   const updateCustomLimits = (newLimits: { [key: string]: number }) => {
     setCustomLimits(newLimits);
-    localStorage.setItem('financeflow_custom_limits', JSON.stringify(newLimits));
+    localStorage.setItem(
+      "financeflow_custom_limits",
+      JSON.stringify(newLimits)
+    );
   };
 
   // Calcular gastos por categoria no mês atual
@@ -67,61 +77,62 @@ const Limites = () => {
           // Limites padrão mais realistas baseados nas novas categorias
           const defaultLimits: { [key: string]: number } = {
             // Essenciais - Alimentação
-            'Alimentação': 800,
-            'Supermercado': 600,
-            'Restaurantes': 300,
-            
+            Alimentação: 800,
+            Supermercado: 600,
+            Restaurantes: 300,
+
             // Transporte
-            'Transporte': 400,
-            'Combustível': 300,
-            
+            Transporte: 400,
+            Combustível: 300,
+
             // Moradia
-            'Moradia': 1200,
-            'Aluguel': 1500,
-            'Contas Básicas': 400,
-            'Energia Elétrica': 200,
-            'Água': 100,
-            'Internet': 100,
-            'Telefone': 80,
-            'Gás': 80,
-            
+            Moradia: 1200,
+            Aluguel: 1500,
+            "Contas Básicas": 400,
+            "Energia Elétrica": 200,
+            Água: 100,
+            Internet: 100,
+            Telefone: 80,
+            Gás: 80,
+
             // Saúde
-            'Saúde': 300,
-            'Medicamentos': 150,
-            'Plano de Saúde': 400,
-            'Academia': 100,
-            
+            Saúde: 300,
+            Medicamentos: 150,
+            "Plano de Saúde": 400,
+            Academia: 100,
+
             // Educação
-            'Educação': 200,
-            'Cursos': 300,
-            'Livros': 100,
-            
+            Educação: 200,
+            Cursos: 300,
+            Livros: 100,
+
             // Lazer
-            'Lazer': 250,
-            'Cinema': 100,
-            'Streaming': 50,
-            'Viagens': 500,
-            
+            Lazer: 250,
+            Cinema: 100,
+            Streaming: 50,
+            Viagens: 500,
+
             // Vestuário
-            'Roupas': 200,
-            'Sapatos': 150,
-            'Cabeleireiro': 80,
-            'Cosméticos': 100,
-            
+            Roupas: 200,
+            Sapatos: 150,
+            Cabeleireiro: 80,
+            Cosméticos: 100,
+
             // Financeiro
-            'Cartão de Crédito': 1000,
-            'Empréstimos': 500,
-            'Seguros': 200,
-            
+            "Cartão de Crédito": 1000,
+            Empréstimos: 500,
+            Seguros: 200,
+
             // Outros
-            'Pets': 150,
-            'Presentes': 200,
+            Pets: 150,
+            Presentes: 200,
           };
-          
+
           return defaultLimits[categoryName] || 300;
         };
 
-        const budget = customLimits[category.name] ?? getDefaultLimit(category.name);
+        const budget =
+          customLimits[category.name] ?? getDefaultLimit(category.name);
         const percentage = budget > 0 ? (spent / budget) * 100 : 0;
         const remaining = budget - spent;
 
@@ -173,9 +184,9 @@ const Limites = () => {
   };
 
   // Debug: adicionar console.log para verificar dados
-  console.log('Categories available:', categories.length);
-  console.log('Transactions available:', transactions.length);
-  console.log('Category limits calculated:', categoryLimits.length);
+  console.log("Categories available:", categories.length);
+  console.log("Transactions available:", transactions.length);
+  console.log("Category limits calculated:", categoryLimits.length);
 
   // Kanban Column component
   const KanbanColumn = ({
@@ -325,7 +336,11 @@ const Limites = () => {
 
         {/* Debug Info */}
         <div className="mb-4 p-3 bg-muted/50 rounded-lg text-sm">
-          <p>Debug: {categories.length} categorias carregadas, {transactions.length} transações, {categoryLimits.length} limites calculados</p>
+          <p>
+            Debug: {categories.length} categorias carregadas,{" "}
+            {transactions.length} transações, {categoryLimits.length} limites
+            calculados
+          </p>
         </div>
 
         {/* Controls */}
@@ -337,10 +352,10 @@ const Limites = () => {
               year: "numeric",
             })}
           </div>
-          <Button className="flex items-center gap-2">
+          {/* <Button className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             Nova Categoria
-          </Button>
+          </Button> */}
         </div>
 
         {/* Kanban Board */}
@@ -426,15 +441,17 @@ const Limites = () => {
 
         {/* Edit Limit Dialog */}
         {editingLimitCategory && (
-          <Dialog open={!!editingLimitCategory} onOpenChange={() => setEditingLimitCategory(null)}>
+          <Dialog
+            open={!!editingLimitCategory}
+            onOpenChange={() => setEditingLimitCategory(null)}
+          >
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Editar Limite - {editingLimitCategory.name}</DialogTitle>
+                <DialogTitle>
+                  Editar Limite - {editingLimitCategory.name}
+                </DialogTitle>
               </DialogHeader>
-              <form
-                onSubmit={handleUpdateLimit}
-                className="space-y-4"
-              >
+              <form onSubmit={handleUpdateLimit} className="space-y-4">
                 <Input
                   type="number"
                   min={1}
