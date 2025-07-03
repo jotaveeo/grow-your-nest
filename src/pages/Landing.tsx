@@ -11,6 +11,8 @@ import {
   MessageCircle,
   PiggyBank,
   CreditCard,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,10 +25,34 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Landing = () => {
   const [showDemo, setShowDemo] = useState(false);
+  const [isDark, setIsDark] = useState(false);
+
+  // Verificar tema inicial
+  useEffect(() => {
+    const isDarkMode = localStorage.getItem('theme') === 'dark' || 
+      (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    setIsDark(isDarkMode);
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    }
+  }, []);
+
+  // Toggle do tema
+  const toggleTheme = () => {
+    const newTheme = !isDark;
+    setIsDark(newTheme);
+    if (newTheme) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
 
   const benefits = [
     {
@@ -181,7 +207,7 @@ const Landing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-gray-900 dark:to-blue-900 transition-colors">
       {/* Header */}
       <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <div className="flex items-center gap-2">
@@ -191,13 +217,23 @@ const Landing = () => {
           >
             <TrendingUp className="w-5 h-5 text-white" aria-hidden="true" />
           </div>
-          <span className="text-xl font-bold text-gray-900">
+          <span className="text-xl font-bold text-gray-900 dark:text-white">
             FinanciControl
           </span>
         </div>
-        <Button variant="outline" className="hidden md:flex" asChild>
-          <Link to="/login">Já tenho conta</Link>
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggleTheme}
+            className="p-2"
+          >
+            {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </Button>
+          <Button variant="outline" className="hidden md:flex" asChild>
+            <Link to="/login">Já tenho conta</Link>
+          </Button>
+        </div>
       </header>
 
       {/* Hero Section */}
@@ -206,12 +242,12 @@ const Landing = () => {
           ✨ Mais de 10.000 pessoas já organizaram suas finanças
         </Badge>
 
-        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+        <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6 leading-tight">
           Seu dinheiro sob controle, <br />
           <span className="text-primary">sua vida em equilíbrio.</span>
         </h1>
 
-        <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+        <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
           Organize, visualize, defina metas e elimine dívidas. Tudo em um só
           lugar, de forma simples e inteligente.
         </p>
@@ -237,7 +273,7 @@ const Landing = () => {
           </Button>
         </div>
 
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
           💳 Sem cartão de crédito • 🔒 100% seguro • ⚡ Setup em 2 minutos
         </div>
       </section>
@@ -245,10 +281,10 @@ const Landing = () => {
       {/* Benefits Section */}
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Por que milhares escolhem o FinanciControl?
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Recursos pensados para quem quer ter controle total da vida
             financeira, com praticidade, segurança e visão completa do seu
             dinheiro.
@@ -259,16 +295,16 @@ const Landing = () => {
           {benefits.map((benefit, index) => (
             <Card
               key={index}
-              className="border-0 shadow-lg hover:shadow-xl transition-shadow rounded-2xl bg-white/90 hover:bg-white"
+              className="border-0 shadow-lg hover:shadow-xl transition-shadow rounded-2xl bg-white/90 hover:bg-white dark:bg-gray-800/90 dark:hover:bg-gray-800"
             >
               <CardHeader className="flex flex-col items-center">
                 <div className="mb-4">{benefit.icon}</div>
-                <CardTitle className="text-xl text-center">
+                <CardTitle className="text-xl text-center dark:text-white">
                   {benefit.title}
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-gray-600 text-center">
+                <CardDescription className="text-gray-600 dark:text-gray-300 text-center">
                   {benefit.description}
                 </CardDescription>
               </CardContent>
@@ -278,12 +314,12 @@ const Landing = () => {
       </section>
 
       {/* Pricing Section */}
-      <section className="container mx-auto px-4 py-16 bg-white rounded-3xl my-16 shadow-sm">
+      <section className="container mx-auto px-4 py-16 bg-white dark:bg-gray-800 rounded-3xl my-16 shadow-sm">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Planos que cabem no seu bolso
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-600 dark:text-gray-300">
             Comece grátis e evolua conforme sua necessidade
           </p>
         </div>
@@ -295,8 +331,8 @@ const Landing = () => {
               className={`relative ${
                 plan.popular
                   ? "border-primary shadow-xl scale-105"
-                  : "border-gray-200"
-              }`}
+                  : "border-gray-200 dark:border-gray-700"
+              } dark:bg-gray-900`}
             >
               {plan.popular && (
                 <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
@@ -304,21 +340,21 @@ const Landing = () => {
                 </Badge>
               )}
               <CardHeader className="text-center">
-                <CardTitle className="text-xl">{plan.name}</CardTitle>
+                <CardTitle className="text-xl dark:text-white">{plan.name}</CardTitle>
                 <div className="py-4">
-                  <span className="text-3xl font-bold">{plan.price}</span>
+                  <span className="text-3xl font-bold dark:text-white">{plan.price}</span>
                   {plan.period && (
-                    <span className="text-gray-500">{plan.period}</span>
+                    <span className="text-gray-500 dark:text-gray-400">{plan.period}</span>
                   )}
                 </div>
-                <CardDescription>{plan.description}</CardDescription>
+                <CardDescription className="dark:text-gray-300">{plan.description}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-500" />
-                      <span className="text-sm">{feature}</span>
+                      <span className="text-sm dark:text-gray-300">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -341,17 +377,17 @@ const Landing = () => {
       {/* Testimonials */}
       <section className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             O que nossos usuários dizem
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-600 dark:text-gray-300">
             Histórias reais de transformação financeira
           </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, index) => (
-            <Card key={index} className="border-0 shadow-lg">
+            <Card key={index} className="border-0 shadow-lg dark:bg-gray-800">
               <CardContent className="pt-6">
                 <div className="flex mb-4">
                   {[...Array(testimonial.rating)].map((_, i) => (
@@ -361,7 +397,7 @@ const Landing = () => {
                     />
                   ))}
                 </div>
-                <p className="text-gray-600 mb-6 italic">
+                <p className="text-gray-600 dark:text-gray-300 mb-6 italic">
                   "{testimonial.content}"
                 </p>
                 <div className="flex items-center gap-3">
@@ -369,8 +405,8 @@ const Landing = () => {
                     <Users className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <div className="font-semibold">{testimonial.name}</div>
-                    <div className="text-sm text-gray-500">
+                    <div className="font-semibold dark:text-white">{testimonial.name}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
                       {testimonial.role}
                     </div>
                   </div>
@@ -382,12 +418,12 @@ const Landing = () => {
       </section>
 
       {/* FAQ */}
-      <section className="container mx-auto px-4 py-16 bg-gray-50 rounded-3xl my-16">
+      <section className="container mx-auto px-4 py-16 bg-gray-50 dark:bg-gray-800 rounded-3xl my-16">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-4">
             Perguntas Frequentes
           </h2>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-600 dark:text-gray-300">
             Tire suas dúvidas sobre o FinanciControl
           </p>
         </div>
@@ -396,14 +432,14 @@ const Landing = () => {
           {faqs.map((faq, index) => (
             <details
               key={index}
-              className="group rounded-xl bg-white shadow-sm transition-all"
+              className="group rounded-xl bg-white dark:bg-gray-900 shadow-sm transition-all"
               open={index === 0}
             >
-              <summary className="flex items-center gap-2 px-6 py-4 cursor-pointer text-lg font-medium text-gray-900 group-open:rounded-t-xl group-open:bg-primary/10 transition-colors">
+              <summary className="flex items-center gap-2 px-6 py-4 cursor-pointer text-lg font-medium text-gray-900 dark:text-white group-open:rounded-t-xl group-open:bg-primary/10 dark:group-open:bg-primary/20 transition-colors">
                 <MessageCircle className="w-5 h-5 text-primary" />
                 {faq.question}
               </summary>
-              <div className="px-6 pb-4 pt-2 text-gray-600 text-base">
+              <div className="px-6 pb-4 pt-2 text-gray-600 dark:text-gray-300 text-base">
                 {faq.answer}
               </div>
             </details>
@@ -441,16 +477,16 @@ const Landing = () => {
       </section>
 
       {/* Footer */}
-      <footer className="container mx-auto px-4 py-12 border-t">
+      <footer className="container mx-auto px-4 py-12 border-t dark:border-gray-700">
         <div className="grid md:grid-cols-4 gap-8">
           <div>
             <div className="flex items-center gap-2 mb-4">
               <div className="w-6 h-6 bg-primary rounded flex items-center justify-center">
                 <TrendingUp className="w-4 h-4 text-white" />
               </div>
-              <span className="font-bold">FinanciControl</span>
+              <span className="font-bold dark:text-white">FinanciControl</span>
             </div>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 dark:text-gray-400 text-sm">
               A plataforma mais completa para controle financeiro pessoal.
             </p>
             <div className="mt-4">
@@ -461,8 +497,8 @@ const Landing = () => {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Produto</h4>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <h4 className="font-semibold mb-4 dark:text-white">Produto</h4>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li>
                 <Link to="/funcionalidades" className="hover:underline">
                   Funcionalidades
@@ -482,8 +518,8 @@ const Landing = () => {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Suporte</h4>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <h4 className="font-semibold mb-4 dark:text-white">Suporte</h4>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li>
                 <a
                   href="https://t.me/FinanciSuporte"
@@ -521,8 +557,8 @@ const Landing = () => {
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Legal</h4>
-            <ul className="space-y-2 text-sm text-gray-600">
+            <h4 className="font-semibold mb-4 dark:text-white">Legal</h4>
+            <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-400">
               <li>
                 <Link to="/privacidade" className="hover:underline">
                   Política de Privacidade
@@ -544,7 +580,7 @@ const Landing = () => {
 
         <Separator className="my-8" />
 
-        <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
+        <div className="flex flex-col md:flex-row justify-between items-center text-sm text-gray-600 dark:text-gray-400">
           <p>© 2025 FinanciControl. Todos os direitos reservados.</p>
           <div className="flex items-center gap-4 mt-4 md:mt-0">
             <Shield className="w-4 h-4" />
@@ -569,14 +605,14 @@ const Landing = () => {
 
       {showDemo && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-xl w-full relative">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-xl w-full relative">
             <button
-              className="absolute top-2 right-2 text-gray-500"
+              className="absolute top-2 right-2 text-gray-500 dark:text-gray-400"
               onClick={() => setShowDemo(false)}
             >
               ✕
             </button>
-            <h3 className="text-xl font-bold mb-4">
+            <h3 className="text-xl font-bold mb-4 dark:text-white">
               Demonstração do FinanciControl
             </h3>
             <div className="aspect-w-16 aspect-h-9">
