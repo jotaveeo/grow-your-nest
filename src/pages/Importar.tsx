@@ -13,7 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 
 const Importar = () => {
-  const { addTransaction } = useFinanceExtendedContext()
+  const { addTransaction, transactions } = useFinanceExtendedContext()
   const { categorizeMultipleTransactions } = useAutoCategorization()
   const { toast } = useToast()
   const [file, setFile] = useState<File | null>(null)
@@ -95,10 +95,13 @@ const Importar = () => {
     setImporting(true);
 
     try {
+      console.log('Iniciando importação...');
+      console.log('Total de transações antes da importação:', transactions.length);
+      
       const text = await file.text();
-      const { transactions, errors } = parseCSV(text);
+      const { transactions: parsedTransactions, errors } = parseCSV(text);
 
-      if (transactions.length === 0) {
+      if (parsedTransactions.length === 0) {
         setImportResult({
           success: false,
           message: "Nenhuma transação válida encontrada no arquivo",
@@ -107,13 +110,18 @@ const Importar = () => {
         return;
       }
 
+      console.log('Transações parsed:', parsedTransactions.length);
+
       // Aplicar categorização automática
-      const categorizedTransactions = categorizeMultipleTransactions(transactions);
+      const categorizedTransactions = categorizeMultipleTransactions(parsedTransactions);
       const categorizedCount = categorizedTransactions.filter(t => t.category !== 'Sem categoria').length;
+
+      console.log('Transações categorizadas:', categorizedCount);
 
       let successCount = 0;
       for (const transaction of categorizedTransactions) {
         try {
+          console.log('Adicionando transação:', transaction);
           addTransaction({
             date: transaction.date,
             description: transaction.description,
@@ -126,6 +134,13 @@ const Importar = () => {
           console.error('Erro ao adicionar transação:', error);
         }
       }
+
+      console.log('Transações adicionadas com sucesso:', successCount);
+      
+      // Delay para garantir que o estado seja atualizado antes de verificar
+      setTimeout(() => {
+        console.log('Total de transações após importação:', transactions.length);
+      }, 100);
 
       setImportResult({
         success: true,
@@ -141,6 +156,7 @@ const Importar = () => {
       });
 
     } catch (error) {
+      console.error('Erro na importação:', error);
       setImportResult({
         success: false,
         message: "Erro ao processar o arquivo. Verifique o formato.",
@@ -195,6 +211,11 @@ const Importar = () => {
           <p className="text-sm lg:text-base text-muted-foreground">
             Importe suas transações com categorização automática inteligente
           </p>
+        </div>
+
+        {/* Debug Info */}
+        <div className="mb-4 p-3 bg-muted/50 rounded-lg text-sm">
+          <p>Debug: Total de transações no contexto: {transactions.length}</p>
         </div>
 
         <Tabs defaultValue="importar" className="w-full">
