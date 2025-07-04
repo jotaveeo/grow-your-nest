@@ -10,10 +10,96 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Plus, Edit, Trash2, Tag } from "lucide-react";
+import { Plus, Edit, Trash2, Tag, Download } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { useToast } from "@/hooks/use-toast";
+
+const defaultCategories = [
+  // Categorias de Receita
+  { id: '1', name: 'Salário', icon: '💰', color: '#10B981', type: 'income' },
+  { id: '2', name: 'Freelance', icon: '💻', color: '#3B82F6', type: 'income' },
+  { id: '3', name: 'Investimentos', icon: '📈', color: '#8B5CF6', type: 'income' },
+  { id: '4', name: 'Comissões', icon: '🤝', color: '#06B6D4', type: 'income' },
+  { id: '5', name: 'Aluguel Recebido', icon: '🏠', color: '#84CC16', type: 'income' },
+  { id: '6', name: 'Vendas', icon: '🛍️', color: '#F59E0B', type: 'income' },
+  { id: '7', name: '13º Salário', icon: '🎁', color: '#EC4899', type: 'income' },
+  { id: '8', name: 'Férias', icon: '🏖️', color: '#14B8A6', type: 'income' },
+  { id: '9', name: 'Bonificação', icon: '🏆', color: '#F97316', type: 'income' },
+  { id: '10', name: 'Restituição IR', icon: '📋', color: '#6366F1', type: 'income' },
+  { id: '11', name: 'Pensão Recebida', icon: '👨‍👩‍👧‍👦', color: '#8B5CF6', type: 'income' },
+  { id: '12', name: 'Renda Extra', icon: '💪', color: '#10B981', type: 'income' },
+
+  // Categorias de Despesa - Essenciais
+  { id: '13', name: 'Alimentação', icon: '🍽️', color: '#EF4444', type: 'expense' },
+  { id: '14', name: 'Supermercado', icon: '🛒', color: '#DC2626', type: 'expense' },
+  { id: '15', name: 'Transporte', icon: '🚗', color: '#F59E0B', type: 'expense' },
+  { id: '16', name: 'Combustível', icon: '⛽', color: '#D97706', type: 'expense' },
+  { id: '17', name: 'Moradia', icon: '🏠', color: '#F97316', type: 'expense' },
+  { id: '18', name: 'Aluguel', icon: '🔑', color: '#EA580C', type: 'expense' },
+  { id: '19', name: 'Contas Básicas', icon: '📄', color: '#7C2D12', type: 'expense' },
+  { id: '20', name: 'Energia Elétrica', icon: '💡', color: '#FCD34D', type: 'expense' },
+  { id: '21', name: 'Água', icon: '💧', color: '#0EA5E9', type: 'expense' },
+  { id: '22', name: 'Internet', icon: '📶', color: '#3B82F6', type: 'expense' },
+  { id: '23', name: 'Telefone', icon: '📱', color: '#6366F1', type: 'expense' },
+  { id: '24', name: 'Gás', icon: '🔥', color: '#F59E0B', type: 'expense' },
+
+  // Saúde e Bem-estar
+  { id: '25', name: 'Saúde', icon: '🏥', color: '#06B6D4', type: 'expense' },
+  { id: '26', name: 'Medicamentos', icon: '💊', color: '#0891B2', type: 'expense' },
+  { id: '27', name: 'Plano de Saúde', icon: '🩺', color: '#0E7490', type: 'expense' },
+  { id: '28', name: 'Academia', icon: '💪', color: '#DC2626', type: 'expense' },
+  { id: '29', name: 'Terapia', icon: '🧠', color: '#7C3AED', type: 'expense' },
+
+  // Educação e Desenvolvimento
+  { id: '30', name: 'Educação', icon: '📚', color: '#84CC16', type: 'expense' },
+  { id: '31', name: 'Cursos', icon: '🎓', color: '#65A30D', type: 'expense' },
+  { id: '32', name: 'Livros', icon: '📖', color: '#16A34A', type: 'expense' },
+  { id: '33', name: 'Material Escolar', icon: '✏️', color: '#15803D', type: 'expense' },
+
+  // Lazer e Entretenimento
+  { id: '34', name: 'Lazer', icon: '🎮', color: '#EC4899', type: 'expense' },
+  { id: '35', name: 'Cinema', icon: '🎬', color: '#DB2777', type: 'expense' },
+  { id: '36', name: 'Streaming', icon: '📺', color: '#BE185D', type: 'expense' },
+  { id: '37', name: 'Jogos', icon: '🎯', color: '#9D174D', type: 'expense' },
+  { id: '38', name: 'Viagens', icon: '✈️', color: '#0EA5E9', type: 'expense' },
+  { id: '39', name: 'Restaurantes', icon: '🍕', color: '#F97316', type: 'expense' },
+  { id: '40', name: 'Bares', icon: '🍺', color: '#EA580C', type: 'expense' },
+
+  // Vestuário e Cuidados Pessoais
+  { id: '41', name: 'Roupas', icon: '👕', color: '#8B5CF6', type: 'expense' },
+  { id: '42', name: 'Sapatos', icon: '👟', color: '#7C3AED', type: 'expense' },
+  { id: '43', name: 'Cabeleireiro', icon: '💇', color: '#EC4899', type: 'expense' },
+  { id: '44', name: 'Cosméticos', icon: '💄', color: '#DB2777', type: 'expense' },
+
+  // Financeiro
+  { id: '45', name: 'Cartão de Crédito', icon: '💳', color: '#EF4444', type: 'expense' },
+  { id: '46', name: 'Empréstimos', icon: '🏦', color: '#DC2626', type: 'expense' },
+  { id: '47', name: 'Financiamentos', icon: '🏠', color: '#B91C1C', type: 'expense' },
+  { id: '48', name: 'Taxas Bancárias', icon: '🏛️', color: '#991B1B', type: 'expense' },
+  { id: '49', name: 'Seguros', icon: '🛡️', color: '#7F1D1D', type: 'expense' },
+
+  // Impostos e Obrigações
+  { id: '50', name: 'Impostos', icon: '📊', color: '#374151', type: 'expense' },
+  { id: '51', name: 'IPTU', icon: '🏘️', color: '#4B5563', type: 'expense' },
+  { id: '52', name: 'IPVA', icon: '🚙', color: '#6B7280', type: 'expense' },
+  { id: '53', name: 'Multas', icon: '⚠️', color: '#9CA3AF', type: 'expense' },
+
+  // Família e Pets
+  { id: '54', name: 'Crianças', icon: '👶', color: '#FCD34D', type: 'expense' },
+  { id: '55', name: 'Pets', icon: '🐕', color: '#FBBF24', type: 'expense' },
+  { id: '56', name: 'Presentes', icon: '🎁', color: '#F59E0B', type: 'expense' },
+
+  // Investimentos e Poupança
+  { id: '57', name: 'Poupança', icon: '🐷', color: '#10B981', type: 'expense' },
+  { id: '58', name: 'Investimentos', icon: '📈', color: '#059669', type: 'expense' },
+  { id: '59', name: 'Previdência', icon: '👴', color: '#047857', type: 'expense' },
+
+  // Diversos
+  { id: '60', name: 'Doações', icon: '❤️', color: '#F87171', type: 'expense' },
+  { id: '61', name: 'Assinaturas', icon: '📝', color: '#6366F1', type: 'expense' },
+  { id: '62', name: 'Outros', icon: '📦', color: '#6B7280', type: 'expense' },
+];
 
 const Categorias = () => {
   const { categories, addCategory, updateCategory, deleteCategory, transactions } = useFinanceExtendedContext();
@@ -28,6 +114,37 @@ const Categorias = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
+
+  const handleImportDefaultCategories = () => {
+    let importedCount = 0;
+    let skippedCount = 0;
+
+    defaultCategories.forEach((defaultCategory) => {
+      // Check if category already exists (by name and type)
+      const exists = categories.some(
+        (cat) =>
+          cat.name.toLowerCase() === defaultCategory.name.toLowerCase() &&
+          cat.type === defaultCategory.type
+      );
+
+      if (!exists) {
+        addCategory({
+          name: defaultCategory.name,
+          icon: defaultCategory.icon,
+          color: defaultCategory.color,
+          type: defaultCategory.type as "income" | "expense",
+        });
+        importedCount++;
+      } else {
+        skippedCount++;
+      }
+    });
+
+    toast({
+      title: "Importação concluída",
+      description: `${importedCount} categorias importadas, ${skippedCount} já existiam.`,
+    });
+  };
 
   const handleAddCategory = (e: React.FormEvent) => {
     e.preventDefault();
@@ -174,143 +291,154 @@ const Categorias = () => {
               </p>
             </div>
 
-            <Dialog
-              open={isDialogOpen}
-              onOpenChange={(open) => {
-                setIsDialogOpen(open);
-                if (!open) {
-                  setEditingCategory(null);
-                  setNewCategory({
-                    name: "",
-                    icon: "",
-                    color: "#3b82f6",
-                    type: "expense",
-                  });
-                }
-              }}
-            >
-              <DialogTrigger asChild>
-                <Button className="flex items-center gap-2 w-full sm:w-auto">
-                  <Plus className="h-4 w-4" />
-                  Nova Categoria
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>
-                    {editingCategory
-                      ? "Editar Categoria"
-                      : "Criar Nova Categoria"}
-                  </DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleAddCategory} className="space-y-4 py-4">
-                  <div>
-                    <Label htmlFor="name">Nome da Categoria</Label>
-                    <Input
-                      id="name"
-                      value={newCategory.name}
-                      onChange={(e) =>
-                        setNewCategory({ ...newCategory, name: e.target.value })
-                      }
-                      placeholder="Ex: Alimentação"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                variant="outline"
+                onClick={handleImportDefaultCategories}
+                className="flex items-center gap-2 w-full sm:w-auto"
+              >
+                <Download className="h-4 w-4" />
+                Importar Categorias Padrão
+              </Button>
 
-                  <div>
-                    <Label htmlFor="icon">Emoji/Ícone</Label>
-                    <Input
-                      id="icon"
-                      value={newCategory.icon}
-                      onChange={(e) =>
-                        setNewCategory({ ...newCategory, icon: e.target.value })
-                      }
-                      placeholder="🍕"
-                      className="mt-1"
-                      maxLength={2}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="color">Cor</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <input
-                        type="color"
-                        id="color"
-                        value={newCategory.color}
-                        onChange={(e) =>
-                          setNewCategory({
-                            ...newCategory,
-                            color: e.target.value,
-                          })
-                        }
-                        className="w-12 h-10 rounded border border-input"
-                      />
-                      <Input
-                        value={newCategory.color}
-                        onChange={(e) =>
-                          setNewCategory({
-                            ...newCategory,
-                            color: e.target.value,
-                          })
-                        }
-                        placeholder="#3b82f6"
-                        className="flex-1"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label>Tipo</Label>
-                    <div className="flex gap-2 mt-2">
-                      <Button
-                        type="button"
-                        variant={
-                          newCategory.type === "expense" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() =>
-                          setNewCategory({ ...newCategory, type: "expense" })
-                        }
-                        className="flex-1"
-                      >
-                        Despesa
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={
-                          newCategory.type === "income" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() =>
-                          setNewCategory({ ...newCategory, type: "income" })
-                        }
-                        className="flex-1"
-                      >
-                        Receita
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end gap-2 pt-4">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsDialogOpen(false)}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button type="submit">
+              <Dialog
+                open={isDialogOpen}
+                onOpenChange={(open) => {
+                  setIsDialogOpen(open);
+                  if (!open) {
+                    setEditingCategory(null);
+                    setNewCategory({
+                      name: "",
+                      icon: "",
+                      color: "#3b82f6",
+                      type: "expense",
+                    });
+                  }
+                }}
+              >
+                <DialogTrigger asChild>
+                  <Button className="flex items-center gap-2 w-full sm:w-auto">
+                    <Plus className="h-4 w-4" />
+                    Nova Categoria
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>
                       {editingCategory
-                        ? "Salvar Alterações"
-                        : "Criar Categoria"}
-                    </Button>
-                  </div>
-                </form>
-              </DialogContent>
-            </Dialog>
+                        ? "Editar Categoria"
+                        : "Criar Nova Categoria"}
+                    </DialogTitle>
+                  </DialogHeader>
+                  <form onSubmit={handleAddCategory} className="space-y-4 py-4">
+                    <div>
+                      <Label htmlFor="name">Nome da Categoria</Label>
+                      <Input
+                        id="name"
+                        value={newCategory.name}
+                        onChange={(e) =>
+                          setNewCategory({ ...newCategory, name: e.target.value })
+                        }
+                        placeholder="Ex: Alimentação"
+                        className="mt-1"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="icon">Emoji/Ícone</Label>
+                      <Input
+                        id="icon"
+                        value={newCategory.icon}
+                        onChange={(e) =>
+                          setNewCategory({ ...newCategory, icon: e.target.value })
+                        }
+                        placeholder="🍕"
+                        className="mt-1"
+                        maxLength={2}
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="color">Cor</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <input
+                          type="color"
+                          id="color"
+                          value={newCategory.color}
+                          onChange={(e) =>
+                            setNewCategory({
+                              ...newCategory,
+                              color: e.target.value,
+                            })
+                          }
+                          className="w-12 h-10 rounded border border-input"
+                        />
+                        <Input
+                          value={newCategory.color}
+                          onChange={(e) =>
+                            setNewCategory({
+                              ...newCategory,
+                              color: e.target.value,
+                            })
+                          }
+                          placeholder="#3b82f6"
+                          className="flex-1"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <Label>Tipo</Label>
+                      <div className="flex gap-2 mt-2">
+                        <Button
+                          type="button"
+                          variant={
+                            newCategory.type === "expense" ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() =>
+                            setNewCategory({ ...newCategory, type: "expense" })
+                          }
+                          className="flex-1"
+                        >
+                          Despesa
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={
+                            newCategory.type === "income" ? "default" : "outline"
+                          }
+                          size="sm"
+                          onClick={() =>
+                            setNewCategory({ ...newCategory, type: "income" })
+                          }
+                          className="flex-1"
+                        >
+                          Receita
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-4">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsDialogOpen(false)}
+                      >
+                        Cancelar
+                      </Button>
+                      <Button type="submit">
+                        {editingCategory
+                          ? "Salvar Alterações"
+                          : "Criar Categoria"}
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
           </div>
         </div>
 
