@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -13,6 +12,9 @@ import { LucideIcon } from "lucide-react";
 interface CategoryLimit {
   id: string;
   name: string;
+  icon: string;
+  color: string;
+  type: string;
   spent: number;
   budget: number;
   percentage: number;
