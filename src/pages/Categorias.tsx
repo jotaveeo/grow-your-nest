@@ -14,6 +14,11 @@ import { Plus, Edit, Trash2, Tag, Download } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { useToast } from "@/hooks/use-toast";
+import { PlanSelector } from "@/components/PlanSelector";
+import { PlanLimitWarning } from "@/components/PlanLimitWarning";
+import { PlanUsageStats } from "@/components/PlanUsageStats";
+import { PlanFeatureGate } from "@/components/PlanFeatureGate";
+import { usePlan } from "@/contexts/PlanContext";
 
 const defaultCategories = [
   // Categorias de Receita
@@ -104,6 +109,7 @@ const defaultCategories = [
 const Categorias = () => {
   const { categories, addCategory, updateCategory, deleteCategory, transactions } = useFinanceExtendedContext();
   const { toast } = useToast();
+  const { hasReachedLimit, features, currentPlan } = usePlan();
 
   const [newCategory, setNewCategory] = useState({
     name: "",
@@ -114,6 +120,7 @@ const Categorias = () => {
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<string | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const handleImportDefaultCategories = () => {
     let importedCount = 0;
@@ -128,6 +135,16 @@ const Categorias = () => {
       );
 
       if (!exists) {
+        // Check limit before adding
+        if (hasReachedLimit('categories', categories.length + importedCount)) {
+          toast({
+            title: "Limite atingido",
+            description: `Você atingiu o limite de ${features.maxCategories} categorias do plano ${currentPlan}.`,
+            variant: "destructive",
+          });
+          return;
+        }
+
         addCategory({
           name: defaultCategory.name,
           icon: defaultCategory.icon,
@@ -148,6 +165,13 @@ const Categorias = () => {
 
   const handleAddCategory = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check category limit
+    if (!editingCategory && hasReachedLimit('categories', categories.length)) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     // Validação de nome duplicado para o mesmo tipo
     if (
       categories.some(
@@ -271,7 +295,10 @@ const Categorias = () => {
 
   return (
     <div className="min-h-screen bg-background animate-fade-in">
-      <div className="container mx-auto p-4 lg:p-6 max-w-4xl">
+      <div className="container mx-auto p-4 lg:p-6 max-w-6xl">
+        {/* Plan Selector for Dev Mode */}
+        <PlanSelector />
+
         {/* Header */}
         <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
           <BackButton />
@@ -292,18 +319,28 @@ const Categorias = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-2">
-              <Button
-                variant="outline"
-                onClick={handleImportDefaultCategories}
-                className="flex items-center gap-2 w-full sm:w-auto"
+              <PlanFeatureGate
+                requiredPlan="free"
+                featureName="Importar Categorias Padrão"
+                description="Importe categorias pré-definidas para começar rapidamente"
               >
-                <Download className="h-4 w-4" />
-                Importar Categorias Padrão
-              </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleImportDefaultCategories}
+                  className="flex items-center gap-2 w-full sm:w-auto"
+                >
+                  <Download className="h-4 w-4" />
+                  Importar Categorias Padrão
+                </Button>
+              </PlanFeatureGate>
 
               <Dialog
                 open={isDialogOpen}
                 onOpenChange={(open) => {
+                  if (open && hasReachedLimit('categories', categories.length)) {
+                    setShowUpgradeModal(true);
+                    return;
+                  }
                   setIsDialogOpen(open);
                   if (!open) {
                     setEditingCategory(null);
@@ -442,117 +479,134 @@ const Categorias = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Expense Categories */}
-          <Card
-            className="animate-scale-in"
-            style={{ animationDelay: "200ms" }}
-          >
-            <CardHeader className="px-4 lg:px-6 py-4">
-              <CardTitle className="text-base lg:text-lg flex items-center gap-2">
-                <Tag className="h-4 w-4 lg:h-5 lg:w-5 text-destructive" />
-                Categorias de Despesas ({expenseCategories.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
-              <div className="space-y-3">
-                {expenseCategories.map((category) => (
-                  <CategoryCard
-                    key={category.id}
-                    category={category}
-                    onEdit={handleEditCategory}
-                    onDelete={handleDeleteCategory}
-                  />
-                ))}
-                {expenseCategories.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>Nenhuma categoria de despesa</p>
-                    <p className="text-sm mt-1">Crie sua primeira categoria</p>
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        {/* Plan Usage Warning */}
+        <PlanLimitWarning
+          currentCount={categories.length}
+          limit={features.maxCategories}
+          itemName="categorias"
+          requiredPlan="essencial"
+          onUpgrade={() => setShowUpgradeModal(true)}
+        />
 
-          {/* Income Categories */}
-          <Card
-            className="animate-scale-in"
-            style={{ animationDelay: "300ms" }}
-          >
-            <CardHeader className="px-4 lg:px-6 py-4">
-              <CardTitle className="text-base lg:text-lg flex items-center gap-2">
-                <Tag className="h-4 w-4 lg:h-5 lg:w-5 text-success" />
-                Categorias de Receitas ({incomeCategories.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
-              <div className="space-y-3">
-                {incomeCategories.map((category) => (
-                  <CategoryCard
-                    key={category.id}
-                    category={category}
-                    onEdit={handleEditCategory}
-                    onDelete={handleDeleteCategory}
-                  />
-                ))}
-                {incomeCategories.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p>Nenhuma categoria de receita</p>
-                    <p className="text-sm mt-1">Crie sua primeira categoria</p>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Categories Grid */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Expense Categories */}
+            <Card
+              className="animate-scale-in"
+              style={{ animationDelay: "200ms" }}
+            >
+              <CardHeader className="px-4 lg:px-6 py-4">
+                <CardTitle className="text-base lg:text-lg flex items-center gap-2">
+                  <Tag className="h-4 w-4 lg:h-5 lg:w-5 text-destructive" />
+                  Categorias de Despesas ({expenseCategories.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
+                <div className="space-y-3">
+                  {expenseCategories.map((category) => (
+                    <CategoryCard
+                      key={category.id}
+                      category={category}
+                      onEdit={handleEditCategory}
+                      onDelete={handleDeleteCategory}
+                    />
+                  ))}
+                  {expenseCategories.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>Nenhuma categoria de despesa</p>
+                      <p className="text-sm mt-1">Crie sua primeira categoria</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Income Categories */}
+            <Card
+              className="animate-scale-in"
+              style={{ animationDelay: "300ms" }}
+            >
+              <CardHeader className="px-4 lg:px-6 py-4">
+                <CardTitle className="text-base lg:text-lg flex items-center gap-2">
+                  <Tag className="h-4 w-4 lg:h-5 lg:w-5 text-success" />
+                  Categorias de Receitas ({incomeCategories.length})
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
+                <div className="space-y-3">
+                  {incomeCategories.map((category) => (
+                    <CategoryCard
+                      key={category.id}
+                      category={category}
+                      onEdit={handleEditCategory}
+                      onDelete={handleDeleteCategory}
+                    />
+                  ))}
+                  {incomeCategories.length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>Nenhuma categoria de receita</p>
+                      <p className="text-sm mt-1">Crie sua primeira categoria</p>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sidebar with Plan Info */}
+          <div className="space-y-6">
+            <PlanUsageStats />
+
+            {/* Usage Stats */}
+            <Card
+              className="animate-scale-in"
+              style={{ animationDelay: "400ms" }}
+            >
+              <CardHeader className="px-4 lg:px-6 py-4">
+                <CardTitle className="text-base lg:text-lg">
+                  Estatísticas de Uso
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="text-center p-4 bg-muted/50 rounded-lg hover-lift">
+                    <p className="text-2xl font-bold text-primary">
+                      {categories.length}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Total de Categorias
+                    </p>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  <div className="text-center p-4 bg-muted/50 rounded-lg hover-lift">
+                    <p className="text-2xl font-bold text-destructive">
+                      {expenseCategories.length}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Categorias de Despesa
+                    </p>
+                  </div>
+                  <div className="text-center p-4 bg-muted/50 rounded-lg hover-lift">
+                    <p className="text-2xl font-bold text-success">
+                      {incomeCategories.length}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Categorias de Receita
+                    </p>
+                  </div>
+                  <div className="text-center p-4 bg-muted/50 rounded-lg hover-lift">
+                    <p className="text-2xl font-bold text-warning">
+                      {unusedCategories.length}
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      Categorias Não Utilizadas
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-
-        {/* Usage Stats */}
-        <Card
-          className="mt-6 animate-scale-in"
-          style={{ animationDelay: "400ms" }}
-        >
-          <CardHeader className="px-4 lg:px-6 py-4">
-            <CardTitle className="text-base lg:text-lg">
-              Estatísticas de Uso
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 lg:px-6 pb-4 lg:pb-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="text-center p-4 bg-muted/50 rounded-lg hover-lift">
-                <p className="text-2xl font-bold text-primary">
-                  {categories.length}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Total de Categorias
-                </p>
-              </div>
-              <div className="text-center p-4 bg-muted/50 rounded-lg hover-lift">
-                <p className="text-2xl font-bold text-destructive">
-                  {expenseCategories.length}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Categorias de Despesa
-                </p>
-              </div>
-              <div className="text-center p-4 bg-muted/50 rounded-lg hover-lift">
-                <p className="text-2xl font-bold text-success">
-                  {incomeCategories.length}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Categorias de Receita
-                </p>
-              </div>
-              <div className="text-center p-4 bg-muted/50 rounded-lg hover-lift">
-                <p className="text-2xl font-bold text-warning">
-                  {unusedCategories.length}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Categorias Não Utilizadas
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );
