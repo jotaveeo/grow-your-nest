@@ -32,6 +32,10 @@ import {
 } from "@/components/ui/select";
 import { BackButton } from "@/components/BackButton";
 import { toast } from "@/components/ui/use-toast";
+import { usePlan } from "@/contexts/PlanContext";
+import { PlanLimitWarning } from "@/components/PlanLimitWarning";
+import { UpgradeModal } from "@/components/UpgradeModal";
+import { PlanSelector } from "@/components/PlanSelector";
 
 const Metas = () => {
   const {
@@ -40,8 +44,12 @@ const Metas = () => {
     updateFinancialGoal,
     deleteFinancialGoal,
   } = useFinanceExtendedContext();
+  const { hasReachedLimit, features, currentPlan } = usePlan();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingGoal, setEditingGoal] = useState<any>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
   const [formData, setFormData] = useState({
     title: "",
     targetAmount: 0,
@@ -53,6 +61,13 @@ const Metas = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check goal limit
+    if (!editingGoal && hasReachedLimit("goals", financialGoals.length)) {
+      setShowUpgradeModal(true);
+      return;
+    }
+
     if (!formData.title.trim() || !formData.targetAmount || !formData.deadline) {
       toast({
         title: "Campos obrigatórios",
@@ -118,6 +133,9 @@ const Metas = () => {
   return (
     <div className="min-h-screen bg-background animate-fade-in">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
+        {/* Plan Selector for Dev Mode */}
+        <PlanSelector />
+
         {/* Header */}
         <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
           <BackButton />
@@ -140,6 +158,10 @@ const Metas = () => {
             <Dialog
               open={isDialogOpen}
               onOpenChange={(open) => {
+                if (open && hasReachedLimit("goals", financialGoals.length)) {
+                  setShowUpgradeModal(true);
+                  return;
+                }
                 setIsDialogOpen(open);
                 if (!open) setEditingGoal(null);
               }}
@@ -243,6 +265,15 @@ const Metas = () => {
             </Dialog>
           </div>
         </div>
+
+        {/* Plan Usage Warning */}
+        <PlanLimitWarning
+          currentCount={financialGoals.length}
+          limit={features.maxGoals}
+          itemName="metas"
+          requiredPlan="essencial"
+          onUpgrade={() => setShowUpgradeModal(true)}
+        />
 
         {/* Goals Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -401,7 +432,13 @@ const Metas = () => {
                   Comece definindo suas metas financeiras para alcançar seus
                   objetivos
                 </p>
-                <Button onClick={() => setIsDialogOpen(true)}>
+                <Button onClick={() => {
+                  if (hasReachedLimit("goals", financialGoals.length)) {
+                    setShowUpgradeModal(true);
+                    return;
+                  }
+                  setIsDialogOpen(true);
+                }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Criar Primeira Meta
                 </Button>
@@ -410,8 +447,16 @@ const Metas = () => {
           )}
         </div>
       </div>
+      <UpgradeModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        requiredPlan="essencial"
+        feature="Metas Financeiras"
+      />
     </div>
   );
 };
 
 export default Metas;
+
+

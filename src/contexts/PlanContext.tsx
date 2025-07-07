@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { PlanType, PLANS, PlanFeatures } from '@/types/plans';
 
@@ -50,10 +49,12 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const features = PLANS[currentPlan].features;
 
   const canAccess = (feature: keyof PlanFeatures): boolean => {
+    if (isDevMode) return true; // Dev mode bypasses all restrictions
     return features[feature] === true;
   };
 
   const hasReachedLimit = (feature: 'categories' | 'goals', currentCount: number): boolean => {
+    if (isDevMode) return false; // Dev mode bypasses all limits
     const limit = feature === 'categories' ? features.maxCategories : features.maxGoals;
     return limit !== -1 && currentCount >= limit;
   };
@@ -72,3 +73,5 @@ export const PlanProvider: React.FC<{ children: React.ReactNode }> = ({ children
     </PlanContext.Provider>
   );
 };
+
+
