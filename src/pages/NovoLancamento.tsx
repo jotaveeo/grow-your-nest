@@ -82,7 +82,7 @@ const NovoLancamento = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="p-6 max-w-2xl mx-auto">
         <div className="flex items-center gap-4 mb-6">
           <BackButton />

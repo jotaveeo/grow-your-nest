@@ -8,7 +8,7 @@ const status = {
 };
 
 const Status = () => (
-  <div className="min-h-screen bg-background animate-fade-in">
+  <div className="min-h-screen bg-background">
     <div className="container mx-auto p-4 lg:p-8 max-w-xl">
       <Card>
         <CardHeader>

@@ -74,7 +74,7 @@ const Configuracoes = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-4xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
           <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
             Configurações

@@ -94,14 +94,14 @@ const Wishlist = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
         </div>
 
-        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
+        <div className="mb-6 lg:mb-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
@@ -222,7 +222,7 @@ const Wishlist = () => {
             const isDecisionTime = daysToDecision <= 0
             
             return (
-              <Card key={item.id} className={`relative overflow-hidden animate-scale-in hover-lift ${isDecisionTime ? 'ring-2 ring-orange-300' : ''}`} style={{ animationDelay: `${200 + index * 100}ms` }}>
+              <Card key={item.id} className={`relative overflow-hidden ${isDecisionTime ? 'ring-2 ring-orange-300' : ''}`}>
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <CardTitle className="text-lg line-clamp-2">{item.title}</CardTitle>
@@ -336,7 +336,7 @@ const Wishlist = () => {
           })}
 
           {wishlistItems.length === 0 && (
-            <Card className="col-span-full animate-scale-in" style={{ animationDelay: "200ms" }}>
+            <Card className="col-span-full">
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <Heart className="h-12 w-12 text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">Nenhum item na lista</h3>

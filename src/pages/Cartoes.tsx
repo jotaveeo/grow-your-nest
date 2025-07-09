@@ -163,10 +163,10 @@ const Cartoes = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
           <span className="ml-auto text-sm text-muted-foreground">
             {cards.length} cartão{cards.length !== 1 && "s"}
@@ -174,8 +174,7 @@ const Cartoes = () => {
         </div>
 
         <div
-          className="mb-6 lg:mb-8 animate-slide-in-left"
-          style={{ animationDelay: "100ms" }}
+          className="mb-6 lg:mb-8"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -280,10 +279,9 @@ const Cartoes = () => {
           {cards.map((card, index) => (
             <Card
               key={card.id}
-              className={`relative overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg animate-scale-in hover-lift
+              className={`relative overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 hover:shadow-lg
                 ${card.main ? "ring-2 ring-violet-700" : ""}
               `}
-              style={{ animationDelay: `${200 + index * 100}ms` }}
             >
               {/* Card Header com a cor do cartão */}
               <div
@@ -370,8 +368,7 @@ const Cartoes = () => {
         {/* Empty State */}
         {cards.length === 0 && (
           <Card
-            className="mt-8 animate-scale-in"
-            style={{ animationDelay: "200ms" }}
+            className="mt-8"
           >
             <CardContent className="flex flex-col items-center justify-center py-12">
               <CreditCard className="h-12 w-12 text-muted-foreground mb-4" />

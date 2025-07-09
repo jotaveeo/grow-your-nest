@@ -131,19 +131,18 @@ const Metas = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Plan Selector for Dev Mode */}
         <PlanSelector />
 
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
         </div>
 
         <div
-          className="mb-6 lg:mb-8 animate-slide-in-left"
-          style={{ animationDelay: "100ms" }}
+          className="mb-6 lg:mb-8"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -291,8 +290,7 @@ const Metas = () => {
             return (
               <Card
                 key={goal.id}
-                className="relative overflow-hidden animate-scale-in hover-lift"
-                style={{ animationDelay: `${200 + index * 100}ms` }}
+                className="relative overflow-hidden"
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
@@ -420,8 +418,7 @@ const Metas = () => {
 
           {financialGoals.length === 0 && (
             <Card
-              className="col-span-full animate-scale-in"
-              style={{ animationDelay: "200ms" }}
+              className="col-span-full"
             >
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <Target className="h-12 w-12 text-muted-foreground mb-4" />

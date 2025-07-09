@@ -110,16 +110,15 @@ const Dividas = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
         </div>
 
         <div
-          className="mb-6 lg:mb-8 animate-slide-in-left"
-          style={{ animationDelay: "100ms" }}
+          className="mb-6 lg:mb-8"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3 mb-2">
@@ -256,8 +255,7 @@ const Dividas = () => {
 
         {/* Tabs de meses */}
         <div
-          className="flex flex-wrap gap-2 mb-4 animate-slide-in-left"
-          style={{ animationDelay: "200ms" }}
+          className="flex flex-wrap gap-2 mb-4"
         >
           {months.map((m) => (
             <Button
@@ -265,7 +263,7 @@ const Dividas = () => {
               variant={selectedMonth === m ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedMonth(m)}
-              className="hover-lift"
+              className=""
             >
               {m}
             </Button>
@@ -273,7 +271,7 @@ const Dividas = () => {
         </div>
 
         {/* Tabela de dívidas */}
-        <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
+        <Card>
           <CardHeader>
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <Receipt className="h-4 w-4 text-primary" />

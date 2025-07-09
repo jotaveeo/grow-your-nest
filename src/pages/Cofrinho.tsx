@@ -56,10 +56,10 @@ const Cofrinho = () => {
   }));
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-4xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
           <Button
             variant="outline"
@@ -74,8 +74,7 @@ const Cofrinho = () => {
         </div>
 
         <div
-          className="mb-6 lg:mb-8 animate-slide-in-left"
-          style={{ animationDelay: "100ms" }}
+          className="mb-6 lg:mb-8"
         >
           <div className="flex items-center gap-3 mb-2">
             <PiggyBank className="h-8 w-8 text-primary" />
@@ -90,8 +89,7 @@ const Cofrinho = () => {
 
         {/* Gráfico de barras */}
         <Card
-          className="mb-6 animate-scale-in"
-          style={{ animationDelay: "150ms" }}
+          className="mb-6"
         >
           <CardHeader className="px-4 lg:px-6 py-4 flex items-center gap-2">
             <BarChart2 className="h-5 w-5 text-primary" />
@@ -111,7 +109,7 @@ const Cofrinho = () => {
         </Card>
 
         {/* Tabela de inputs */}
-        <Card className="animate-scale-in" style={{ animationDelay: "200ms" }}>
+        <Card>
           <CardHeader className="px-4 lg:px-6 py-4">
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <Calendar className="h-4 w-4 lg:h-5 lg:w-5" />

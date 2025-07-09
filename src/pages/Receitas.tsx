@@ -100,14 +100,14 @@ const Receitas = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-4xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
         </div>
 
-        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
+        <div className="mb-6 lg:mb-8">
           <div className="flex items-center gap-3">
             <DollarSign className="h-8 w-8 text-primary" />
             <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
@@ -116,7 +116,7 @@ const Receitas = () => {
           </div>
         </div>
 
-        <Card className="mb-6 border-l-4 border-l-primary bg-primary/10 animate-scale-in" style={{ animationDelay: "200ms" }}>
+        <Card className="mb-6 border-l-4 border-l-primary bg-primary/10">
           <CardContent className="flex items-center gap-4 py-4">
             <DollarSign className="h-6 w-6 text-primary" />
             <div>
@@ -129,7 +129,7 @@ const Receitas = () => {
           </CardContent>
         </Card>
 
-        <div className="flex justify-end mb-4 animate-slide-in-left" style={{ animationDelay: "300ms" }}>
+        <div className="flex justify-end mb-4">
           <Dialog
             open={isDialogOpen}
             onOpenChange={(open) => {
@@ -224,7 +224,7 @@ const Receitas = () => {
         </div>
 
         {/* Tabela de receitas */}
-        <Card className="animate-scale-in" style={{ animationDelay: "400ms" }}>
+        <Card>
           <CardHeader>
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-primary" />
