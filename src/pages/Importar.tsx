@@ -296,13 +296,12 @@ const Importar = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-3xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
         </div>
 
         <div
-          className="mb-6 lg:mb-8 animate-slide-in-left"
-          style={{ animationDelay: "100ms" }}
+          className="mb-6 lg:mb-8"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -407,7 +406,7 @@ const Importar = () => {
           </div>
         </div>
 
-        <Card className="animate-scale-in" style={{ animationDelay: "200ms" }}>
+        <Card>
           <CardHeader className="px-4 lg:px-6 py-4">
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <Upload className="h-4 w-4 lg:h-5 lg:w-5" />
@@ -427,7 +426,7 @@ const Importar = () => {
           </CardContent>
         </Card>
 
-        <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
+        <Card>
           <CardHeader className="px-4 lg:px-6 py-4">
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <FileText className="h-4 w-4 lg:h-5 lg:w-5" />

@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { Shield } from "lucide-react";
 import { AlertTriangle } from "lucide-react";
-import { 
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -12,16 +11,27 @@ import { KanbanColumn } from "@/components/limits/KanbanColumn";
 import { LimitsSummaryStats } from "@/components/limits/LimitsSummaryStats";
 import { EditLimitDialog } from "@/components/limits/EditLimitDialog";
 import { useCategoryLimits } from "@/hooks/useCategoryLimits";
+import { BackButton } from "@/components/BackButton";
 
 const Limites = () => {
-  const { categoryLimits, customLimits, updateCustomLimits, selectedMonth, selectedYear } = useCategoryLimits();
+  const {
+    categoryLimits,
+    customLimits,
+    updateCustomLimits,
+    selectedMonth,
+    selectedYear,
+  } = useCategoryLimits();
   const [editingLimitCategory, setEditingLimitCategory] = useState(null);
   const [limitValue, setLimitValue] = useState(0);
 
   // Group categories by status
   const safeCategories = categoryLimits.filter((cat) => cat.status === "safe");
-  const warningCategories = categoryLimits.filter((cat) => cat.status === "warning");
-  const exceededCategories = categoryLimits.filter((cat) => cat.status === "exceeded");
+  const warningCategories = categoryLimits.filter(
+    (cat) => cat.status === "warning"
+  );
+  const exceededCategories = categoryLimits.filter(
+    (cat) => cat.status === "exceeded"
+  );
 
   const handleEditLimit = (category) => {
     setEditingLimitCategory(category);
@@ -52,6 +62,8 @@ const Limites = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
+        <BackButton />
+
         <div className="mb-6 lg:mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Shield className="h-8 w-8 text-primary" />
@@ -60,7 +72,8 @@ const Limites = () => {
             </h1>
           </div>
           <p className="text-sm lg:text-base text-muted-foreground">
-            Monitore seus gastos por categoria e mantenha o controle do seu orçamento
+            Monitore seus gastos por categoria e mantenha o controle do seu
+            orçamento
           </p>
         </div>
 
@@ -70,10 +83,14 @@ const Limites = () => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger className="cursor-help">
-                  Período: {new Date(selectedYear, selectedMonth).toLocaleDateString("pt-BR", {
-                    month: "long",
-                    year: "numeric",
-                  })}
+                  Período:{" "}
+                  {new Date(selectedYear, selectedMonth).toLocaleDateString(
+                    "pt-BR",
+                    {
+                      month: "long",
+                      year: "numeric",
+                    }
+                  )}
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Dados calculados para o mês atual</p>

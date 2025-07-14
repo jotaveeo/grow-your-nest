@@ -450,7 +450,7 @@ const Landing = () => {
       </section>
 
       {/* Final CTA */}
-      <section className="container mx-auto px-4 py-16 text-center bg-gradient-to-r from-primary to-blue-700 rounded-3xl my-16 text-white shadow-xl animate-fade-in">
+      <section className="container mx-auto px-4 py-16 text-center bg-gradient-to-r from-primary to-blue-700 rounded-3xl my-16 text-white shadow-xl">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 drop-shadow">
           Pronto para transformar sua vida financeira?
         </h2>

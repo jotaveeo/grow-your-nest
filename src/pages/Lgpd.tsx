@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 const LGPD = () => (
-  <div className="min-h-screen bg-background animate-fade-in">
+  <div className="min-h-screen bg-background">
     <div className="container mx-auto p-4 lg:p-8 max-w-3xl">
       <Card>
         <CardHeader>

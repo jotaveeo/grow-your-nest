@@ -228,7 +228,7 @@ const Categorias = () => {
   );
 
   const CategoryCard = ({ category, onEdit, onDelete }: any) => (
-    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors hover-lift">
+    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors">
       <div className="flex items-center gap-3">
         <div
           className="w-10 h-10 rounded-full flex items-center justify-center text-lg"
@@ -270,16 +270,15 @@ const Categorias = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-4xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
         </div>
 
         <div
-          className="mb-6 lg:mb-8 animate-slide-in-left"
-          style={{ animationDelay: "100ms" }}
+          className="mb-6 lg:mb-8"
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
@@ -444,10 +443,7 @@ const Categorias = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Expense Categories */}
-          <Card
-            className="animate-scale-in"
-            style={{ animationDelay: "200ms" }}
-          >
+          <Card>
             <CardHeader className="px-4 lg:px-6 py-4">
               <CardTitle className="text-base lg:text-lg flex items-center gap-2">
                 <Tag className="h-4 w-4 lg:h-5 lg:w-5 text-destructive" />
@@ -475,10 +471,7 @@ const Categorias = () => {
           </Card>
 
           {/* Income Categories */}
-          <Card
-            className="animate-scale-in"
-            style={{ animationDelay: "300ms" }}
-          >
+          <Card>
             <CardHeader className="px-4 lg:px-6 py-4">
               <CardTitle className="text-base lg:text-lg flex items-center gap-2">
                 <Tag className="h-4 w-4 lg:h-5 lg:w-5 text-success" />
@@ -507,10 +500,7 @@ const Categorias = () => {
         </div>
 
         {/* Usage Stats */}
-        <Card
-          className="mt-6 animate-scale-in"
-          style={{ animationDelay: "400ms" }}
-        >
+        <Card>
           <CardHeader className="px-4 lg:px-6 py-4">
             <CardTitle className="text-base lg:text-lg">
               Estatísticas de Uso

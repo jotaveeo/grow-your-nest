@@ -98,14 +98,14 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
   };
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
         </div>
 
-        <div className="mb-6 lg:mb-8 animate-slide-in-left" style={{ animationDelay: "100ms" }}>
+        <div className="mb-6 lg:mb-8">
           <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
             Relatórios Financeiros
           </h1>
@@ -115,7 +115,7 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
         </div>
 
         {/* Controls */}
-        <Card className="mb-6 animate-scale-in" style={{ animationDelay: "200ms" }}>
+        <Card className="mb-6">
           <CardHeader className="px-4 lg:px-6 py-4">
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <Calendar className="h-4 w-4 lg:h-5 lg:w-5" />
@@ -180,7 +180,7 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-6 lg:mb-8">
-          <Card className="border-l-4 border-l-success animate-scale-in" style={{ animationDelay: "300ms" }}>
+          <Card className="border-l-4 border-l-success">
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -194,7 +194,7 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-destructive animate-scale-in" style={{ animationDelay: "350ms" }}>
+          <Card className="border-l-4 border-l-destructive">
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -208,7 +208,7 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-primary animate-scale-in" style={{ animationDelay: "400ms" }}>
+          <Card className="border-l-4 border-l-primary">
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -224,7 +224,7 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
             </CardContent>
           </Card>
 
-          <Card className="border-l-4 border-l-warning animate-scale-in" style={{ animationDelay: "450ms" }}>
+          <Card className="border-l-4 border-l-warning">
             <CardContent className="p-4 lg:p-6">
               <div className="flex items-center justify-between">
                 <div>
@@ -241,13 +241,13 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
 
         {/* Charts */}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6 mb-6 lg:mb-8">
-          <div className="animate-scale-in" style={{ animationDelay: "500ms" }}>
+          <div>
             <ExpenseChart
               data={categoryExpenses}
               title="Despesas por Categoria"
             />
           </div>
-          <div className="animate-scale-in" style={{ animationDelay: "550ms" }}>
+          <div>
             <TrendChart
               data={monthlyExpenses}
               title="Evolução Temporal"
@@ -257,7 +257,7 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
 
         {/* Detailed Analysis */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-          <Card className="animate-scale-in" style={{ animationDelay: "600ms" }}>
+          <Card>
             <CardHeader className="px-4 lg:px-6 py-4">
               <CardTitle className="text-base lg:text-lg">Top Categorias de Gastos</CardTitle>
             </CardHeader>
@@ -278,7 +278,7 @@ Gerado em: ${new Date().toLocaleDateString('pt-BR')}
             </CardContent>
           </Card>
 
-          <Card className="animate-scale-in" style={{ animationDelay: "650ms" }}>
+          <Card>
             <CardHeader className="px-4 lg:px-6 py-4">
               <CardTitle className="text-base lg:text-lg">Insights Financeiros</CardTitle>
             </CardHeader>

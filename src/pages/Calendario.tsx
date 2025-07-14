@@ -110,16 +110,15 @@ const Calendario = () => {
   const availableYears = [2023, 2024, 2025];
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
         </div>
 
         <div
-          className="mb-6 lg:mb-8 animate-slide-in-left"
-          style={{ animationDelay: "100ms" }}
+          className="mb-6 lg:mb-8"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -151,10 +150,9 @@ const Calendario = () => {
 
         {/* Summary Cards */}
         <div
-          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-8 animate-scale-in"
-          style={{ animationDelay: "200ms" }}
+          className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4 mb-8"
         >
-          <Card className="hover-lift">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <ArrowUpCircle className="h-4 w-4 text-green-500" />
@@ -170,7 +168,7 @@ const Calendario = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover-lift">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <ArrowDownCircle className="h-4 w-4 text-red-500" />
@@ -186,7 +184,7 @@ const Calendario = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover-lift">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-orange-500" />
@@ -202,7 +200,7 @@ const Calendario = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover-lift">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <CreditCard className="h-4 w-4 text-purple-500" />
@@ -218,7 +216,7 @@ const Calendario = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover-lift">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <TrendingUp className="h-4 w-4 text-blue-500" />
@@ -238,7 +236,7 @@ const Calendario = () => {
         </div>
 
         {/* Monthly Finance Summary Table */}
-        <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
+        <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <CalendarIcon className="h-5 w-5 text-primary" />
@@ -372,7 +370,7 @@ const Calendario = () => {
         </Card>
 
         {/* Monthly Insights */}
-        <Card className="mt-6 animate-scale-in" style={{ animationDelay: "400ms" }}>
+        <Card className="mt-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-primary" />

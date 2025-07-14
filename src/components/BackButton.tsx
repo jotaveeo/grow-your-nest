@@ -30,7 +30,7 @@ export const BackButton = ({
       variant="ghost"
       size="sm"
       onClick={handleBack}
-      className={`animate-fade-in ${className}`}
+      className={`${className}`}
       aria-label={ariaLabel || label}
       type="button"
     >

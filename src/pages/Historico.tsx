@@ -130,16 +130,15 @@ const Historico = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
         </div>
 
         <div
-          className="mb-6 lg:mb-8 animate-slide-in-left"
-          style={{ animationDelay: "100ms" }}
+          className="mb-6 lg:mb-8"
         >
           <h1 className="text-2xl lg:text-3xl font-bold text-foreground mb-2">
             Histórico de Transações
@@ -151,8 +150,7 @@ const Historico = () => {
 
         {/* Filters */}
         <Card
-          className="mb-6 animate-scale-in"
-          style={{ animationDelay: "200ms" }}
+          className="mb-6"
         >
           <CardHeader className="px-4 lg:px-6 py-4">
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
@@ -201,7 +199,7 @@ const Historico = () => {
         </Card>
 
         {/* Transactions List */}
-        <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
+        <Card>
           <CardHeader className="px-4 lg:px-6 py-4">
             <CardTitle className="text-base lg:text-lg flex items-center gap-2">
               <Calendar className="h-4 w-4 lg:h-5 lg:w-5" />

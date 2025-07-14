@@ -2,7 +2,13 @@ import { BackButton } from "@/components/BackButton";
 import { useFinanceExtendedContext } from "@/contexts/FinanceExtendedContext";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -18,15 +24,18 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 import { CategorizationRules } from "@/components/CategorizationRules";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const Configuracoes = () => {
-  const { transactions, categories, deleteTransaction, deleteCategory } = useFinanceExtendedContext();
+  const { transactions, categories, deleteTransaction, deleteCategory } =
+    useFinanceExtendedContext();
   const { toast } = useToast();
-  const [deleteAllTransactionsDialogOpen, setDeleteAllTransactionsDialogOpen] = useState(false);
-  const [deleteAllCategoriesDialogOpen, setDeleteAllCategoriesDialogOpen] = useState(false);
+  const [deleteAllTransactionsDialogOpen, setDeleteAllTransactionsDialogOpen] =
+    useState(false);
+  const [deleteAllCategoriesDialogOpen, setDeleteAllCategoriesDialogOpen] =
+    useState(false);
 
   const handleDeleteAllTransactions = () => {
     if (transactions.length === 0) {
@@ -38,7 +47,7 @@ const Configuracoes = () => {
       return;
     }
 
-    transactions.forEach(transaction => {
+    transactions.forEach((transaction) => {
       deleteTransaction(transaction.id);
     });
 
@@ -59,7 +68,7 @@ const Configuracoes = () => {
       return;
     }
 
-    categories.forEach(category => {
+    categories.forEach((category) => {
       deleteCategory(category.id);
     });
 
@@ -74,8 +83,8 @@ const Configuracoes = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-4xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
-          <BackButton />
+        <BackButton />
+        <div className="mb-6 flex items-center gap-4">
           <h1 className="text-2xl lg:text-3xl font-bold text-foreground">
             Configurações
           </h1>
@@ -124,7 +133,10 @@ const Configuracoes = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <AlertDialog open={deleteAllTransactionsDialogOpen} onOpenChange={setDeleteAllTransactionsDialogOpen}>
+                <AlertDialog
+                  open={deleteAllTransactionsDialogOpen}
+                  onOpenChange={setDeleteAllTransactionsDialogOpen}
+                >
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" className="w-full">
                       Excluir Todas as Transações
@@ -134,17 +146,23 @@ const Configuracoes = () => {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Esta ação irá excluir todas as suas transações. Esta ação não pode ser desfeita.
+                        Esta ação irá excluir todas as suas transações. Esta
+                        ação não pode ser desfeita.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteAllTransactions}>Excluir</AlertDialogAction>
+                      <AlertDialogAction onClick={handleDeleteAllTransactions}>
+                        Excluir
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
 
-                <AlertDialog open={deleteAllCategoriesDialogOpen} onOpenChange={setDeleteAllCategoriesDialogOpen}>
+                <AlertDialog
+                  open={deleteAllCategoriesDialogOpen}
+                  onOpenChange={setDeleteAllCategoriesDialogOpen}
+                >
                   <AlertDialogTrigger asChild>
                     <Button variant="destructive" className="w-full">
                       Excluir Todas as Categorias
@@ -154,12 +172,15 @@ const Configuracoes = () => {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Tem certeza?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Esta ação irá excluir todas as suas categorias. Esta ação não pode ser desfeita.
+                        Esta ação irá excluir todas as suas categorias. Esta
+                        ação não pode ser desfeita.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDeleteAllCategories}>Excluir</AlertDialogAction>
+                      <AlertDialogAction onClick={handleDeleteAllCategories}>
+                        Excluir
+                      </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>

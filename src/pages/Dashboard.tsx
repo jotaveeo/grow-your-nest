@@ -162,7 +162,7 @@ const Dashboard = () => {
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Mensagem de boas-vindas */}
         {showWelcome && (
-          <div className="mb-6 p-4 rounded-lg bg-primary/10 border-l-4 border-primary text-primary font-medium animate-fade-in">
+          <div className="mb-6 p-4 rounded-lg bg-primary/10 border-l-4 border-primary text-primary font-medium">
             👋 Olá{userName ? `, ${userName}` : ""}! Bem-vindo(a) ao
             FinanciControl. Obrigado por confiar no nosso sistema para organizar
             sua vida financeira!

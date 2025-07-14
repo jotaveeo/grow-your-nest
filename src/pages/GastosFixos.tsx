@@ -171,16 +171,15 @@ const GastosFixos = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background animate-fade-in">
+    <div className="min-h-screen bg-background">
       <div className="container mx-auto p-4 lg:p-6 max-w-7xl">
         {/* Header */}
-        <div className="mb-6 flex items-center gap-4 animate-slide-in-left">
+        <div className="mb-6 flex items-center gap-4">
           <BackButton />
         </div>
 
         <div
-          className="mb-6 lg:mb-8 animate-slide-in-left"
-          style={{ animationDelay: "100ms" }}
+          className="mb-6 lg:mb-8"
         >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
@@ -275,10 +274,9 @@ const GastosFixos = () => {
 
         {/* Summary Cards */}
         <div
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 animate-scale-in"
-          style={{ animationDelay: "200ms" }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
         >
-          <Card className="hover-lift">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <DollarSign className="h-4 w-4 text-blue-500" />
@@ -297,7 +295,7 @@ const GastosFixos = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover-lift">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-purple-500" />
@@ -316,7 +314,7 @@ const GastosFixos = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover-lift">
+          <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
                 <Coffee className="h-4 w-4 text-green-500" />
@@ -340,7 +338,7 @@ const GastosFixos = () => {
         {expensesByCategory.length > 0 && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
             {expensesByCategory.map((categoryGroup) => (
-              <Card key={categoryGroup.id} className="animate-scale-in">
+              <Card key={categoryGroup.id}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-lg">
                     <span style={{ color: categoryGroup.color }}>
@@ -396,7 +394,7 @@ const GastosFixos = () => {
         )}
 
         {/* All Expenses Table */}
-        <Card className="animate-scale-in" style={{ animationDelay: "300ms" }}>
+        <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-primary" />
