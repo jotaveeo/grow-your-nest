@@ -85,22 +85,21 @@ const Dashboard = () => {
     return months.map((monthIdx) => {
       const income = transactions
         .filter(
-          (t) =>
-            t.type === "income" &&
-            new Date(t.date).getMonth() === monthIdx
+          (t) => t.type === "income" && new Date(t.date).getMonth() === monthIdx
         )
         .reduce((sum, t) => sum + t.amount, 0);
 
       const expenses = transactions
         .filter(
           (t) =>
-            t.type === "expense" &&
-            new Date(t.date).getMonth() === monthIdx
+            t.type === "expense" && new Date(t.date).getMonth() === monthIdx
         )
         .reduce((sum, t) => sum + t.amount, 0);
 
       return {
-        month: new Date(0, monthIdx).toLocaleString("pt-BR", { month: "short" }),
+        month: new Date(0, monthIdx).toLocaleString("pt-BR", {
+          month: "short",
+        }),
         income,
         expenses,
       };
