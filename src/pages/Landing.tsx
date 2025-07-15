@@ -331,11 +331,11 @@ const Landing = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 ">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {plans.map((plan, index) => (
             <Card
               key={index}
-              className={`relative ${
+              className={`relative flex flex-col ${
                 plan.popular
                   ? "border-primary shadow-xl scale-105"
                   : "border-gray-200 dark:border-gray-700"
@@ -356,8 +356,8 @@ const Landing = () => {
                 </div>
                 <CardDescription className="dark:text-gray-300">{plan.description}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <ul className="space-y-3 mb-6">
+              <CardContent className="flex flex-col flex-1">
+                <ul className="space-y-3 mb-6 flex-1">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center gap-2">
                       <CheckCircle className="w-4 h-4 text-green-500" />
@@ -366,7 +366,7 @@ const Landing = () => {
                   ))}
                 </ul>
                 <Button
-                  className={`w-full ${
+                  className={`w-full mt-auto ${
                     plan.popular
                       ? "bg-primary hover:bg-primary/90"
                       : "variant-outline"
