@@ -32,7 +32,7 @@ export const PlanBadge: React.FC<PlanBadgeProps> = ({
       className={`bg-orange-100 text-orange-800 border-orange-200 ${className}`}
     >
       <Lock className="w-3 h-3 mr-1" />
-      {requiredPlan === 'essencial' ? 'Essencial' : 'Plus'}
+      {requiredPlan === 'essencial' ? 'Mensal' : 'Anual'}
     </Badge>
   );
 };

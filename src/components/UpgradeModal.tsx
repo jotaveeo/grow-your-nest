@@ -50,15 +50,16 @@ export const UpgradeModal: React.FC<UpgradeModalProps> = ({
   };
 
   const featuresList = [
+    requiredPlan === 'essencial' && 'Acesso total por 30 dias',
+    requiredPlan === 'essencial' && 'Relatórios ilimitados',
     requiredPlan === 'essencial' && 'Categorias ilimitadas',
-    requiredPlan === 'essencial' && 'Todos os relatórios',
-    requiredPlan === 'essencial' && '5 metas ativas',
-    requiredPlan === 'essencial' && 'Alertas por WhatsApp',
-    requiredPlan === 'plus' && 'Múltiplas contas',
-    requiredPlan === 'plus' && 'Metas ilimitadas',
-    requiredPlan === 'plus' && 'Automações inteligentes',
-    requiredPlan === 'plus' && 'Backup em nuvem',
-    requiredPlan === 'plus' && 'Orçamento familiar',
+    requiredPlan === 'essencial' && 'Metas ilimitadas',
+    requiredPlan === 'essencial' && 'Cancele quando quiser',
+    requiredPlan === 'plus' && 'Acesso total por 1 ano',
+    requiredPlan === 'plus' && 'Economize R$ 48 por ano',
+    requiredPlan === 'plus' && 'Todas as funcionalidades',
+    requiredPlan === 'plus' && 'Suporte prioritário',
+    requiredPlan === 'plus' && 'Melhor custo-benefício',
   ].filter(Boolean);
 
   return (

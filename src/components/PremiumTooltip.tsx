@@ -35,9 +35,9 @@ export const PremiumTooltip: React.FC<PremiumTooltipProps> = ({
   const getPlanName = () => {
     switch (requiredPlan) {
       case 'essencial':
-        return 'Essencial';
+        return 'Mensal';
       case 'plus':
-        return 'Plus';
+        return 'Anual';
       default:
         return 'Premium';
     }
