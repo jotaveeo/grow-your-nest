@@ -290,7 +290,7 @@ const Metas = () => {
             return (
               <Card
                 key={goal.id}
-                className="relative overflow-hidden"
+                className="relative h-full flex flex-col"
               >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
